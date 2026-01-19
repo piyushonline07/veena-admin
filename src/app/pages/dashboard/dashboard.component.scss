@@ -1,0 +1,21 @@
+.dashboard {
+  h2 {
+    margin-bottom: 16px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.metric {
+  font-size: 32px;
+  font-weight: 600;
+  text-align: center;
+}
+
+:host ::ng-deep .p-card.danger {
+  border-left: 4px solid #d32f2f;
+}

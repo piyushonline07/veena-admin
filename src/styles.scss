@@ -1,1 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
+.dashboard-container {
+  padding: 1.5rem;
+}
+.p-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.p-card h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.p-card h4 {
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: #f4f6f9; /* dashboard background */
+}
+

@@ -1,0 +1,44 @@
+<div class="dashboard">
+
+  <h2>Admin Dashboard</h2>
+
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+
+  <div class="grid" *ngIf="!loading">
+
+    <p-card header="Daily Active Users">
+      <div class="metric">{{ dau }}</div>
+    </p-card>
+
+    <p-card header="Total Media">
+      <div class="metric">{{ totalMedia }}</div>
+    </p-card>
+
+    <p-card header="Processing Media">
+      <div class="metric">{{ processingMedia }}</div>
+    </p-card>
+
+    <p-card header="Failed Media" styleClass="danger">
+      <div class="metric">{{ failedMedia }}</div>
+    </p-card>
+
+
+  </div>
+
+  <div class="grid">
+
+    <p-card header="DAU Trend (Last 7 days)">
+      <p-chart type="line" [data]="dauChart"></p-chart>
+    </p-card>
+
+    <p-card header="Upload Trend">
+      <p-chart type="line" [data]="uploadChart"></p-chart>
+    </p-card>
+
+    <p-card header="Media Status Distribution">
+      <p-chart type="pie" [data]="statusChart"></p-chart>
+    </p-card>
+
+  </div>
+</div>
+

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {AuthService} from "./core/services/auth.service";
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,17 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'veena-admin';
+  initialized = false;
+
+  constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    this.auth.isAdminAuthenticated().subscribe(isAuth => {
+      if (!isAuth) {
+        this.auth.redirectToLogin();
+      } else {
+        this.initialized = true;
+      }
+    });
+  }
 }
