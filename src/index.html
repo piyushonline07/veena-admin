@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>
+    // URL se token nikalne ka sabse pehle wala tareeka
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      localStorage.setItem('admin_token', token);
+      // URL ko clean karein bina reload kiye
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  </script>
   <meta charset="utf-8">
   <title>VeenaAdmin</title>
   <base href="/">

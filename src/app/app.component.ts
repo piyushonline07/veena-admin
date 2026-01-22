@@ -1,23 +1,30 @@
-import { Component } from '@angular/core';
-import {AuthService} from "./core/services/auth.service";
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from "./core/service/auth.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   initialized = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.auth.isAdminAuthenticated().subscribe(isAuth => {
-      if (!isAuth) {
-        this.auth.redirectToLogin();
-      } else {
-        this.initialized = true;
-      }
-    });
+
+    if (this.auth.isLoggedIn()) {
+      this.initialized = true;
+
+      this.router.navigate(['/'], {
+        queryParams: { token: null },
+        queryParamsHandling: 'merge'
+      });
+    }
   }
 }
