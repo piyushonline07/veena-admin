@@ -1,0 +1,19 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-layout {
+    display: flex;
+    flex: 1;
+    margin-top: 60px; // Offset for header
+}
+
+.content-area {
+    flex: 1;
+    margin-left: 250px; // Offset for sidebar
+    padding: 2rem;
+    background-color: var(--surface-ground);
+    min-height: calc(100vh - 60px);
+}

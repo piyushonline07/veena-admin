@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import {AuthService} from "../../core/service/auth.service";
+import { AnalyticsService } from '../../core/service/analytics.service';
 
 
 @Component({
@@ -9,8 +8,6 @@ import {AuthService} from "../../core/service/auth.service";
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  items: MenuItem[] = [];
-
   // DAU Chart Data
   dauChartData: any;
   dauChartOptions: any;
@@ -24,36 +21,66 @@ export class DashboardComponent implements OnInit {
   totalMAU: number = 0;
   dauGrowth: number = 0;
   mauGrowth: number = 0;
+  trendingMedia: any[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private analyticsService: AnalyticsService) { }
 
   ngOnInit() {
-    this.items = [
-      { label: 'Home', icon: 'pi pi-fw pi-home' },
-      { label: 'Users', icon: 'pi pi-fw pi-users' },
-      { label: 'Settings', icon: 'pi pi-fw pi-cog' }
-    ];
-
-    this.initializeCharts();
-    this.calculateStats();
+    this.loadStats();
+    this.loadChartData();
   }
 
-  initializeCharts() {
-    // Last 14 days labels
-    const dauLabels = this.getLast14Days();
-    const dauData = [1250, 1380, 1420, 1310, 1520, 1680, 1750, 1820, 1790, 1950, 2100, 2250, 2180, 2350];
+  loadStats() {
+    this.analyticsService.getDashboardStats().subscribe({
+      next: (data) => {
+        this.totalDAU = data.currentDAU;
+        this.totalMAU = data.currentMAU;
+        this.dauGrowth = data.dauGrowth;
+        this.mauGrowth = data.mauGrowth;
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard stats', err);
+      }
+    });
+  }
 
-    // Last 12 months labels
-    const mauLabels = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
-    const mauData = [15200, 18500, 22300, 25800, 28400, 32100, 35600, 38200, 42500, 45800, 48200, 52400];
+  loadChartData() {
+    // Load DAU Chart Data
+    this.analyticsService.getDAUChartData().subscribe({
+      next: (data: any[]) => {
+        const labels = data.map(item => {
+          const date = new Date(item.label);
+          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        const values = data.map(item => item.count);
+        this.initializeDAUChart(labels, values);
+      }
+    });
 
-    // DAU Chart Configuration
+    // Load MAU Chart Data
+    this.analyticsService.getMAUChartData().subscribe({
+      next: (data: any[]) => {
+        const labels = data.map(item => item.label);
+        const values = data.map(item => item.count);
+        this.initializeMAUChart(labels, values);
+      }
+    });
+
+    // Load Trending Media
+    this.analyticsService.getTrendingMedia().subscribe({
+      next: (data) => {
+        this.trendingMedia = data;
+      }
+    });
+  }
+
+  initializeDAUChart(labels: string[], data: number[]) {
     this.dauChartData = {
-      labels: dauLabels,
+      labels: labels,
       datasets: [
         {
           label: 'Daily Active Users',
-          data: dauData,
+          data: data,
           fill: true,
           borderColor: '#6366f1',
           backgroundColor: 'rgba(99, 102, 241, 0.15)',
@@ -71,9 +98,7 @@ export class DashboardComponent implements OnInit {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           titleColor: '#ffffff',
@@ -89,17 +114,12 @@ export class DashboardComponent implements OnInit {
       },
       scales: {
         x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            color: '#9ca3af'
-          }
+          grid: { display: false },
+          ticks: { color: '#9ca3af' }
         },
         y: {
-          grid: {
-            color: 'rgba(156, 163, 175, 0.1)'
-          },
+          beginAtZero: true,
+          grid: { color: 'rgba(156, 163, 175, 0.1)' },
           ticks: {
             color: '#9ca3af',
             callback: (value: number) => value >= 1000 ? (value / 1000) + 'k' : value
@@ -107,14 +127,15 @@ export class DashboardComponent implements OnInit {
         }
       }
     };
+  }
 
-    // MAU Chart Configuration
+  initializeMAUChart(labels: string[], data: number[]) {
     this.mauChartData = {
-      labels: mauLabels,
+      labels: labels,
       datasets: [
         {
           label: 'Monthly Active Users',
-          data: mauData,
+          data: data,
           fill: true,
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -132,9 +153,7 @@ export class DashboardComponent implements OnInit {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           titleColor: '#ffffff',
@@ -150,17 +169,12 @@ export class DashboardComponent implements OnInit {
       },
       scales: {
         x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            color: '#9ca3af'
-          }
+          grid: { display: false },
+          ticks: { color: '#9ca3af' }
         },
         y: {
-          grid: {
-            color: 'rgba(156, 163, 175, 0.1)'
-          },
+          beginAtZero: true,
+          grid: { color: 'rgba(156, 163, 175, 0.1)' },
           ticks: {
             color: '#9ca3af',
             callback: (value: number) => value >= 1000 ? (value / 1000) + 'k' : value
@@ -168,33 +182,5 @@ export class DashboardComponent implements OnInit {
         }
       }
     };
-  }
-
-  calculateStats() {
-    // Get current and previous values for comparison
-    const currentDAU = 2350;
-    const previousDAU = 2180;
-    const currentMAU = 52400;
-    const previousMAU = 48200;
-
-    this.totalDAU = currentDAU;
-    this.totalMAU = currentMAU;
-    this.dauGrowth = Math.round(((currentDAU - previousDAU) / previousDAU) * 100);
-    this.mauGrowth = Math.round(((currentMAU - previousMAU) / previousMAU) * 100);
-  }
-
-  getLast14Days(): string[] {
-    const days = [];
-    const today = new Date();
-    for (let i = 13; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    }
-    return days;
-  }
-
-  onLogout() {
-    this.authService.logout();
   }
 }
