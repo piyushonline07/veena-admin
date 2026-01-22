@@ -1,0 +1,31 @@
+.user-list-container {
+    padding: 1rem;
+
+    .header-section {
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        p {
+            margin-top: 0.5rem;
+        }
+    }
+
+    :host ::ng-deep {
+        .p-datatable {
+            .p-datatable-header {
+                background: transparent;
+                border: none;
+            }
+        }
+    }
+
+    .user-details-grid {
+        label {
+            font-weight: 600;
+            color: var(--text-color-secondary);
+        }
+    }
+}

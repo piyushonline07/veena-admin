@@ -1,0 +1,66 @@
+<div class="upload-container p-4">
+    <div class="grid">
+        <div [class]="lastUploadedMedia ? 'col-12 md:col-8' : 'col-12'">
+            <p-card header="Upload New Media">
+                <div class="grid p-fluid">
+                    <div class="col-12 md:col-6 field">
+                        <label for="title">Title</label>
+                        <input id="title" type="text" pInputText [(ngModel)]="title" placeholder="Enter title">
+                    </div>
+                    <div class="col-12 md:col-6 field">
+                        <label for="mediaType">Media Type</label>
+                        <p-dropdown [options]="mediaTypes" [(ngModel)]="mediaType" optionLabel="label"
+                            placeholder="Select type"></p-dropdown>
+                    </div>
+                    <div class="col-12 field">
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="3" pInputTextarea [(ngModel)]="description"
+                            placeholder="Enter description"></textarea>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label>Source File (Video/Audio)</label>
+                        <p-fileUpload mode="basic" name="file" (onSelect)="onFileSelect($event, 'file')"
+                            accept="video/*,audio/*" [maxFileSize]="1000000000"
+                            chooseLabel="Choose Source"></p-fileUpload>
+                        <div *ngIf="file" class="mt-2 text-sm text-gray-500">Selected: {{file.name}}</div>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label>Thumbnail (Optional for Audio)</label>
+                        <p-fileUpload mode="basic" name="thumbnail" (onSelect)="onFileSelect($event, 'thumbnail')"
+                            accept="image/*" chooseLabel="Choose Thumbnail"></p-fileUpload>
+                        <div *ngIf="thumbnail" class="mt-2 text-sm text-gray-500">Selected: {{thumbnail.name}}</div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button pButton label="Upload Media" icon="pi pi-upload" [loading]="loading"
+                            (click)="upload()"></button>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <div class="col-12 md:col-4" *ngIf="lastUploadedMedia">
+            <p-card header="Recently Uploaded" styleClass="h-full">
+                <div class="text-center">
+                    <div class="success-icon mb-4">
+                        <i class="pi pi-check-circle text-6xl text-success"></i>
+                    </div>
+                    <div class="text-xl font-bold mb-2">{{lastUploadedMedia.title}}</div>
+                    <p class="text-secondary mb-4">Your media is being processed. It will be available for preview in
+                        the Media List shortly.</p>
+
+                    <div class="flex flex-column gap-2">
+                        <a routerLink="/media-list" pButton label="Go to Media List" icon="pi pi-list"
+                            class="p-button-outlined"></a>
+                        <button pButton label="Dismiss" (click)="lastUploadedMedia = null"
+                            class="p-button-text"></button>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

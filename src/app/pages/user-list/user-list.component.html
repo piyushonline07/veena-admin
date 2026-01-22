@@ -1,0 +1,94 @@
+<div class="user-list-container">
+    <div class="header-section mb-4 flex justify-content-between align-items-end">
+        <div>
+            <h1>User Management</h1>
+            <p class="text-secondary">Browse and manage registered users.</p>
+        </div>
+        <div class="flex align-items-center gap-3">
+            <div class="search-container">
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Search by name or email..." [(ngModel)]="searchQuery"
+                        (input)="onSearch()" class="p-inputtext-sm w-20rem" />
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <p-card>
+        <p-table [value]="users" [lazy]="true" (onLazyLoad)="onPageChange($event)" [paginator]="true" [rows]="rows"
+            [totalRecords]="totalRecords" [loading]="loading" [showCurrentPageReport]="true"
+            styleClass="p-datatable-striped"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined At</th>
+                    <th style="width: 100px">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-user>
+                <tr>
+                    <td><span class="font-bold">{{user.name}}</span></td>
+                    <td>{{user.email}}</td>
+                    <td>
+                        <p-tag [value]="user.role" [severity]="user.role === 'ADMIN' ? 'danger' : 'info'"></p-tag>
+                    </td>
+                    <td>{{user.createdAt | date:'short'}}</td>
+                    <td>
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
+                            (click)="showDetails(user)" pTooltip="View Details"></button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5">No users found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</div>
+
+<p-dialog [(visible)]="userDialog" [style]="{width: '500px'}" header="User Details" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="user-details-grid">
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">User ID</label>
+                <div class="font-medium p-2 bg-gray-100 border-round">{{selectedUser.id}}</div>
+            </div>
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">Cognito ID</label>
+                <div class="font-medium p-2 bg-gray-100 border-round">{{selectedUser.cognitoUserId}}</div>
+            </div>
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">Full Name</label>
+                <div class="font-medium text-lg">{{selectedUser.name}}</div>
+            </div>
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">Email Address</label>
+                <div class="font-medium">{{selectedUser.email}}</div>
+            </div>
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">Current Role</label>
+                <p-tag [value]="selectedUser.role"
+                    [severity]="selectedUser.role === 'ADMIN' ? 'danger' : 'info'"></p-tag>
+                <small class="block mt-1 text-secondary">Roles are managed via Cognito Lambda triggers.</small>
+            </div>
+            <div class="detail-item">
+                <label class="block text-secondary text-sm mb-1">Joined Date</label>
+                <div class="font-medium">{{selectedUser.createdAt | date:'medium'}}</div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

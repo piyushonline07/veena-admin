@@ -1,0 +1,14 @@
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+
+    .field {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+}

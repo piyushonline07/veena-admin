@@ -32,13 +32,13 @@ export class DashboardComponent implements OnInit {
 
   loadStats() {
     this.analyticsService.getDashboardStats().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.totalDAU = data.currentDAU;
         this.totalMAU = data.currentMAU;
         this.dauGrowth = data.dauGrowth;
         this.mauGrowth = data.mauGrowth;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to load dashboard stats', err);
       }
     });
@@ -68,8 +68,11 @@ export class DashboardComponent implements OnInit {
 
     // Load Trending Media
     this.analyticsService.getTrendingMedia().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         this.trendingMedia = data;
+      },
+      error: (err: any) => {
+        console.error('Failed to load trending media', err);
       }
     });
   }
