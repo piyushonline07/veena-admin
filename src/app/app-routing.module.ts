@@ -3,8 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from "./core/gaurd/auth.guard";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 
-
-
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }

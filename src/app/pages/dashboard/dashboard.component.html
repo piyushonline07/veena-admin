@@ -1,0 +1,105 @@
+<div class="layout-wrapper">
+  <p-menubar [model]="items">
+    <ng-template pTemplate="start">
+      <img src="assets/logo.png" height="40" class="p-mr-2">
+      <b style="font-size: 1.2rem;">Veena Admin</b>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+      <button pButton label="Logout" icon="pi pi-power-off" class="p-button-danger p-button-text" (click)="onLogout()">
+      </button>
+    </ng-template>
+  </p-menubar>
+
+  <div class="dashboard-container">
+    <!-- Stats Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card dau-card">
+        <div class="stat-icon">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Daily Active Users</span>
+          <span class="stat-value">{{ totalDAU | number }}</span>
+          <span class="stat-trend positive">
+            <i class="pi pi-arrow-up"></i>
+            {{ dauGrowth }}% vs yesterday
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card mau-card">
+        <div class="stat-icon">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Monthly Active Users</span>
+          <span class="stat-value">{{ totalMAU | number }}</span>
+          <span class="stat-trend positive">
+            <i class="pi pi-arrow-up"></i>
+            {{ mauGrowth }}% vs last month
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card retention-card">
+        <div class="stat-icon">
+          <i class="pi pi-heart"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Retention Rate</span>
+          <span class="stat-value">78.5%</span>
+          <span class="stat-trend positive">
+            <i class="pi pi-arrow-up"></i>
+            3.2% improvement
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card avg-card">
+        <div class="stat-icon">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Avg. Session</span>
+          <span class="stat-value">12m 34s</span>
+          <span class="stat-trend positive">
+            <i class="pi pi-arrow-up"></i>
+            1m 20s increase
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <!-- DAU Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <i class="pi pi-chart-bar"></i>
+            <span>Daily Active Users</span>
+          </div>
+          <span class="chart-subtitle">Last 14 days</span>
+        </div>
+        <div class="chart-container">
+          <p-chart type="line" [data]="dauChartData" [options]="dauChartOptions" [height]="'100%'"></p-chart>
+        </div>
+      </div>
+
+      <!-- MAU Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <i class="pi pi-chart-line"></i>
+            <span>Monthly Active Users</span>
+          </div>
+          <span class="chart-subtitle">Last 12 months</span>
+        </div>
+        <div class="chart-container">
+          <p-chart type="line" [data]="mauChartData" [options]="mauChartOptions" [height]="'100%'"></p-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
