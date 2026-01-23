@@ -45,8 +45,8 @@
                 <ng-template pTemplate="body" let-media>
                     <tr>
                         <td (click)="previewMedia(media)" class="cursor-pointer">
-                            <img [src]="media.thumbnailKey ? ('https://d1zz20p5id8x5j.cloudfront.net/' + media.thumbnailKey) : 'assets/placeholder-thumb.png'"
-                                [alt]="media.title" width="60" class="shadow-2 border-round" />
+                            <img [src]="media.thumbnailUrl || 'assets/placeholder-thumb.png'" [alt]="media.title"
+                                width="60" class="shadow-2 border-round" />
                         </td>
                         <td>
                             <span class="font-bold text-lg cursor-pointer"
@@ -96,8 +96,7 @@
         <div class="media-grid" *ngIf="!loading && mediaList.length > 0">
             <div *ngFor="let media of mediaList" class="media-card" (click)="previewMedia(media)">
                 <div class="thumbnail-container">
-                    <img [src]="media.thumbnailKey ? ('https://d1zz20p5id8x5j.cloudfront.net/' + media.thumbnailKey) : 'assets/placeholder-thumb.png'"
-                        [alt]="media.title">
+                    <img [src]="media.thumbnailUrl || 'assets/placeholder-thumb.png'" [alt]="media.title">
                     <div class="card-overlay" *ngIf="media.status === 'READY'">
                         <i class="pi pi-play-circle" *ngIf="media.mediaType === 'VIDEO'"></i>
                         <i class="pi pi-volume-up" *ngIf="media.mediaType === 'AUDIO'"></i>
@@ -174,19 +173,25 @@
     [modal]="true" class="p-fluid" (onHide)="closePreview()">
 
     <div *ngIf="previewDialog && selectedMediaForPreview">
-        <app-hls-player [url]="selectedMediaForPreview.hlsUrl"
-            [posterUrl]="selectedMediaForPreview.thumbnailKey ? ('https://d1zz20p5id8x5j.cloudfront.net/' + selectedMediaForPreview.thumbnailKey) : ''"
-            [mediaType]="selectedMediaForPreview.mediaType" maxHeight="500px">
+        <app-hls-player *ngIf="selectedMediaForPreview.mediaType === 'VIDEO'" [url]="selectedMediaForPreview.hlsUrl"
+            [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''" [mediaType]="selectedMediaForPreview.mediaType"
+            maxHeight="500px">
         </app-hls-player>
+
+        <app-hls-audio-player *ngIf="selectedMediaForPreview.mediaType === 'AUDIO'"
+            [url]="selectedMediaForPreview.hlsUrl" [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''">
+        </app-hls-audio-player>
     </div>
 
     <div class="mt-3" *ngIf="selectedMediaForPreview">
         <div class="text-xl font-bold mb-2">{{selectedMediaForPreview.title}}</div>
         <p class="text-secondary line-height-3">{{selectedMediaForPreview.description}}</p>
-        <div class="flex gap-2 mt-2">
+        <div class="flex align-items-center gap-2 mt-2">
             <p-tag [value]="selectedMediaForPreview.mediaType" severity="info"></p-tag>
             <p-tag [value]="selectedMediaForPreview.visibility"
                 [severity]="selectedMediaForPreview.visibility === 'PUBLIC' ? 'success' : 'danger'"></p-tag>
+            <a [href]="selectedMediaForPreview.lyricsUrl" target="_blank" pButton icon="pi pi-file" label="View Lyrics"
+                class="p-button-sm p-button-outlined" *ngIf="selectedMediaForPreview.lyricsUrl"></a>
         </div>
     </div>
 </p-dialog>

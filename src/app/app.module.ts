@@ -26,6 +26,7 @@ import { HeaderComponent } from './core/components/header/header.component';
 import { SidebarComponent } from './core/components/sidebar/sidebar.component';
 import { MenuModule } from 'primeng/menu';
 import { HlsPlayerComponent } from './core/components/hls-player/hls-player.component';
+import { HlsAudioPlayerComponent } from './core/components/hls-audio-player/hls-audio-player.component';
 import { MediaListComponent } from './pages/media-list/media-list.component';
 import { TagModule } from 'primeng/tag';
 import { UserListComponent } from './pages/user-list/user-list.component';
@@ -47,7 +48,8 @@ import { TooltipModule } from 'primeng/tooltip';
     SidebarComponent,
     MediaListComponent,
     UserListComponent,
-    HlsPlayerComponent
+    HlsPlayerComponent,
+    HlsAudioPlayerComponent
   ],
   imports: [
     InputTextareaModule,

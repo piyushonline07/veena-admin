@@ -19,6 +19,7 @@ export class UploadMediaComponent implements OnInit {
 
     file: File | null = null;
     thumbnail: File | null = null;
+    lyrics: File | null = null;
     loading: boolean = false;
     lastUploadedMedia: any = null;
 
@@ -35,6 +36,8 @@ export class UploadMediaComponent implements OnInit {
             this.file = event.files[0];
         } else if (type === 'thumbnail') {
             this.thumbnail = event.files[0];
+        } else if (type === 'lyrics') {
+            this.lyrics = event.files[0];
         }
     }
 
@@ -52,6 +55,9 @@ export class UploadMediaComponent implements OnInit {
         formData.append('file', this.file);
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
+        }
+        if (this.lyrics) {
+            formData.append('lyrics', this.lyrics);
         }
 
         this.mediaService.uploadMedia(formData).subscribe({
@@ -75,5 +81,6 @@ export class UploadMediaComponent implements OnInit {
         this.mediaType = null;
         this.file = null;
         this.thumbnail = null;
+        this.lyrics = null;
     }
 }

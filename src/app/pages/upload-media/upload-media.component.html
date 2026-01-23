@@ -27,10 +27,17 @@
                     </div>
 
                     <div class="col-12 md:col-6 field">
-                        <label>Thumbnail (Optional for Audio)</label>
+                        <label>Thumbnail (Optional)</label>
                         <p-fileUpload mode="basic" name="thumbnail" (onSelect)="onFileSelect($event, 'thumbnail')"
                             accept="image/*" chooseLabel="Choose Thumbnail"></p-fileUpload>
                         <div *ngIf="thumbnail" class="mt-2 text-sm text-gray-500">Selected: {{thumbnail.name}}</div>
+                    </div>
+
+                    <div class="col-12 md:col-6 field">
+                        <label>Lyrics (Optional)</label>
+                        <p-fileUpload mode="basic" name="lyrics" (onSelect)="onFileSelect($event, 'lyrics')"
+                            accept=".lrc,.txt" chooseLabel="Choose Lyrics"></p-fileUpload>
+                        <div *ngIf="lyrics" class="mt-2 text-sm text-gray-500">Selected: {{lyrics.name}}</div>
                     </div>
 
                     <div class="col-12 mt-4">
