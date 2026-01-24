@@ -38,6 +38,8 @@ export class MediaListComponent implements OnInit {
     }
 
     previewMedia(media: any) {
+        console.log('[MediaList] Preview media:', media);
+        console.log('[MediaList] lyricsUrl:', media.lyricsUrl);
         this.selectedMediaForPreview = { ...media };
         this.previewDialog = true;
     }

@@ -35,10 +35,10 @@
       </div>
       <div class="stat-content">
         <span class="stat-label">Retention Rate</span>
-        <span class="stat-value">78.5%</span>
+        <span class="stat-value">{{ retentionRate | number:'1.1-1' }}%</span>
         <span class="stat-trend positive">
-          <i class="pi pi-arrow-up"></i>
-          3.2% improvement
+          <i class="pi pi-info-circle"></i>
+          30-day active retention
         </span>
       </div>
     </div>
@@ -48,11 +48,11 @@
         <i class="pi pi-clock"></i>
       </div>
       <div class="stat-content">
-        <span class="stat-label">Avg. Session</span>
-        <span class="stat-value">12m 34s</span>
+        <span class="stat-label">Avg. Engagement</span>
+        <span class="stat-value">{{ avgSessionMinutes | number:'1.1-1' }} min</span>
         <span class="stat-trend positive">
-          <i class="pi pi-arrow-up"></i>
-          1m 20s increase
+          <i class="pi pi-info-circle"></i>
+          Daily per user
         </span>
       </div>
     </div>

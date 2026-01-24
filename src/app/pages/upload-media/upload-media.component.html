@@ -12,6 +12,22 @@
                         <p-dropdown [options]="mediaTypes" [(ngModel)]="mediaType" optionLabel="label"
                             placeholder="Select type"></p-dropdown>
                     </div>
+                    <div class="col-12 md:col-6 field">
+                        <label for="artist">Artist (Optional)</label>
+                        <p-dropdown [options]="artists" [(ngModel)]="selectedArtist" optionLabel="name"
+                            placeholder="Select artist" [showClear]="true" [filter]="true" filterBy="name">
+                            <ng-template let-artist pTemplate="item">
+                                <div class="flex align-items-center gap-2">
+                                    <span>{{artist.name}}</span>
+                                    <i *ngIf="artist.verified" class="pi pi-verified text-primary text-sm"></i>
+                                    <small *ngIf="artist.genre" class="text-secondary ml-auto">{{artist.genre}}</small>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-6 field">
+                        <!-- Empty for layout balance -->
+                    </div>
                     <div class="col-12 field">
                         <label for="description">Description</label>
                         <textarea id="description" rows="3" pInputTextarea [(ngModel)]="description"
@@ -36,7 +52,7 @@
                     <div class="col-12 md:col-6 field">
                         <label>Lyrics (Optional)</label>
                         <p-fileUpload mode="basic" name="lyrics" (onSelect)="onFileSelect($event, 'lyrics')"
-                            accept=".lrc,.txt" chooseLabel="Choose Lyrics"></p-fileUpload>
+                            accept=".srt,.vtt" chooseLabel="Choose Lyrics"></p-fileUpload>
                         <div *ngIf="lyrics" class="mt-2 text-sm text-gray-500">Selected: {{lyrics.name}}</div>
                     </div>
 

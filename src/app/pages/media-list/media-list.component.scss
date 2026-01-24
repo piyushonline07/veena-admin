@@ -3,13 +3,14 @@
 
     .header-section {
         h1 {
-            color: var(--primary-color);
+            color: var(--text-primary);
             margin: 0;
             font-size: 2rem;
         }
 
         p {
             margin-top: 0.5rem;
+            color: var(--text-secondary);
         }
     }
 
@@ -21,16 +22,16 @@
     }
 
     .media-card {
-        background: var(--surface-card);
+        background: var(--bg-card);
         border-radius: 12px;
         overflow: hidden;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 1px solid var(--surface-border);
+        border: 1px solid var(--border-color);
         cursor: pointer;
 
         &:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
 
             .card-overlay {
                 opacity: 1;
@@ -97,12 +98,12 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                color: var(--text-color);
+                color: var(--text-primary);
             }
 
             .media-description {
                 font-size: 0.85rem;
-                color: var(--text-color-secondary);
+                color: var(--text-secondary);
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
@@ -116,7 +117,7 @@
                 justify-content: space-between;
                 align-items: center;
                 padding-top: 0.5rem;
-                border-top: 1px solid var(--surface-border);
+                border-top: 1px solid var(--border-color);
             }
         }
     }
@@ -126,12 +127,14 @@
             margin-right: 1rem;
 
             .p-button {
-                background: var(--surface-card);
-                border: 1px solid var(--surface-border);
+                background: var(--bg-card);
+                border: 1px solid var(--border-color);
+                color: var(--text-secondary);
 
                 &.p-highlight {
-                    background: var(--primary-color);
+                    background: var(--accent-primary);
                     color: #fff;
+                    border-color: var(--accent-primary);
                 }
             }
         }

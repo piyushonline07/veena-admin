@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,6 +32,7 @@ import { HlsAudioPlayerComponent } from './core/components/hls-audio-player/hls-
 import { MediaListComponent } from './pages/media-list/media-list.component';
 import { TagModule } from 'primeng/tag';
 import { UserListComponent } from './pages/user-list/user-list.component';
+import { ArtistListComponent } from './pages/artist-list/artist-list.component';
 import { DialogModule } from "primeng/dialog";
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -39,6 +41,17 @@ import { TooltipModule } from 'primeng/tooltip';
 
 
 
+
+import { MarketingComponent } from './pages/marketing/marketing.component';
+import { OperationsComponent } from './pages/operations/operations.component';
+import { TabViewModule } from 'primeng/tabview';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { CalendarModule } from 'primeng/calendar';
+import { DividerModule } from "primeng/divider";
+import { CheckboxModule } from 'primeng/checkbox';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+
+import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.component';
 
 @NgModule({
   declarations: [
@@ -49,8 +62,12 @@ import { TooltipModule } from 'primeng/tooltip';
     SidebarComponent,
     MediaListComponent,
     UserListComponent,
+    ArtistListComponent,
     HlsPlayerComponent,
-    HlsAudioPlayerComponent
+    HlsAudioPlayerComponent,
+    SyncLyricsComponent,
+    MarketingComponent,
+    OperationsComponent
   ],
   imports: [
     InputTextareaModule,
@@ -64,6 +81,7 @@ import { TooltipModule } from 'primeng/tooltip';
     ButtonModule,
     ChartModule,
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     MenubarModule,
@@ -76,7 +94,13 @@ import { TooltipModule } from 'primeng/tooltip';
     SelectButtonModule,
     ProgressSpinnerModule,
     PaginatorModule,
-    TooltipModule
+    TooltipModule,
+    TabViewModule,
+    ProgressBarModule,
+    CalendarModule,
+    DividerModule,
+    CheckboxModule,
+    ConfirmDialogModule
   ],
   providers: [
     MessageService,

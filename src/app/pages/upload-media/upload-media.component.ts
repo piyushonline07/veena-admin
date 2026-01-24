@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
+import { ArtistService, Artist } from '../../core/service/artist.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -17,6 +18,10 @@ export class UploadMediaComponent implements OnInit {
         { label: 'Audio', value: 'AUDIO' }
     ];
 
+    // Artist selection
+    artists: Artist[] = [];
+    selectedArtist: Artist | null = null;
+
     file: File | null = null;
     thumbnail: File | null = null;
     lyrics: File | null = null;
@@ -25,10 +30,23 @@ export class UploadMediaComponent implements OnInit {
 
     constructor(
         private mediaService: MediaService,
+        private artistService: ArtistService,
         private messageService: MessageService
     ) { }
 
     ngOnInit(): void {
+        this.loadArtists();
+    }
+
+    loadArtists() {
+        this.artistService.getAllActiveArtists().subscribe({
+            next: (artists) => {
+                this.artists = artists;
+            },
+            error: (err) => {
+                console.error('Failed to load artists', err);
+            }
+        });
     }
 
     onFileSelect(event: any, type: string) {
@@ -53,6 +71,10 @@ export class UploadMediaComponent implements OnInit {
         formData.append('description', this.description);
         formData.append('mediaType', this.mediaType.value);
         formData.append('file', this.file);
+
+        if (this.selectedArtist?.id) {
+            formData.append('artistId', this.selectedArtist.id.toString());
+        }
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -79,8 +101,10 @@ export class UploadMediaComponent implements OnInit {
         this.title = '';
         this.description = '';
         this.mediaType = null;
+        this.selectedArtist = null;
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;
     }
 }
+

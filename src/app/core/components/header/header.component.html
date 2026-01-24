@@ -1,9 +1,19 @@
 <div class="header-container">
     <div class="header-left">
+        <button pButton icon="pi pi-bars" class="p-button-rounded p-button-text mr-2" (click)="toggleSidebar()"
+            pTooltip="Toggle Sidebar" tooltipPosition="bottom">
+        </button>
         <img src="assets/logo.png" height="40" class="logo">
         <span class="title">Veena Admin</span>
     </div>
     <div class="header-right">
+        <!-- Theme Toggle Button -->
+        <button pButton [icon]="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
+            class="p-button-rounded p-button-text theme-toggle"
+            [pTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" tooltipPosition="bottom"
+            (click)="toggleTheme()">
+        </button>
+
         <button pButton label="Logout" icon="pi pi-power-off" class="p-button-danger p-button-text"
             (click)="onLogout()">
         </button>

@@ -1,6 +1,7 @@
 .upload-container {
     max-width: 800px;
     margin: 0 auto;
+    padding: 1rem;
 
     .field {
         margin-bottom: 1.5rem;
@@ -10,5 +11,6 @@
         display: block;
         margin-bottom: 0.5rem;
         font-weight: 600;
+        color: var(--text-primary);
     }
 }

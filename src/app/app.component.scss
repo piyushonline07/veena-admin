@@ -14,6 +14,29 @@
     flex: 1;
     margin-left: 250px; // Offset for sidebar
     padding: 2rem;
-    background-color: var(--surface-ground);
+    background-color: var(--bg-primary);
     min-height: calc(100vh - 60px);
+    transition: margin-left 0.3s ease, background-color 0.3s ease;
+}
+
+/* Sidebar Closed State */
+.sidebar-closed .content-area {
+    margin-left: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .content-area {
+        margin-left: 0 !important;
+        padding: 1rem;
+    }
+
+    .sidebar-wrapper {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        bottom: 0;
+        z-index: 999;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
 }

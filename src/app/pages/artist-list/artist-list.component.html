@@ -1,0 +1,193 @@
+<div class="artist-list-container">
+    <div class="header-section mb-4 flex justify-content-between align-items-end">
+        <div>
+            <h1>Artist Management</h1>
+            <p class="text-secondary">Manage artists, their profiles, and verify their accounts.</p>
+        </div>
+        <div class="flex align-items-center gap-3">
+            <div class="search-container">
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Search by name or genre..." [(ngModel)]="searchQuery"
+                        (input)="onSearch()" class="p-inputtext-sm w-20rem" />
+                </span>
+            </div>
+            <button pButton label="Add Artist" icon="pi pi-plus" class="p-button-success" (click)="openNewArtist()"></button>
+        </div>
+    </div>
+
+    <p-card>
+        <p-table [value]="artists" [lazy]="true" (onLazyLoad)="onPageChange($event)" [paginator]="true" [rows]="rows"
+            [totalRecords]="totalRecords" [loading]="loading" [showCurrentPageReport]="true"
+            styleClass="p-datatable-striped"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 60px">Image</th>
+                    <th>Name</th>
+                    <th>Genre</th>
+                    <th>Country</th>
+                    <th>Monthly Listeners</th>
+                    <th>Status</th>
+                    <th style="width: 150px">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-artist>
+                <tr>
+                    <td>
+                        <div class="artist-avatar">
+                            <img *ngIf="artist.imageUrl" [src]="artist.imageUrl" [alt]="artist.name" class="artist-img" />
+                            <div *ngIf="!artist.imageUrl" class="artist-placeholder">
+                                <i class="pi pi-user"></i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center gap-2">
+                            <span class="font-bold">{{artist.name}}</span>
+                            <i *ngIf="artist.verified" class="pi pi-verified text-primary" pTooltip="Verified Artist"></i>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag *ngIf="artist.genre" [value]="artist.genre" severity="info"></p-tag>
+                        <span *ngIf="!artist.genre" class="text-secondary">-</span>
+                    </td>
+                    <td>{{artist.country || '-'}}</td>
+                    <td>{{formatNumber(artist.monthlyListeners)}}</td>
+                    <td>
+                        <p-tag [value]="artist.active ? 'Active' : 'Inactive'" 
+                               [severity]="artist.active ? 'success' : 'danger'"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
+                                (click)="editArtist(artist)" pTooltip="Edit"></button>
+                            <button pButton [icon]="artist.verified ? 'pi pi-times-circle' : 'pi pi-check-circle'" 
+                                class="p-button-rounded p-button-text p-button-sm"
+                                [class.p-button-success]="!artist.verified"
+                                [class.p-button-warning]="artist.verified"
+                                (click)="toggleVerification(artist)" 
+                                [pTooltip]="artist.verified ? 'Remove Verification' : 'Verify Artist'"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                (click)="confirmDelete(artist)" pTooltip="Delete"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center p-4">
+                        <div class="empty-state">
+                            <i class="pi pi-users text-4xl text-secondary mb-3"></i>
+                            <p>No artists found. Add your first artist!</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</div>
+
+<!-- Artist Edit/Create Dialog -->
+<p-dialog [(visible)]="artistDialog" [style]="{width: '700px'}" 
+          [header]="isNewArtist ? 'Add New Artist' : 'Edit Artist'" 
+          [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <!-- Basic Info -->
+            <div class="col-12">
+                <h4 class="mt-0 mb-3 text-primary">Basic Information</h4>
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="name" class="block text-sm font-medium mb-2">Artist Name *</label>
+                <input id="name" type="text" pInputText [(ngModel)]="selectedArtist.name" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="genre" class="block text-sm font-medium mb-2">Genre</label>
+                <p-dropdown id="genre" [options]="genres" [(ngModel)]="selectedArtist.genre" 
+                            placeholder="Select Genre" [showClear]="true" styleClass="w-full"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="country" class="block text-sm font-medium mb-2">Country</label>
+                <p-dropdown id="country" [options]="countries" [(ngModel)]="selectedArtist.country" 
+                            placeholder="Select Country" [showClear]="true" styleClass="w-full"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="monthlyListeners" class="block text-sm font-medium mb-2">Monthly Listeners</label>
+                <input id="monthlyListeners" type="number" pInputText [(ngModel)]="selectedArtist.monthlyListeners" class="w-full" />
+            </div>
+            <div class="col-12">
+                <label for="bio" class="block text-sm font-medium mb-2">Biography</label>
+                <textarea id="bio" pInputTextarea [(ngModel)]="selectedArtist.bio" rows="3" class="w-full"></textarea>
+            </div>
+
+            <!-- Image & Links -->
+            <div class="col-12 mt-3">
+                <h4 class="mt-0 mb-3 text-primary">Image & Social Links</h4>
+            </div>
+            <div class="col-12">
+                <label for="imageUrl" class="block text-sm font-medium mb-2">Image URL</label>
+                <input id="imageUrl" type="text" pInputText [(ngModel)]="selectedArtist.imageUrl" class="w-full" 
+                       placeholder="https://example.com/artist-image.jpg" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="spotifyUrl" class="block text-sm font-medium mb-2">
+                    <i class="pi pi-spotify mr-1"></i> Spotify URL
+                </label>
+                <input id="spotifyUrl" type="text" pInputText [(ngModel)]="selectedArtist.spotifyUrl" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="youtubeUrl" class="block text-sm font-medium mb-2">
+                    <i class="pi pi-youtube mr-1"></i> YouTube URL
+                </label>
+                <input id="youtubeUrl" type="text" pInputText [(ngModel)]="selectedArtist.youtubeUrl" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="instagramUrl" class="block text-sm font-medium mb-2">
+                    <i class="pi pi-instagram mr-1"></i> Instagram URL
+                </label>
+                <input id="instagramUrl" type="text" pInputText [(ngModel)]="selectedArtist.instagramUrl" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label for="websiteUrl" class="block text-sm font-medium mb-2">
+                    <i class="pi pi-globe mr-1"></i> Website URL
+                </label>
+                <input id="websiteUrl" type="text" pInputText [(ngModel)]="selectedArtist.websiteUrl" class="w-full" />
+            </div>
+
+            <!-- Status -->
+            <div class="col-12 mt-3">
+                <h4 class="mt-0 mb-3 text-primary">Status</h4>
+            </div>
+            <div class="col-12 md:col-6 flex align-items-center">
+                <p-checkbox [(ngModel)]="selectedArtist.verified" [binary]="true" inputId="verified"></p-checkbox>
+                <label for="verified" class="ml-2">Verified Artist</label>
+            </div>
+            <div class="col-12 md:col-6 flex align-items-center">
+                <p-checkbox [(ngModel)]="selectedArtist.active" [binary]="true" inputId="active"></p-checkbox>
+                <label for="active" class="ml-2">Active</label>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton label="Save" icon="pi pi-check" class="p-button-primary" (click)="saveArtist()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Confirmation Dialog -->
+<p-dialog [(visible)]="deleteDialog" header="Confirm Delete" [modal]="true" [style]="{width:'400px'}">
+    <div class="flex align-items-center">
+        <i class="pi pi-exclamation-triangle mr-3 text-warning" style="font-size: 2rem"></i>
+        <span>Are you sure you want to delete <b>{{selectedArtist.name}}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="No" icon="pi pi-times" class="p-button-text" (click)="deleteDialog = false"></button>
+        <button pButton label="Yes" icon="pi pi-check" class="p-button-danger" (click)="deleteArtist()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

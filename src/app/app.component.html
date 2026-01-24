@@ -1,7 +1,9 @@
-<div class="app-container">
+<div class="app-container" [class.sidebar-open]="isSidebarVisible" [class.sidebar-closed]="!isSidebarVisible">
     <app-header></app-header>
     <div class="main-layout">
-        <app-sidebar></app-sidebar>
+        <div class="sidebar-wrapper" *ngIf="isSidebarVisible">
+            <app-sidebar></app-sidebar>
+        </div>
         <main class="content-area">
             <router-outlet></router-outlet>
         </main>

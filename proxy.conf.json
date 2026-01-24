@@ -1,0 +1,11 @@
+{
+    "/api/lyrics/*": {
+        "target": "https://d1msstr5h8ki3v.cloudfront.net",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/api/lyrics": ""
+        },
+        "logLevel": "debug"
+    }
+}

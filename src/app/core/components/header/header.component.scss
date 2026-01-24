@@ -1,7 +1,7 @@
 .header-container {
     height: 60px;
-    background-color: var(--surface-card);
-    border-bottom: 1px solid var(--surface-border);
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -11,7 +11,8 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 
     .header-left {
         display: flex;
@@ -21,7 +22,49 @@
         .title {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--accent-primary);
         }
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+/* Theme Toggle Button Styles */
+.theme-toggle {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease !important;
+    color: var(--text-primary) !important;
+    background: transparent !important;
+
+    &:hover {
+        background: var(--bg-secondary) !important;
+        transform: rotate(15deg);
+    }
+
+    .pi {
+        font-size: 1.25rem;
+    }
+}
+
+/* Sun icon animation for dark mode */
+:host-context(body.dark-theme) .theme-toggle {
+    .pi-sun {
+        color: #fbbf24;
+    }
+}
+
+/* Moon icon styling for light mode */
+:host-context(body.light-theme) .theme-toggle {
+    .pi-moon {
+        color: var(--accent-primary);
     }
 }

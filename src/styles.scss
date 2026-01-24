@@ -1,25 +1,302 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========================================
+   VEENA ADMIN - GLOBAL STYLES
+   Theme-aware with CSS Variables
+======================================== */
+
+/* ========================================
+   CSS VARIABLES - THEME SYSTEM
+======================================== */
+
+:root {
+  /* Light Theme (default) */
+  --bg-primary: #f4f6f9;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  /* Sticky light sidebar in light theme */
+  --bg-header: #ffffff;
+
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ========================================
+   DARK THEME OVERRIDES
+======================================== */
+body.dark-theme {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-sidebar: #0f172a;
+  --bg-header: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #f1f5f9;
+  /* Text should be light on dark sidebar */
+
+  --border-color: #334155;
+  --border-light: #1e293b;
+
+  --accent-primary: #818cf8;
+  --accent-secondary: #a78bfa;
+  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   BASE STYLES
+======================================== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ========================================
+   COMPONENT OVERRIDES
+======================================== */
 .dashboard-container {
   padding: 1.5rem;
 }
+
+/* PrimeNG Card Overrides */
 .p-card {
+  background: var(--bg-card) !important;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.p-card .p-card-title {
+  color: var(--text-primary);
+}
+
+.p-card .p-card-content {
+  color: var(--text-secondary);
 }
 
 .p-card h2 {
   margin: 0;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .p-card h4 {
   margin-bottom: 0.5rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   font-weight: 500;
 }
-body {
-  margin: 0;
-  font-family: var(--font-family);
-  background-color: #f4f6f9; /* dashboard background */
+
+/* PrimeNG Table Overrides */
+.p-datatable {
+  background: var(--bg-card);
 }
 
+.p-datatable .p-datatable-header {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.p-datatable .p-datatable-thead>tr>th {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-datatable .p-datatable-tbody>tr {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.2s ease;
+}
+
+.p-datatable .p-datatable-tbody>tr:nth-child(even) {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.p-datatable .p-datatable-tbody>tr>td {
+  border-color: var(--border-color);
+}
+
+.p-datatable .p-datatable-tbody>tr:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* PrimeNG Input Overrides */
+.p-inputtext {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-inputtext:focus {
+  border-color: var(--accent-primary) !important;
+}
+
+.p-dropdown {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-dropdown .p-dropdown-label {
+  color: var(--text-primary) !important;
+}
+
+.p-dropdown-panel {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item:hover {
+  background: var(--bg-secondary) !important;
+}
+
+/* PrimeNG Dialog Overrides */
+.p-dialog {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.p-dialog .p-dialog-header {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.p-dialog .p-dialog-content {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.p-dialog .p-dialog-footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+}
+
+/* PrimeNG Menu/Sidebar Overrides */
+.p-menu {
+  background: var(--bg-sidebar);
+  color: var(--text-inverse);
+}
+
+.p-menu .p-menuitem-link {
+  color: var(--text-inverse) !important;
+}
+
+/* PrimeNG Toast */
+body.dark-theme .p-toast .p-toast-message {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* PrimeNG Paginator */
+.p-paginator {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page {
+  color: var(--text-primary);
+}
+
+/* Text Area */
+.p-inputtextarea {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Checkbox */
+.p-checkbox .p-checkbox-box {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* ========================================
+   UTILITY CLASSES
+======================================== */
+.text-primary {
+  color: var(--text-primary) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.bg-primary {
+  background-color: var(--bg-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary) !important;
+}
+
+.bg-card {
+  background-color: var(--bg-card) !important;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+body.dark-theme ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}

@@ -21,6 +21,8 @@ export class DashboardComponent implements OnInit {
   totalMAU: number = 0;
   dauGrowth: number = 0;
   mauGrowth: number = 0;
+  retentionRate: number = 0;
+  avgSessionMinutes: number = 0;
   trendingMedia: any[] = [];
 
   constructor(private analyticsService: AnalyticsService) { }
@@ -37,6 +39,8 @@ export class DashboardComponent implements OnInit {
         this.totalMAU = data.currentMAU;
         this.dauGrowth = data.dauGrowth;
         this.mauGrowth = data.mauGrowth;
+        this.retentionRate = data.retentionRate;
+        this.avgSessionMinutes = data.avgSessionMinutes;
       },
       error: (err: any) => {
         console.error('Failed to load dashboard stats', err);

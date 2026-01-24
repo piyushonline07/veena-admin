@@ -1,0 +1,120 @@
+<div class="marketing-container">
+    <h1>Marketing & Notifications</h1>
+
+    <!-- Push Notifications Section -->
+    <p-card header="Push Notifications" styleClass="mb-4">
+        <div class="p-fluid">
+            <div class="field">
+                <label for="title">Title</label>
+                <input pInputText id="title" [(ngModel)]="newNotif.title" placeholder="Notification title" />
+            </div>
+            <div class="field">
+                <label for="body">Body</label>
+                <textarea pInputTextarea id="body" [(ngModel)]="newNotif.body" rows="3"
+                    placeholder="Notification message"></textarea>
+            </div>
+            <div class="field">
+                <label for="imageUrl">Image URL (optional)</label>
+                <input pInputText id="imageUrl" [(ngModel)]="newNotif.imageUrl" placeholder="https://..." />
+            </div>
+            <div class="field">
+                <label for="targetGroup">Target Audience</label>
+                <p-dropdown id="targetGroup" [options]="targetGroups" [(ngModel)]="newNotif.targetGroup"
+                    optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+            <p-button label="Save Draft" icon="pi pi-save" (onClick)="onSaveNotif()"
+                styleClass="p-button-success"></p-button>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4>Saved Notifications</h4>
+        <p-table [value]="notifications" [paginator]="true" [rows]="5" *ngIf="notifications.length > 0">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Title</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-notif>
+                <tr>
+                    <td>{{ notif.title }}</td>
+                    <td>{{ notif.targetGroup }}</td>
+                    <td>
+                        <p-tag [value]="notif.status" [severity]="notif.status === 'SENT' ? 'success' : 'info'"></p-tag>
+                    </td>
+                    <td>
+                        <p-button *ngIf="notif.status !== 'SENT'" icon="pi pi-send" label="Send"
+                            (onClick)="onSendNotif(notif.id)" styleClass="p-button-sm p-button-outlined">
+                        </p-button>
+                        <span *ngIf="notif.status === 'SENT'" class="text-green-500">
+                            <i class="pi pi-check-circle"></i> Sent {{ notif.sentAt | date:'short' }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="notifications.length === 0" class="text-gray-500">No notifications yet.</p>
+    </p-card>
+
+    <!-- Featured Content Section -->
+    <p-card header="Featured Content Scheduling" styleClass="mb-4">
+        <div class="p-fluid">
+            <div class="field">
+                <label for="mediaId">Media ID</label>
+                <input pInputText id="mediaId" [(ngModel)]="newFeature.mediaId" placeholder="Enter media UUID" />
+            </div>
+            <div class="field">
+                <label for="slotIndex">Featured Slot</label>
+                <p-dropdown id="slotIndex" [options]="slotOptions" [(ngModel)]="newFeature.slotIndex"
+                    optionLabel="label" optionValue="value"></p-dropdown>
+            </div>
+            <div class="grid">
+                <div class="col-6 field">
+                    <label for="startTime">Start Time</label>
+                    <p-calendar id="startTime" [(ngModel)]="newFeature.startTime" [showTime]="true"
+                        dateFormat="yy-mm-dd"></p-calendar>
+                </div>
+                <div class="col-6 field">
+                    <label for="endTime">End Time</label>
+                    <p-calendar id="endTime" [(ngModel)]="newFeature.endTime" [showTime]="true"
+                        dateFormat="yy-mm-dd"></p-calendar>
+                </div>
+            </div>
+            <p-button label="Schedule Feature" icon="pi pi-calendar-plus" (onClick)="onScheduleFeature()"
+                styleClass="p-button-primary"></p-button>
+        </div>
+
+        <p-divider></p-divider>
+
+        <h4>Scheduled Features</h4>
+        <p-table [value]="featuredSchedules" [paginator]="true" [rows]="5" *ngIf="featuredSchedules.length > 0">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Media ID</th>
+                    <th>Slot</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-feat>
+                <tr>
+                    <td>{{ feat.mediaId }}</td>
+                    <td>{{ slotOptions[feat.slotIndex]?.label || 'Slot ' + feat.slotIndex }}</td>
+                    <td>{{ feat.startTime | date:'short' }}</td>
+                    <td>{{ feat.endTime | date:'short' }}</td>
+                    <td>
+                        <p-button icon="pi pi-trash" (onClick)="onDeleteFeature(feat.id)"
+                            styleClass="p-button-sm p-button-danger p-button-outlined"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="featuredSchedules.length === 0" class="text-gray-500">No featured content scheduled.</p>
+    </p-card>
+</div>
+
+<p-toast></p-toast>
