@@ -97,6 +97,11 @@
   color: #fbbf24;
 }
 
+.cost-card .stat-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-primary);
+}
+
 // Charts Grid
 .charts-grid {
   display: grid;

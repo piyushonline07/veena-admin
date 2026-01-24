@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from '../../core/service/analytics.service';
+import { AdminToolsService } from '../../core/service/admin-tools.service';
 
 
 @Component({
@@ -24,12 +25,32 @@ export class DashboardComponent implements OnInit {
   retentionRate: number = 0;
   avgSessionMinutes: number = 0;
   trendingMedia: any[] = [];
+  serverCost: string = '0.00';
+  costUnit: string = 'USD';
+  currentMonth: string = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 
-  constructor(private analyticsService: AnalyticsService) { }
+  constructor(
+    private analyticsService: AnalyticsService,
+    private adminToolsService: AdminToolsService
+  ) { }
 
   ngOnInit() {
     this.loadStats();
     this.loadChartData();
+    this.loadServerCost();
+  }
+
+  loadServerCost() {
+    this.adminToolsService.getMonthlyCost().subscribe({
+      next: (data) => {
+        this.serverCost = parseFloat(data.amount).toFixed(2);
+        this.costUnit = data.unit;
+      },
+      error: (err) => {
+        console.error('Failed to load server cost', err);
+        this.serverCost = 'N/A';
+      }
+    });
   }
 
   loadStats() {

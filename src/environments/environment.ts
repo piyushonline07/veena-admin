@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8009',
+  apiBaseUrl: 'http://localhost:8080',
   skipAuth: true  // Set to false to enable authentication in development
 };
 

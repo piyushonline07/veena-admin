@@ -90,6 +90,11 @@ export interface AwsHealthStatus {
     timestamp: string;
 }
 
+export interface AwsCost {
+    amount: string;
+    unit: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -109,6 +114,10 @@ export class AdminToolsService {
 
     getTranscodingJobs(): Observable<TranscodingJob[]> {
         return this.http.get<TranscodingJob[]>(`${this.apiUrl}/transcoding-jobs`);
+    }
+
+    getMonthlyCost(): Observable<AwsCost> {
+        return this.http.get<AwsCost>(`${this.apiUrl}/cost`);
     }
 
     getSystemHealth(): Observable<SystemHealth> {
