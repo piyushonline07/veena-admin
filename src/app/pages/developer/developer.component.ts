@@ -76,6 +76,14 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
         dom_id: '#swagger-container',
         url: apiDocsUrl,
         deepLinking: true,
+        validatorUrl: null, // disable external validator
+        docExpansion: 'none',
+        requestInterceptor: (req: any) => {
+          // Force JSON to avoid YAML parsing issues via proxies like CloudFront
+          req.headers = req.headers || {};
+          req.headers.Accept = 'application/json';
+          return req;
+        },
         presets: [
           SwaggerUIBundle.presets.apis,
           SwaggerUIBundle.SwaggerUIStandalonePreset
