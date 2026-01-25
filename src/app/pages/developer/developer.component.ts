@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { ThemeService } from '../../core/service/theme.service';
+import { AuthService } from '../../core/service/auth.service';
 
 declare const SwaggerUIBundle: any;
 
@@ -18,7 +19,7 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
 
   private swaggerCssLinkEl?: HTMLLinkElement;
 
-  constructor(private themeService: ThemeService) {}
+  constructor(private themeService: ThemeService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadSwaggerResources();
@@ -71,12 +72,23 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
       ? `${environment.apiBaseUrl}/v3/api-docs`
       : '/v3/api-docs';
 
+    // Get authentication token
+    const token = this.authService.getToken();
+
+    if (!token) {
+      this.isLoading = false;
+      this.hasError = true;
+      this.errorMessage = 'Authentication is required to load API documentation.';
+      return;
+    }
+
     try {
-      // Fetch JSON explicitly to avoid proxy/YAML issues
+      // Fetch JSON explicitly with Authorization header
       const resp = await fetch(apiDocsUrl, {
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -114,7 +126,17 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
           SwaggerUIBundle.presets.apis,
           SwaggerUIBundle.SwaggerUIStandalonePreset
         ],
-        layout: 'BaseLayout'
+        layout: 'BaseLayout',
+        requestInterceptor: (req: any) => {
+          // Add Authorization header to all Swagger UI requests
+          if (token) {
+            req.headers = {
+              ...req.headers,
+              'Authorization': `Bearer ${token}`
+            };
+          }
+          return req;
+        }
       });
       this.isLoading = false;
     } catch (error: any) {
