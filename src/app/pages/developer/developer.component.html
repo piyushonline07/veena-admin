@@ -1,0 +1,29 @@
+<div class="developer-container">
+    <div class="developer-header">
+        <div class="header-content">
+            <div>
+                <h2><i class="pi pi-code"></i> API Documentation</h2>
+                <p class="subtitle">Swagger UI - Veena Backend API Documentation</p>
+            </div>
+            <button pButton type="button" label="Open in New Tab" icon="pi pi-external-link"
+                    class="p-button-outlined" (click)="openSwaggerInNewTab()"></button>
+        </div>
+    </div>
+
+    <div class="swagger-wrapper">
+        <div class="loading-overlay" *ngIf="isLoading && !hasError">
+            <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+            <p>Loading API Documentation...</p>
+        </div>
+
+        <div class="error-overlay" *ngIf="hasError">
+            <i class="pi pi-exclamation-triangle error-icon"></i>
+            <h3>Unable to load API Documentation</h3>
+            <p>{{errorMessage}}</p>
+            <button pButton type="button" label="Open Swagger in New Tab" icon="pi pi-external-link"
+                    class="p-button-primary" (click)="openSwaggerInNewTab()"></button>
+        </div>
+
+        <div id="swagger-container" class="swagger-container"></div>
+    </div>
+</div>

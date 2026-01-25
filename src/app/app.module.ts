@@ -44,6 +44,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { MarketingComponent } from './pages/marketing/marketing.component';
 import { OperationsComponent } from './pages/operations/operations.component';
+import { DeveloperComponent } from './pages/developer/developer.component';
 import { TabViewModule } from 'primeng/tabview';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CalendarModule } from 'primeng/calendar';
@@ -52,6 +53,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +70,10 @@ import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.c
     HlsAudioPlayerComponent,
     SyncLyricsComponent,
     MarketingComponent,
-    OperationsComponent
+    OperationsComponent,
+    DeveloperComponent,
+    NotificationsComponent,
+    SettingsComponent
   ],
   imports: [
     InputTextareaModule,

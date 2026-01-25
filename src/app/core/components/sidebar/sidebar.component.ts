@@ -25,7 +25,8 @@ export class SidebarComponent implements OnInit {
             {
                 label: 'Growth',
                 items: [
-                    { label: 'Marketing Hub', icon: 'pi pi-megaphone', routerLink: ['/marketing'] }
+                    { label: 'Marketing Hub', icon: 'pi pi-megaphone', routerLink: ['/marketing'] },
+                    { label: 'Notifications', icon: 'pi pi-bell', routerLink: ['/notifications'] }
                 ]
             },
             {
@@ -38,7 +39,13 @@ export class SidebarComponent implements OnInit {
                 label: 'Management',
                 items: [
                     { label: 'Users', icon: 'pi pi-users', routerLink: ['/users'] },
-                    { label: 'Settings', icon: 'pi pi-cog' }
+                    { label: 'Settings', icon: 'pi pi-cog', routerLink: ['/settings'] }
+                ]
+            },
+            {
+                label: 'Developer',
+                items: [
+                    { label: 'API Docs', icon: 'pi pi-code', routerLink: ['/developer'] }
                 ]
             }
         ];

@@ -1,0 +1,85 @@
+<div class="settings-container">
+  <h1>Settings</h1>
+
+  <!-- Profile Section -->
+  <p-card header="Profile" styleClass="mb-4">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label>Name</label>
+          <div>{{ profile.name || '—' }}</div>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <div>{{ profile.email || '—' }}</div>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <div>{{ profile.username || '—' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label>Role</label>
+          <div><p-tag [value]="profile.role || 'USER'" [severity]="(profile.role || 'USER') === 'ADMIN' ? 'warning' : 'info'"></p-tag></div>
+        </div>
+        <div class="field">
+          <label>User ID (sub)</label>
+          <div class="mono">{{ profile.sub || '—' }}</div>
+        </div>
+        <div class="mt-2">
+          <p-button label="Logout" icon="pi pi-sign-out" (onClick)="logout()" styleClass="p-button-danger p-button-outlined"></p-button>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Preferences Section -->
+  <p-card header="Preferences" styleClass="mb-4">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="preferences.enableNotifications" [binary]="true" label="Enable Notifications (UI)"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="preferences.autoplayMedia" [binary]="true" label="Autoplay Media"></p-checkbox>
+      </div>
+    </div>
+    <p-button label="Save Preferences" icon="pi pi-save" (onClick)="savePreferences()" styleClass="p-button-primary"></p-button>
+  </p-card>
+
+  <!-- Environment Section -->
+  <p-card header="Environment" styleClass="mb-4">
+    <div class="field">
+      <label>Backend API</label>
+      <div>{{ endpoints.backend }}</div>
+    </div>
+  </p-card>
+
+  <!-- Admin Settings Section -->
+  <p-card header="Admin Settings (affect USER role)" styleClass="mb-4 admin-settings">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.enableUserNotifications" [binary]="true" label="Enable in-app notifications for users"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.defaultAutoplayForUsers" [binary]="true" label="Default autoplay for users"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.allowUserDownloads" [binary]="true" label="Allow user downloads"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.enableComments" [binary]="true" label="Enable comments"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.maintenanceMode" [binary]="true" label="Maintenance mode"></p-checkbox>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label for="minVersion">Minimum app version (optional)</label>
+        <input pInputText id="minVersion" [(ngModel)]="appSettings.minimumAppVersion" placeholder="e.g., 1.2.0" />
+      </div>
+    </div>
+    <p-button label="Save Admin Settings" icon="pi pi-save" (onClick)="saveAppSettings()" styleClass="p-button-warning"></p-button>
+  </p-card>
+</div>
+
+<p-toast></p-toast>

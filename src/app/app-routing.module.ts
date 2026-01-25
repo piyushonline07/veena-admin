@@ -9,6 +9,9 @@ import { ArtistListComponent } from './pages/artist-list/artist-list.component';
 
 import { MarketingComponent } from './pages/marketing/marketing.component';
 import { OperationsComponent } from './pages/operations/operations.component';
+import { DeveloperComponent } from './pages/developer/developer.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -18,6 +21,9 @@ const routes: Routes = [
   { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
   { path: 'operations', component: OperationsComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserListComponent, canActivate: [AuthGuard] },
+  { path: 'developer', component: DeveloperComponent, canActivate: [AuthGuard] },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -26,4 +32,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
-

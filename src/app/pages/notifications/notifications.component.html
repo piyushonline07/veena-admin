@@ -1,0 +1,62 @@
+<div class="notifications-container">
+  <h1>Notifications</h1>
+
+  <p-card header="Push Notifications">
+    <ng-container *ngIf="notificationsEnabled; else notifDisabled">
+      <div class="p-fluid">
+        <div class="field">
+          <label for="title">Title</label>
+          <input pInputText id="title" [(ngModel)]="newNotif.title" placeholder="Notification title" />
+        </div>
+        <div class="field">
+          <label for="body">Body</label>
+          <textarea pInputTextarea id="body" [(ngModel)]="newNotif.body" rows="3" placeholder="Notification message"></textarea>
+        </div>
+        <div class="field">
+          <label for="imageUrl">Image URL (optional)</label>
+          <input pInputText id="imageUrl" [(ngModel)]="newNotif.imageUrl" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label for="targetGroup">Target Audience</label>
+          <p-dropdown id="targetGroup" [options]="targetGroups" [(ngModel)]="newNotif.targetGroup" optionLabel="label" optionValue="value"></p-dropdown>
+        </div>
+        <p-button label="Save Draft" icon="pi pi-save" (onClick)="onSaveNotif()" styleClass="p-button-success"></p-button>
+      </div>
+
+      <p-divider></p-divider>
+
+      <h4>Saved Notifications</h4>
+      <p-table [value]="notifications" [paginator]="true" [rows]="5" *ngIf="notifications.length > 0">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Title</th>
+            <th>Target</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-notif>
+          <tr>
+            <td>{{ notif.title }}</td>
+            <td>{{ notif.targetGroup }}</td>
+            <td>
+              <p-tag [value]="notif.status" [severity]="notif.status === 'SENT' ? 'success' : 'info'"></p-tag>
+            </td>
+            <td>
+              <p-button *ngIf="notif.status !== 'SENT'" icon="pi pi-send" label="Send" (onClick)="onSendNotif(notif.id)" styleClass="p-button-sm p-button-outlined"></p-button>
+              <span *ngIf="notif.status === 'SENT'" class="text-green-500">
+                <i class="pi pi-check-circle"></i> Sent {{ notif.sentAt | date:'short' }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <p *ngIf="notifications.length === 0" class="text-gray-500">No notifications yet.</p>
+    </ng-container>
+    <ng-template #notifDisabled>
+      <p class="text-gray-500">Push notifications are disabled in this environment.</p>
+    </ng-template>
+  </p-card>
+</div>
+
+<p-toast></p-toast>
