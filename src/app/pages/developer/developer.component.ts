@@ -66,24 +66,50 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
     this.swaggerCssLinkEl.disabled = theme !== 'dark';
   }
 
-  private initSwagger(): void {
+  private async initSwagger(): Promise<void> {
     const apiDocsUrl = environment.apiBaseUrl
       ? `${environment.apiBaseUrl}/v3/api-docs`
       : '/v3/api-docs';
 
     try {
+      // Fetch JSON explicitly to avoid proxy/YAML issues
+      const resp = await fetch(apiDocsUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Get raw text first to debug what CloudFront returns
+      const rawText = await resp.text();
+      console.log('API docs response status:', resp.status);
+      console.log('API docs response content-type:', resp.headers.get('content-type'));
+      console.log('API docs raw response (first 500 chars):', rawText.substring(0, 500));
+
+      if (!resp.ok) {
+        throw new Error(`API docs request failed: ${resp.status} ${resp.statusText}`);
+      }
+
+      // Try to parse as JSON
+      let spec: any;
+      try {
+        spec = JSON.parse(rawText);
+      } catch (parseErr) {
+        console.error('JSON parse error. Raw response:', rawText.substring(0, 1000));
+        throw new Error('API docs response is not valid JSON. Check CloudFront proxy configuration.');
+      }
+
+      if (!spec.openapi && !spec.swagger) {
+        console.error('Spec object:', spec);
+        throw new Error('API docs missing openapi/swagger version field');
+      }
+
       SwaggerUIBundle({
         dom_id: '#swagger-container',
-        url: apiDocsUrl,
+        spec,
         deepLinking: true,
-        validatorUrl: null, // disable external validator
+        validatorUrl: null,
         docExpansion: 'none',
-        requestInterceptor: (req: any) => {
-          // Force JSON to avoid YAML parsing issues via proxies like CloudFront
-          req.headers = req.headers || {};
-          req.headers.Accept = 'application/json';
-          return req;
-        },
         presets: [
           SwaggerUIBundle.presets.apis,
           SwaggerUIBundle.SwaggerUIStandalonePreset
@@ -91,10 +117,10 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
         layout: 'BaseLayout'
       });
       this.isLoading = false;
-    } catch (error) {
+    } catch (error: any) {
       this.isLoading = false;
       this.hasError = true;
-      this.errorMessage = 'Failed to initialize Swagger UI.';
+      this.errorMessage = error?.message || 'Failed to initialize Swagger UI.';
       console.error('Swagger UI initialization error:', error);
     }
   }
