@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angula
 import { environment } from '../../../environments/environment';
 import { ThemeService } from '../../core/service/theme.service';
 import { AuthService } from '../../core/service/auth.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 declare const SwaggerUIBundle: any;
 
@@ -19,7 +20,11 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
 
   private swaggerCssLinkEl?: HTMLLinkElement;
 
-  constructor(private themeService: ThemeService, private authService: AuthService) {}
+  constructor(
+    private themeService: ThemeService,
+    private authService: AuthService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.loadSwaggerResources();
@@ -42,8 +47,8 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
     this.swaggerCssLinkEl = document.createElement('link');
     this.swaggerCssLinkEl.rel = 'stylesheet';
     this.swaggerCssLinkEl.id = 'swagger-dark-css';
-    this.swaggerCssLinkEl.disabled = true; // start disabled; enable if dark
-    this.swaggerCssLinkEl.href = `${environment.apiBaseUrl || ''}/swagger-dark.css` || '/swagger-dark.css';
+    this.swaggerCssLinkEl.disabled = true;
+    this.swaggerCssLinkEl.href = `${environment.apiBaseUrl || ''}/swagger-dark.css`;
     document.head.appendChild(this.swaggerCssLinkEl);
 
     // Apply initial theme
@@ -63,88 +68,62 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
 
   private applySwaggerTheme(theme: 'light' | 'dark') {
     if (!this.swaggerCssLinkEl) return;
-    // Toggle dark CSS when theme is dark
     this.swaggerCssLinkEl.disabled = theme !== 'dark';
   }
 
-  private async initSwagger(): Promise<void> {
-    const apiDocsUrl = environment.apiBaseUrl
-      ? `${environment.apiBaseUrl}/v3/api-docs`
-      : '/v3/api-docs';
-
-    // Get authentication token
+  private initSwagger(): void {
+    const baseUrl = environment.apiBaseUrl || '';
+    // Swagger endpoints are now public, no auth needed
+    const apiDocsUrl = `${baseUrl}/v3/api-docs?nocache=${Date.now()}`;
     const token = this.authService.getToken();
 
-    if (!token) {
-      this.isLoading = false;
-      this.hasError = true;
-      this.errorMessage = 'Authentication is required to load API documentation.';
-      return;
-    }
+    // Use Angular HttpClient which handles requests properly
+    const headers = new HttpHeaders({
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    });
 
-    try {
-      // Fetch JSON explicitly with Authorization header
-      const resp = await fetch(apiDocsUrl, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+    this.http.get<any>(apiDocsUrl, { headers }).subscribe({
+      next: (spec: any) => {
+        console.log('API docs loaded successfully, openapi version:', spec.openapi || spec.swagger);
+
+        if (!spec.openapi && !spec.swagger) {
+          console.error('Spec object:', spec);
+          this.hasError = true;
+          this.errorMessage = 'API docs missing openapi/swagger version field';
+          this.isLoading = false;
+          return;
         }
-      });
 
-      // Get raw text first to debug what CloudFront returns
-      const rawText = await resp.text();
-      console.log('API docs response status:', resp.status);
-      console.log('API docs response content-type:', resp.headers.get('content-type'));
-      console.log('API docs raw response (first 500 chars):', rawText.substring(0, 500));
-
-      if (!resp.ok) {
-        throw new Error(`API docs request failed: ${resp.status} ${resp.statusText}`);
-      }
-
-      // Try to parse as JSON
-      let spec: any;
-      try {
-        spec = JSON.parse(rawText);
-      } catch (parseErr) {
-        console.error('JSON parse error. Raw response:', rawText.substring(0, 1000));
-        throw new Error('API docs response is not valid JSON. Check CloudFront proxy configuration.');
-      }
-
-      if (!spec.openapi && !spec.swagger) {
-        console.error('Spec object:', spec);
-        throw new Error('API docs missing openapi/swagger version field');
-      }
-
-      SwaggerUIBundle({
-        dom_id: '#swagger-container',
-        spec,
-        deepLinking: true,
-        validatorUrl: null,
-        docExpansion: 'none',
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ],
-        layout: 'BaseLayout',
-        requestInterceptor: (req: any) => {
-          // Add Authorization header to all Swagger UI requests
-          if (token) {
-            req.headers = {
-              ...req.headers,
-              'Authorization': `Bearer ${token}`
-            };
+        SwaggerUIBundle({
+          dom_id: '#swagger-container',
+          spec,
+          deepLinking: true,
+          validatorUrl: null,
+          docExpansion: 'none',
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
+          ],
+          layout: 'BaseLayout',
+          requestInterceptor: (req: any) => {
+            // Add auth for API calls from "Try it out"
+            if (token) {
+              req.headers = { ...req.headers, 'Authorization': `Bearer ${token}` };
+            }
+            return req;
           }
-          return req;
-        }
-      });
-      this.isLoading = false;
-    } catch (error: any) {
-      this.isLoading = false;
-      this.hasError = true;
-      this.errorMessage = error?.message || 'Failed to initialize Swagger UI.';
-      console.error('Swagger UI initialization error:', error);
-    }
+        });
+        this.isLoading = false;
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch API docs:', err);
+        this.isLoading = false;
+        this.hasError = true;
+        this.errorMessage = `Failed to load API docs: ${err.status || ''} ${err.statusText || err.message || 'Unknown error'}`;
+      }
+    });
   }
 
   openSwaggerInNewTab(): void {
