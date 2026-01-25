@@ -55,6 +55,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { MediaLinkComponent } from './pages/media-link/media-link.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
     OperationsComponent,
     DeveloperComponent,
     NotificationsComponent,
-    SettingsComponent
+    SettingsComponent,
+    MediaLinkComponent
   ],
   imports: [
     InputTextareaModule,

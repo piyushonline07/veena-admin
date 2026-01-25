@@ -10,20 +10,22 @@
         </div>
     </div>
 
-    <div class="swagger-wrapper">
-        <div class="loading-overlay" *ngIf="isLoading && !hasError">
-            <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
-            <p>Loading API Documentation...</p>
-        </div>
+    <p-card class="swagger-card">
+        <div class="swagger-wrapper">
+            <div class="loading-overlay" *ngIf="isLoading && !hasError">
+                <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+                <p>Loading API Documentation...</p>
+            </div>
 
-        <div class="error-overlay" *ngIf="hasError">
-            <i class="pi pi-exclamation-triangle error-icon"></i>
-            <h3>Unable to load API Documentation</h3>
-            <p>{{errorMessage}}</p>
-            <button pButton type="button" label="Open Swagger in New Tab" icon="pi pi-external-link"
-                    class="p-button-primary" (click)="openSwaggerInNewTab()"></button>
-        </div>
+            <div class="error-overlay" *ngIf="hasError">
+                <i class="pi pi-exclamation-triangle error-icon"></i>
+                <h3>Unable to load API Documentation</h3>
+                <p>{{errorMessage}}</p>
+                <button pButton type="button" label="Open Swagger in New Tab" icon="pi pi-external-link"
+                        class="p-button-primary" (click)="openSwaggerInNewTab()"></button>
+            </div>
 
-        <div id="swagger-container" class="swagger-container"></div>
-    </div>
+            <div id="swagger-container" class="swagger-container"></div>
+        </div>
+    </p-card>
 </div>

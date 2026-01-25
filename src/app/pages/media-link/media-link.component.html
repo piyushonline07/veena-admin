@@ -1,0 +1,113 @@
+<div class="media-link-container">
+  <h1>Manage Media: Link Audio & Video</h1>
+  <p-card header="Select Audio and Video">
+    <div class="grid">
+      <!-- AUDIO LEFT -->
+      <div class="col-12 md:col-6">
+        <label class="section-title">Audio (left)</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText [(ngModel)]="queryA" (ngModelChange)="searchA()" placeholder="Search audio by title" />
+        </span>
+        <div class="picker-row">
+          <p-dropdown [options]="listA" [(ngModel)]="selectedA" optionLabel="title"
+            placeholder="Select audio" [showClear]="true" [filter]="false" class="w-full">
+            <ng-template let-item pTemplate="item">
+              <div class="item-row">
+                <div class="thumb" *ngIf="item.thumbnailUrl">
+                  <img [src]="item.thumbnailUrl" alt="thumb" />
+                </div>
+                <div class="meta">
+                  <div class="title">{{ item.title }}</div>
+                  <div class="sub">{{ item.artist?.name || 'Unknown Artist' }}</div>
+                </div>
+                <p-tag value="AUDIO" severity="info"></p-tag>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <p-progressSpinner *ngIf="isLoadingA" strokeWidth="4" [ngStyle]="{ width: '24px', height: '24px' }"></p-progressSpinner>
+        </div>
+
+        <div *ngIf="selectedA" class="preview-card">
+          <div class="preview-header">
+            <span class="label">Selected Audio</span>
+            <p-tag value="AUDIO" severity="info"></p-tag>
+          </div>
+          <div class="preview-body">
+            <img *ngIf="selectedA.thumbnailUrl" [src]="selectedA.thumbnailUrl" class="preview-thumb" />
+            <div>
+              <div class="title">{{ selectedA.title }}</div>
+              <div class="sub">{{ selectedA.artist?.name || 'Unknown Artist' }}</div>
+              <div class="link-info" *ngIf="selectedA.linkedMediaId">Linked to: {{ selectedA.linkedMediaId }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIDEO RIGHT -->
+      <div class="col-12 md:col-6">
+        <label class="section-title">Video (right)</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText [(ngModel)]="queryB" (ngModelChange)="searchB()" placeholder="Search video by title" />
+        </span>
+        <div class="picker-row">
+          <p-dropdown [options]="listB" [(ngModel)]="selectedB" optionLabel="title"
+            placeholder="Select video" [showClear]="true" [filter]="false" class="w-full">
+            <ng-template let-item pTemplate="item">
+              <div class="item-row">
+                <div class="thumb" *ngIf="item.thumbnailUrl">
+                  <img [src]="item.thumbnailUrl" alt="thumb" />
+                </div>
+                <div class="meta">
+                  <div class="title">{{ item.title }}</div>
+                  <div class="sub">{{ item.artist?.name || 'Unknown Artist' }}</div>
+                </div>
+                <p-tag value="VIDEO" severity="warning"></p-tag>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <p-progressSpinner *ngIf="isLoadingB" strokeWidth="4" [ngStyle]="{ width: '24px', height: '24px' }"></p-progressSpinner>
+        </div>
+
+        <div *ngIf="selectedB" class="preview-card">
+          <div class="preview-header">
+            <span class="label">Selected Video</span>
+            <p-tag value="VIDEO" severity="warning"></p-tag>
+          </div>
+          <div class="preview-body">
+            <img *ngIf="selectedB.thumbnailUrl" [src]="selectedB.thumbnailUrl" class="preview-thumb" />
+            <div>
+              <div class="title">{{ selectedB.title }}</div>
+              <div class="sub">{{ selectedB.artist?.name || 'Unknown Artist' }}</div>
+              <div class="link-info" *ngIf="selectedB.linkedMediaId">Linked to: {{ selectedB.linkedMediaId }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Animated linking wire shown when both sides selected -->
+    <div class="link-wire" *ngIf="selectedA && selectedB">
+      <svg viewBox="0 0 100 20" preserveAspectRatio="none">
+        <!-- Curved path from left (0,10) to right (100,10) with slight wave -->
+        <path d="M0,10 C30,0 70,20 100,10" class="wire-path"></path>
+      </svg>
+    </div>
+
+    <div class="action-row">
+      <p-button label="Link" icon="pi pi-link" (onClick)="link()" [disabled]="!selectedA || !selectedB"
+        styleClass="p-button-success"></p-button>
+      <p-button label="Unlink" icon="pi pi-unlink" (onClick)="unlink()" [disabled]="!selectedA"
+        styleClass="p-button-danger p-button-outlined" class="ml-2"></p-button>
+      <span class="hint" *ngIf="selectedA && selectedB">Audio (left) will be linked to Video (right).</span>
+      <span class="hint error" *ngIf="selectedA && selectedB && (selectedA.mediaType !== 'AUDIO' || selectedB.mediaType !== 'VIDEO')">
+        Left must be audio and right must be video.
+      </span>
+    </div>
+  </p-card>
+</div>
+
+<p-toast></p-toast>
