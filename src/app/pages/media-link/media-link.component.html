@@ -89,19 +89,13 @@
 
     <p-divider></p-divider>
 
-    <!-- Animated linking wire shown when both sides selected -->
-    <div class="link-wire" *ngIf="selectedA && selectedB">
-      <svg viewBox="0 0 100 20" preserveAspectRatio="none">
-        <!-- Curved path from left (0,10) to right (100,10) with slight wave -->
-        <path d="M0,10 C30,0 70,20 100,10" class="wire-path"></path>
-      </svg>
-    </div>
+
 
     <div class="action-row">
-      <p-button label="Link" icon="pi pi-link" (onClick)="link()" [disabled]="!selectedA || !selectedB"
-        styleClass="p-button-success"></p-button>
-      <p-button label="Unlink" icon="pi pi-unlink" (onClick)="unlink()" [disabled]="!selectedA"
-        styleClass="p-button-danger p-button-outlined" class="ml-2"></p-button>
+      <p-button label="Link" icon="pi pi-link" (onClick)="link()" [disabled]="!selectedA || !selectedB || isLinking"
+        styleClass="p-button-success" [loading]="isLinking"></p-button>
+      <p-button label="Unlink" icon="pi pi-unlink" (onClick)="unlink()" [disabled]="!selectedA || isLinking"
+        styleClass="p-button-danger p-button-outlined" class="ml-2" [loading]="isLinking"></p-button>
       <span class="hint" *ngIf="selectedA && selectedB">Audio (left) will be linked to Video (right).</span>
       <span class="hint error" *ngIf="selectedA && selectedB && (selectedA.mediaType !== 'AUDIO' || selectedB.mediaType !== 'VIDEO')">
         Left must be audio and right must be video.

@@ -1,106 +1,365 @@
-.artist-list-container {
+.artist-container {
+  padding: 1.5rem;
+
+  .artist-header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: #6366f1;
+      }
+    }
+
+    .subtitle {
+      margin: 0.25rem 0 0 0;
+      color: var(--text-secondary, #6b7280);
+      font-size: 0.9rem;
+    }
+  }
+
+  .artist-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 1.5rem;
+    min-height: calc(100vh - 200px);
+  }
+
+  .artists-panel {
+    background: var(--surface-card);
+    border-radius: 8px;
     padding: 1rem;
+    border: 1px solid var(--surface-border);
 
-    .header-section {
-        h1 {
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 2rem;
-        }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
 
-        p {
-            margin-top: 0.5rem;
-            color: var(--text-secondary);
-        }
+      h3 {
+        margin: 0;
+      }
+    }
+  }
+
+  .artists-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+  }
+
+  .artist-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+
+    &.selected {
+      background: var(--primary-color);
+      color: var(--primary-color-text);
+      border-color: var(--primary-color);
+
+      .artist-meta {
+        color: rgba(255, 255, 255, 0.8);
+      }
     }
 
     .artist-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--surface-ground);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      i {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .artist-info {
+      flex: 1;
+      min-width: 0;
+
+      .artist-name {
+        font-weight: 500;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
+        gap: 0.25rem;
+      }
 
-        .artist-img {
+      .artist-meta {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .artist-actions {
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &:hover .artist-actions {
+      opacity: 1;
+    }
+  }
+
+  .empty-state,
+  .no-selection,
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-secondary);
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0 0 1rem 0;
+    }
+  }
+
+  .details-panel {
+    background: var(--surface-card);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .artist-details {
+    .details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--surface-border);
+
+      .artist-profile {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+
+        .profile-avatar {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: var(--surface-ground);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+
+          img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+          }
+
+          i {
+            font-size: 2.5rem;
+            color: var(--text-secondary);
+          }
         }
 
-        .artist-placeholder {
+        .profile-info {
+          h2 {
+            margin: 0;
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            color: var(--text-secondary);
+            gap: 0.5rem;
+          }
 
-            i {
-                font-size: 1.2rem;
-            }
+          .profile-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+          }
         }
-    }
+      }
 
-    .empty-state {
+      .header-actions {
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 2rem;
-        color: var(--text-secondary);
+        gap: 0.5rem;
+      }
     }
 
-    :host ::ng-deep {
-        .p-datatable {
-            .p-datatable-header {
-                background: transparent;
-                border: none;
-            }
+    .details-body {
+      .stats-section {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
 
-            .p-datatable-thead>tr>th {
-                color: var(--text-primary);
-                background-color: var(--bg-secondary);
-            }
+        .stat-card {
+          background: var(--surface-ground);
+          padding: 1rem 1.5rem;
+          border-radius: 8px;
+          text-align: center;
 
-            .p-datatable-tbody>tr {
-                color: var(--text-primary);
-                background-color: var(--bg-card);
+          i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+          }
 
-                &:hover {
-                    background-color: var(--bg-secondary);
-                }
-            }
+          .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+          }
+
+          .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+          }
+        }
+      }
+
+      .bio-section,
+      .social-section {
+        margin-bottom: 1.5rem;
+
+        h4 {
+          margin: 0 0 0.75rem 0;
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
-        .p-dropdown {
-            width: 100%;
-            background-color: var(--bg-card);
-            border-color: var(--border-color);
-
-            .p-dropdown-label {
-                color: var(--text-primary);
-            }
+        p {
+          margin: 0;
+          line-height: 1.6;
         }
+      }
+
+      .social-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        .social-link {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          text-decoration: none;
+          font-size: 0.9rem;
+          transition: all 0.2s;
+
+          &.spotify {
+            background: rgba(30, 215, 96, 0.1);
+            color: #1ed760;
+
+            &:hover {
+              background: rgba(30, 215, 96, 0.2);
+            }
+          }
+
+          &.youtube {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+
+            &:hover {
+              background: rgba(255, 0, 0, 0.2);
+            }
+          }
+
+          &.instagram {
+            background: rgba(225, 48, 108, 0.1);
+            color: #e1306c;
+
+            &:hover {
+              background: rgba(225, 48, 108, 0.2);
+            }
+          }
+
+          &.website {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+
+            &:hover {
+              background: rgba(99, 102, 241, 0.2);
+            }
+          }
+        }
+      }
     }
+  }
+
+  /* Image upload section in dialog */
+  .image-upload-section {
+    .image-preview {
+      position: relative;
+      display: inline-block;
+
+      img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid var(--surface-border);
+      }
+
+      .remove-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
+
+    .image-upload-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 }
 
-// Verified badge styling
-.pi-verified {
-    color: var(--accent-primary);
+.w-full {
+  width: 100%;
 }
 
-// Social icons colors (keep brand colors but ensure visibility)
-.pi-spotify {
-    color: #1DB954;
-}
-
-.pi-youtube {
-    color: #FF0000;
-}
-
-.pi-instagram {
-    color: #E4405F;
+/* Responsive */
+@media (max-width: 900px) {
+  .artist-container .artist-content {
+    grid-template-columns: 1fr;
+  }
 }

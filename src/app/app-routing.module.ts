@@ -13,12 +13,14 @@ import { DeveloperComponent } from './pages/developer/developer.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
+import { AlbumComponent } from './pages/album/album.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'upload', component: UploadMediaComponent, canActivate: [AuthGuard] },
   { path: 'media-list', component: MediaListComponent, canActivate: [AuthGuard] },
   { path: 'artists', component: ArtistListComponent, canActivate: [AuthGuard] },
+  { path: 'albums', component: AlbumComponent, canActivate: [AuthGuard] },
   { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
   { path: 'operations', component: OperationsComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserListComponent, canActivate: [AuthGuard] },

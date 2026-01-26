@@ -23,10 +23,40 @@
                                     <small *ngIf="artist.genre" class="text-secondary ml-auto">{{artist.genre}}</small>
                                 </div>
                             </ng-template>
+                            <ng-template pTemplate="empty">
+                                <div class="p-2 text-center text-secondary">
+                                    No artists found.
+                                </div>
+                            </ng-template>
                         </p-dropdown>
+                        <small *ngIf="!selectedArtist && artists.length === 0" class="mt-1 block">
+                            Want to add an artist? <a routerLink="/artists" class="text-primary">Go to Artists page</a>
+                        </small>
                     </div>
                     <div class="col-12 md:col-6 field">
-                        <!-- Empty for layout balance -->
+                        <label for="album">Album (Optional)</label>
+                        <p-dropdown [options]="albums" [(ngModel)]="selectedAlbum" optionLabel="name"
+                            placeholder="Select album" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}">
+                            <ng-template let-album pTemplate="item">
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-book"></i>
+                                    <span>{{album.name}}</span>
+                                    <small *ngIf="album.description" class="text-secondary ml-auto">{{album.description}}</small>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="empty">
+                                <div class="p-2 text-center text-secondary">
+                                    No albums found.
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                        <small *ngIf="selectedAlbum" class="text-secondary mt-1 block">
+                            Media will be added to "{{selectedAlbum.name}}" after upload
+                        </small>
+                        <small *ngIf="!selectedAlbum && albums.length === 0" class="mt-1 block">
+                            Want to create an album? <a routerLink="/albums" class="text-primary">Go to Albums page</a>
+                        </small>
                     </div>
                     <div class="col-12 field">
                         <label for="description">Description</label>
@@ -87,3 +117,5 @@
 </div>
 
 <p-toast></p-toast>
+
+

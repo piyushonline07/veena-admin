@@ -73,28 +73,45 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
 
   private initSwagger(): void {
     const baseUrl = environment.apiBaseUrl || '';
-    // Swagger endpoints are now public, no auth needed
     const apiDocsUrl = `${baseUrl}/v3/api-docs?nocache=${Date.now()}`;
     const token = this.authService.getToken();
 
-    // Use Angular HttpClient which handles requests properly
     const headers = new HttpHeaders({
       'Accept': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache'
     });
 
-    this.http.get<any>(apiDocsUrl, { headers }).subscribe({
-      next: (spec: any) => {
-        console.log('API docs loaded successfully, openapi version:', spec.openapi || spec.swagger);
+    console.log('Fetching API docs from:', apiDocsUrl);
+
+    this.http.get(apiDocsUrl, { headers, responseType: 'text', observe: 'response' }).subscribe({
+      next: (response) => {
+        console.log('API docs response status:', response.status);
+        console.log('API docs content-type:', response.headers.get('content-type'));
+
+        const rawText = response.body || '';
+        console.log('API docs raw response (first 500 chars):', rawText.substring(0, 500));
+
+        let spec: any;
+        try {
+          spec = JSON.parse(rawText);
+        } catch (parseErr) {
+          console.error('JSON parse error. Full raw response:', rawText);
+          this.hasError = true;
+          this.errorMessage = 'API docs response is not valid JSON. Response starts with: ' + rawText.substring(0, 100);
+          this.isLoading = false;
+          return;
+        }
 
         if (!spec.openapi && !spec.swagger) {
           console.error('Spec object:', spec);
           this.hasError = true;
-          this.errorMessage = 'API docs missing openapi/swagger version field';
+          this.errorMessage = 'API docs missing openapi/swagger version field. Keys: ' + Object.keys(spec).join(', ');
           this.isLoading = false;
           return;
         }
+
+        console.log('API docs loaded successfully, openapi version:', spec.openapi || spec.swagger);
 
         SwaggerUIBundle({
           dom_id: '#swagger-container',
@@ -108,7 +125,6 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
           ],
           layout: 'BaseLayout',
           requestInterceptor: (req: any) => {
-            // Add auth for API calls from "Try it out"
             if (token) {
               req.headers = { ...req.headers, 'Authorization': `Bearer ${token}` };
             }
@@ -118,10 +134,16 @@ export class DeveloperComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Failed to fetch API docs:', err);
+        console.error('Failed to fetch API docs. Full error:', err);
         this.isLoading = false;
         this.hasError = true;
-        this.errorMessage = `Failed to load API docs: ${err.status || ''} ${err.statusText || err.message || 'Unknown error'}`;
+
+        let errorDetail = '';
+        if (err.error) {
+          errorDetail = typeof err.error === 'string' ? err.error.substring(0, 200) : JSON.stringify(err.error).substring(0, 200);
+        }
+
+        this.errorMessage = `Failed to load API docs: ${err.status || 'unknown'} ${err.statusText || ''} ${errorDetail}`;
       }
     });
   }

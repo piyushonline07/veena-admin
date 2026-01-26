@@ -1,0 +1,185 @@
+<div class="album-container">
+  <div class="album-header">
+    <h1><i class="pi pi-book"></i> Album Management</h1>
+    <p class="subtitle">Create and manage albums with audio and video content</p>
+  </div>
+
+  <div class="album-content">
+    <!-- Albums List Panel -->
+    <div class="albums-panel">
+      <div class="panel-header">
+        <h3>Albums</h3>
+        <p-button icon="pi pi-plus" label="New Album" (onClick)="openNewAlbumDialog()" styleClass="p-button-sm"></p-button>
+      </div>
+
+      <div class="search-bar mb-3">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Search albums..." [(ngModel)]="searchQuery"
+                 (input)="onSearch()" class="w-full" />
+        </span>
+      </div>
+
+      <div class="albums-list" *ngIf="albums.length > 0 && !loading">
+        <div
+          *ngFor="let album of albums"
+          class="album-card"
+          [class.selected]="selectedAlbum?.id === album.id"
+          (click)="selectAlbum(album)">
+          <div class="album-cover">
+            <img *ngIf="album.coverImageUrl" [src]="album.coverImageUrl" alt="cover" />
+            <i *ngIf="!album.coverImageUrl" class="pi pi-image"></i>
+          </div>
+          <div class="album-info">
+            <div class="album-name">{{ album.name }}</div>
+            <div class="album-meta">{{ album.description || 'No description' }}</div>
+          </div>
+          <div class="album-actions">
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEditAlbumDialog(album); $event.stopPropagation()"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="deleteAlbum(album); $event.stopPropagation()"></button>
+          </div>
+        </div>
+      </div>
+
+      <p-paginator *ngIf="totalRecords > rows" [rows]="rows" [totalRecords]="totalRecords"
+                   (onPageChange)="onPageChange($event)" [showCurrentPageReport]="false"></p-paginator>
+
+      <div class="loading-state" *ngIf="loading">
+        <p-progressSpinner strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+        <p>Loading albums...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="albums.length === 0 && !loading">
+        <i class="pi pi-inbox"></i>
+        <p>No albums yet</p>
+        <p-button label="Create First Album" icon="pi pi-plus" (onClick)="openNewAlbumDialog()" styleClass="p-button-outlined"></p-button>
+      </div>
+    </div>
+
+    <!-- Album Details Panel -->
+    <div class="details-panel">
+      <div *ngIf="selectedAlbum" class="album-details">
+        <div class="details-header">
+          <div class="album-profile">
+            <div class="profile-cover">
+              <img *ngIf="selectedAlbum.coverImageUrl" [src]="selectedAlbum.coverImageUrl" alt="Album cover" />
+              <i *ngIf="!selectedAlbum.coverImageUrl" class="pi pi-image"></i>
+            </div>
+            <div class="profile-info">
+              <h2>{{ selectedAlbum.name }}</h2>
+              <p class="description">{{ selectedAlbum.description || 'No description' }}</p>
+              <p-tag [value]="selectedAlbum.active ? 'Active' : 'Inactive'"
+                     [severity]="selectedAlbum.active ? 'success' : 'danger'"></p-tag>
+            </div>
+          </div>
+          <div class="header-actions">
+            <p-button icon="pi pi-pencil" label="Edit" (onClick)="openEditAlbumDialog(selectedAlbum)" styleClass="p-button-outlined"></p-button>
+          </div>
+        </div>
+
+        <div class="album-info-section">
+          <h4>Album Details</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Created</span>
+              <span class="value">{{ selectedAlbum.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Last Updated</span>
+              <span class="value">{{ selectedAlbum.updatedAt | date:'medium' }}</span>
+            </div>
+          </div>
+          <p class="mt-3 text-secondary">
+            <i class="pi pi-info-circle mr-2"></i>
+            Media can be added to this album from the Upload Media page by selecting this album during upload.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedAlbum" class="no-selection">
+        <i class="pi pi-arrow-left"></i>
+        <p>Select an album to view details</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New/Edit Album Dialog -->
+<p-dialog [(visible)]="showAlbumDialog" [header]="isEditMode ? 'Edit Album' : 'New Album'" [modal]="true" [style]="{width: '500px'}">
+  <div class="dialog-content">
+    <div class="field">
+      <label for="albumName">Album Name *</label>
+      <input pInputText id="albumName" [(ngModel)]="albumForm.name" class="w-full" placeholder="Enter album name" />
+    </div>
+    <div class="field">
+      <label for="albumDesc">Description</label>
+      <textarea pInputTextarea id="albumDesc" [(ngModel)]="albumForm.description" rows="3" class="w-full" placeholder="Enter description"></textarea>
+    </div>
+    <div class="field">
+      <label>Cover Image</label>
+      <div class="image-upload-section">
+        <div class="image-preview" *ngIf="imagePreviewUrl">
+          <img [src]="imagePreviewUrl" alt="Album cover preview" />
+          <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                  (click)="clearImage()" pTooltip="Remove image"></button>
+        </div>
+        <div class="image-upload-controls" *ngIf="!imagePreviewUrl">
+          <p-fileUpload mode="basic" name="image" (onSelect)="onImageSelect($event)"
+              accept="image/*" chooseLabel="Choose Cover Image" [auto]="false"></p-fileUpload>
+          <small class="text-secondary mt-2 block">Image will be saved as "albums/{{albumForm.name | lowercase}}.jpg"</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" icon="pi pi-times" (onClick)="hideDialog()" styleClass="p-button-text" [disabled]="uploadingImage"></p-button>
+    <p-button [label]="uploadingImage ? 'Uploading...' : 'Save'" icon="pi pi-check" (onClick)="saveAlbum()"
+              styleClass="p-button-primary" [loading]="uploadingImage"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Add Songs Dialog -->
+<p-dialog [(visible)]="showAddSongsDialog" header="Add Songs to Album" [modal]="true" [style]="{width: '600px'}">
+  <div class="add-songs-content">
+    <div class="search-bar">
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input pInputText [(ngModel)]="songSearchQuery" (ngModelChange)="searchSongs()" placeholder="Search songs..." class="w-full" />
+      </span>
+    </div>
+
+    <div class="songs-selection">
+      <p-progressSpinner *ngIf="isLoadingSongs" strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+
+      <div *ngIf="!isLoadingSongs && availableSongs.length > 0" class="available-songs">
+        <div *ngFor="let song of availableSongs" class="selectable-song"
+             [class.selected]="selectedSongs.includes(song)"
+             (click)="toggleSongSelection(song)">
+          <p-checkbox [binary]="true" [ngModel]="selectedSongs.includes(song)" (click)="$event.stopPropagation()"></p-checkbox>
+          <img *ngIf="song.thumbnailUrl" [src]="song.thumbnailUrl" class="song-thumb" alt="thumbnail" />
+          <i *ngIf="!song.thumbnailUrl" class="pi pi-music song-thumb-placeholder"></i>
+          <div class="song-details">
+            <div class="song-title">{{ song.title }}</div>
+            <div class="song-meta">{{ song.artist?.name || 'Unknown' }}</div>
+          </div>
+          <p-tag [value]="song.mediaType" [severity]="getMediaTypeSeverity(song.mediaType)"></p-tag>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingSongs && availableSongs.length === 0" class="no-songs">
+        <p>No songs found</p>
+      </div>
+    </div>
+
+    <div class="selection-summary" *ngIf="selectedSongs.length > 0">
+      {{ selectedSongs.length }} song(s) selected
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" icon="pi pi-times" (onClick)="showAddSongsDialog = false" styleClass="p-button-text"></p-button>
+    <p-button label="Add Selected" icon="pi pi-plus" (onClick)="addSelectedSongs()" [disabled]="selectedSongs.length === 0" styleClass="p-button-success"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

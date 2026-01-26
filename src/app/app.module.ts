@@ -56,6 +56,7 @@ import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.c
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
+import { AlbumComponent } from './pages/album/album.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { MediaLinkComponent } from './pages/media-link/media-link.component';
     DeveloperComponent,
     NotificationsComponent,
     SettingsComponent,
-    MediaLinkComponent
+    MediaLinkComponent,
+    AlbumComponent
   ],
   imports: [
     InputTextareaModule,

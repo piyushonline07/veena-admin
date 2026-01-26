@@ -1,99 +1,145 @@
-<div class="artist-list-container">
-    <div class="header-section mb-4 flex justify-content-between align-items-end">
-        <div>
-            <h1>Artist Management</h1>
-            <p class="text-secondary">Manage artists, their profiles, and verify their accounts.</p>
-        </div>
-        <div class="flex align-items-center gap-3">
-            <div class="search-container">
-                <span class="p-input-icon-left w-full">
-                    <i class="pi pi-search"></i>
-                    <input type="text" pInputText placeholder="Search by name or genre..." [(ngModel)]="searchQuery"
-                        (input)="onSearch()" class="p-inputtext-sm w-20rem" />
-                </span>
+<div class="artist-container">
+  <div class="artist-header">
+    <h1><i class="pi pi-star"></i> Artist Management</h1>
+    <p class="subtitle">Manage artists, their profiles, and verify their accounts</p>
+  </div>
+
+  <div class="artist-content">
+    <!-- Artists List Panel -->
+    <div class="artists-panel">
+      <div class="panel-header">
+        <h3>Artists</h3>
+        <p-button icon="pi pi-plus" label="New Artist" (onClick)="openNewArtist()" styleClass="p-button-sm"></p-button>
+      </div>
+
+      <div class="search-bar mb-3">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText placeholder="Search artists..." [(ngModel)]="searchQuery"
+                 (input)="onSearch()" class="w-full" />
+        </span>
+      </div>
+
+      <div class="artists-list" *ngIf="artists.length > 0">
+        <div
+          *ngFor="let artist of artists"
+          class="artist-card"
+          [class.selected]="selectedArtist?.id === artist.id"
+          (click)="selectArtist(artist)">
+          <div class="artist-avatar">
+            <img *ngIf="artist.imageUrl" [src]="artist.imageUrl" [alt]="artist.name" />
+            <i *ngIf="!artist.imageUrl" class="pi pi-user"></i>
+          </div>
+          <div class="artist-info">
+            <div class="artist-name">
+              {{ artist.name }}
+              <i *ngIf="artist.verified" class="pi pi-verified text-primary"></i>
             </div>
-            <button pButton label="Add Artist" icon="pi pi-plus" class="p-button-success" (click)="openNewArtist()"></button>
+            <div class="artist-meta">{{ artist.genre || 'No genre' }} • {{ formatNumber(artist.monthlyListeners) }} listeners</div>
+          </div>
+          <div class="artist-actions">
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editArtist(artist); $event.stopPropagation()"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="confirmDelete(artist); $event.stopPropagation()"></button>
+          </div>
         </div>
+      </div>
+
+      <p-paginator *ngIf="totalRecords > rows" [rows]="rows" [totalRecords]="totalRecords"
+                   (onPageChange)="onPageChange($event)" [showCurrentPageReport]="false"></p-paginator>
+
+      <div class="empty-state" *ngIf="artists.length === 0 && !loading">
+        <i class="pi pi-users"></i>
+        <p>No artists found</p>
+        <p-button label="Add First Artist" icon="pi pi-plus" (onClick)="openNewArtist()" styleClass="p-button-outlined"></p-button>
+      </div>
+
+      <div class="loading-state" *ngIf="loading">
+        <p-progressSpinner strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+        <p>Loading artists...</p>
+      </div>
     </div>
 
-    <p-card>
-        <p-table [value]="artists" [lazy]="true" (onLazyLoad)="onPageChange($event)" [paginator]="true" [rows]="rows"
-            [totalRecords]="totalRecords" [loading]="loading" [showCurrentPageReport]="true"
-            styleClass="p-datatable-striped"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+    <!-- Artist Details Panel -->
+    <div class="details-panel">
+      <div *ngIf="selectedArtist?.id" class="artist-details">
+        <div class="details-header">
+          <div class="artist-profile">
+            <div class="profile-avatar">
+              <img *ngIf="selectedArtist.imageUrl" [src]="selectedArtist.imageUrl" [alt]="selectedArtist.name" />
+              <i *ngIf="!selectedArtist.imageUrl" class="pi pi-user"></i>
+            </div>
+            <div class="profile-info">
+              <h2>
+                {{ selectedArtist.name }}
+                <i *ngIf="selectedArtist.verified" class="pi pi-verified text-primary" pTooltip="Verified Artist"></i>
+              </h2>
+              <div class="profile-meta">
+                <p-tag *ngIf="selectedArtist.genre" [value]="selectedArtist.genre" severity="info"></p-tag>
+                <span *ngIf="selectedArtist.country">{{ selectedArtist.country }}</span>
+                <p-tag [value]="selectedArtist.active ? 'Active' : 'Inactive'"
+                       [severity]="selectedArtist.active ? 'success' : 'danger'"></p-tag>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <p-button icon="pi pi-pencil" label="Edit" (onClick)="editArtist(selectedArtist)" styleClass="p-button-outlined"></p-button>
+            <p-button [icon]="selectedArtist.verified ? 'pi pi-times-circle' : 'pi pi-check-circle'"
+                      [label]="selectedArtist.verified ? 'Unverify' : 'Verify'"
+                      (onClick)="toggleVerification(selectedArtist)"
+                      [styleClass]="selectedArtist.verified ? 'p-button-warning' : 'p-button-success'"></p-button>
+          </div>
+        </div>
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 60px">Image</th>
-                    <th>Name</th>
-                    <th>Genre</th>
-                    <th>Country</th>
-                    <th>Monthly Listeners</th>
-                    <th>Status</th>
-                    <th style="width: 150px">Actions</th>
-                </tr>
-            </ng-template>
+        <div class="details-body">
+          <!-- Stats -->
+          <div class="stats-section">
+            <div class="stat-card">
+              <i class="pi pi-users"></i>
+              <div class="stat-value">{{ formatNumber(selectedArtist.monthlyListeners) }}</div>
+              <div class="stat-label">Monthly Listeners</div>
+            </div>
+          </div>
 
-            <ng-template pTemplate="body" let-artist>
-                <tr>
-                    <td>
-                        <div class="artist-avatar">
-                            <img *ngIf="artist.imageUrl" [src]="artist.imageUrl" [alt]="artist.name" class="artist-img" />
-                            <div *ngIf="!artist.imageUrl" class="artist-placeholder">
-                                <i class="pi pi-user"></i>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex align-items-center gap-2">
-                            <span class="font-bold">{{artist.name}}</span>
-                            <i *ngIf="artist.verified" class="pi pi-verified text-primary" pTooltip="Verified Artist"></i>
-                        </div>
-                    </td>
-                    <td>
-                        <p-tag *ngIf="artist.genre" [value]="artist.genre" severity="info"></p-tag>
-                        <span *ngIf="!artist.genre" class="text-secondary">-</span>
-                    </td>
-                    <td>{{artist.country || '-'}}</td>
-                    <td>{{formatNumber(artist.monthlyListeners)}}</td>
-                    <td>
-                        <p-tag [value]="artist.active ? 'Active' : 'Inactive'" 
-                               [severity]="artist.active ? 'success' : 'danger'"></p-tag>
-                    </td>
-                    <td>
-                        <div class="flex gap-1">
-                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
-                                (click)="editArtist(artist)" pTooltip="Edit"></button>
-                            <button pButton [icon]="artist.verified ? 'pi pi-times-circle' : 'pi pi-check-circle'" 
-                                class="p-button-rounded p-button-text p-button-sm"
-                                [class.p-button-success]="!artist.verified"
-                                [class.p-button-warning]="artist.verified"
-                                (click)="toggleVerification(artist)" 
-                                [pTooltip]="artist.verified ? 'Remove Verification' : 'Verify Artist'"></button>
-                            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                (click)="confirmDelete(artist)" pTooltip="Delete"></button>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
+          <!-- Bio -->
+          <div class="bio-section" *ngIf="selectedArtist.bio">
+            <h4>Biography</h4>
+            <p>{{ selectedArtist.bio }}</p>
+          </div>
 
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="7" class="text-center p-4">
-                        <div class="empty-state">
-                            <i class="pi pi-users text-4xl text-secondary mb-3"></i>
-                            <p>No artists found. Add your first artist!</p>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </p-card>
+          <!-- Social Links -->
+          <div class="social-section">
+            <h4>Social Links</h4>
+            <div class="social-links">
+              <a *ngIf="selectedArtist.spotifyUrl" [href]="selectedArtist.spotifyUrl" target="_blank" class="social-link spotify">
+                <i class="pi pi-spotify"></i> Spotify
+              </a>
+              <a *ngIf="selectedArtist.youtubeUrl" [href]="selectedArtist.youtubeUrl" target="_blank" class="social-link youtube">
+                <i class="pi pi-youtube"></i> YouTube
+              </a>
+              <a *ngIf="selectedArtist.instagramUrl" [href]="selectedArtist.instagramUrl" target="_blank" class="social-link instagram">
+                <i class="pi pi-instagram"></i> Instagram
+              </a>
+              <a *ngIf="selectedArtist.websiteUrl" [href]="selectedArtist.websiteUrl" target="_blank" class="social-link website">
+                <i class="pi pi-globe"></i> Website
+              </a>
+              <span *ngIf="!selectedArtist.spotifyUrl && !selectedArtist.youtubeUrl && !selectedArtist.instagramUrl && !selectedArtist.websiteUrl"
+                    class="text-secondary">No social links added</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedArtist?.id" class="no-selection">
+        <i class="pi pi-arrow-left"></i>
+        <p>Select an artist to view details</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Artist Edit/Create Dialog -->
-<p-dialog [(visible)]="artistDialog" [style]="{width: '700px'}" 
-          [header]="isNewArtist ? 'Add New Artist' : 'Edit Artist'" 
+<p-dialog [(visible)]="artistDialog" [style]="{width: '700px'}"
+          [header]="isNewArtist ? 'Add New Artist' : 'Edit Artist'"
           [modal]="true" class="p-fluid">
     <ng-template pTemplate="content">
         <div class="grid">
@@ -107,12 +153,12 @@
             </div>
             <div class="col-12 md:col-6">
                 <label for="genre" class="block text-sm font-medium mb-2">Genre</label>
-                <p-dropdown id="genre" [options]="genres" [(ngModel)]="selectedArtist.genre" 
+                <p-dropdown id="genre" [options]="genres" [(ngModel)]="selectedArtist.genre"
                             placeholder="Select Genre" [showClear]="true" styleClass="w-full"></p-dropdown>
             </div>
             <div class="col-12 md:col-6">
                 <label for="country" class="block text-sm font-medium mb-2">Country</label>
-                <p-dropdown id="country" [options]="countries" [(ngModel)]="selectedArtist.country" 
+                <p-dropdown id="country" [options]="countries" [(ngModel)]="selectedArtist.country"
                             placeholder="Select Country" [showClear]="true" styleClass="w-full"></p-dropdown>
             </div>
             <div class="col-12 md:col-6">
@@ -126,12 +172,27 @@
 
             <!-- Image & Links -->
             <div class="col-12 mt-3">
-                <h4 class="mt-0 mb-3 text-primary">Image & Social Links</h4>
+                <h4 class="mt-0 mb-3 text-primary">Artist Image</h4>
             </div>
             <div class="col-12">
-                <label for="imageUrl" class="block text-sm font-medium mb-2">Image URL</label>
-                <input id="imageUrl" type="text" pInputText [(ngModel)]="selectedArtist.imageUrl" class="w-full" 
-                       placeholder="https://example.com/artist-image.jpg" />
+                <label class="block text-sm font-medium mb-2">Upload Image</label>
+                <div class="image-upload-section">
+                    <div class="image-preview" *ngIf="imagePreviewUrl">
+                        <img [src]="imagePreviewUrl" alt="Artist preview" />
+                        <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                                (click)="clearImage()" pTooltip="Remove image"></button>
+                    </div>
+                    <div class="image-upload-controls" *ngIf="!imagePreviewUrl">
+                        <p-fileUpload mode="basic" name="image" (onSelect)="onImageSelect($event)"
+                            accept="image/*" chooseLabel="Choose Image" [auto]="false"></p-fileUpload>
+                        <small class="text-secondary mt-2 block">Image will be saved as "artists/{{selectedArtist.name | lowercase}}.jpg"</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="col-12 mt-3">
+                <h4 class="mt-0 mb-3 text-primary">Social Links</h4>
             </div>
             <div class="col-12 md:col-6">
                 <label for="spotifyUrl" class="block text-sm font-medium mb-2">
@@ -172,9 +233,11 @@
             </div>
         </div>
     </ng-template>
+
     <ng-template pTemplate="footer">
-        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton label="Save" icon="pi pi-check" class="p-button-primary" (click)="saveArtist()"></button>
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()" [disabled]="uploadingImage"></button>
+        <button pButton [label]="uploadingImage ? 'Uploading...' : 'Save'" icon="pi pi-check" class="p-button-primary"
+                (click)="saveArtist()" [loading]="uploadingImage"></button>
     </ng-template>
 </p-dialog>
 

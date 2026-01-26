@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
+import { AlbumService, Album } from '../../core/service/album.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -22,6 +23,10 @@ export class UploadMediaComponent implements OnInit {
     artists: Artist[] = [];
     selectedArtist: Artist | null = null;
 
+    // Album selection
+    albums: Album[] = [];
+    selectedAlbum: Album | null = null;
+
     file: File | null = null;
     thumbnail: File | null = null;
     lyrics: File | null = null;
@@ -31,11 +36,13 @@ export class UploadMediaComponent implements OnInit {
     constructor(
         private mediaService: MediaService,
         private artistService: ArtistService,
+        private albumService: AlbumService,
         private messageService: MessageService
     ) { }
 
     ngOnInit(): void {
         this.loadArtists();
+        this.loadAlbums();
     }
 
     loadArtists() {
@@ -45,6 +52,17 @@ export class UploadMediaComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Failed to load artists', err);
+            }
+        });
+    }
+
+    loadAlbums(): void {
+        this.albumService.getAllActiveAlbums().subscribe({
+            next: (albums) => {
+                this.albums = albums;
+            },
+            error: (err) => {
+                console.error('Failed to load albums', err);
             }
         });
     }
@@ -75,6 +93,9 @@ export class UploadMediaComponent implements OnInit {
         if (this.selectedArtist?.id) {
             formData.append('artistId', this.selectedArtist.id.toString());
         }
+        if (this.selectedAlbum?.id) {
+            formData.append('albumId', this.selectedAlbum.id.toString());
+        }
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -86,7 +107,13 @@ export class UploadMediaComponent implements OnInit {
             next: (res) => {
                 this.loading = false;
                 this.lastUploadedMedia = res;
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media uploaded successfully' });
+
+                let message = 'Media uploaded successfully';
+                if (this.selectedAlbum) {
+                    message += ` and added to "${this.selectedAlbum.name}"`;
+                }
+
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: message });
                 this.resetForm();
             },
             error: (err) => {
@@ -102,9 +129,9 @@ export class UploadMediaComponent implements OnInit {
         this.description = '';
         this.mediaType = null;
         this.selectedArtist = null;
+        this.selectedAlbum = null;
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;
     }
 }
-

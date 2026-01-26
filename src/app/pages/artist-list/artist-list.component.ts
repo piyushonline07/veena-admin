@@ -25,6 +25,11 @@ export class ArtistListComponent implements OnInit {
     genres: string[] = ['Pop', 'Rock', 'Hip Hop', 'R&B', 'Electronic', 'Classical', 'Jazz', 'Country', 'Folk', 'Indie', 'Metal', 'Devotional', 'Bollywood', 'Other'];
     countries: string[] = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan', 'South Korea', 'Brazil', 'Other'];
 
+    // Image upload state
+    selectedImageFile: File | null = null;
+    imagePreviewUrl: string | null = null;
+    uploadingImage: boolean = false;
+
     constructor(
         private artistService: ArtistService,
         private messageService: MessageService,
@@ -79,17 +84,47 @@ export class ArtistListComponent implements OnInit {
     openNewArtist() {
         this.selectedArtist = this.createEmptyArtist();
         this.isNewArtist = true;
+        this.selectedImageFile = null;
+        this.imagePreviewUrl = null;
         this.artistDialog = true;
     }
 
     editArtist(artist: Artist) {
         this.selectedArtist = { ...artist };
         this.isNewArtist = false;
+        this.selectedImageFile = null;
+        this.imagePreviewUrl = artist.imageUrl || null;
         this.artistDialog = true;
+    }
+
+    selectArtist(artist: Artist) {
+        this.selectedArtist = { ...artist };
     }
 
     hideDialog() {
         this.artistDialog = false;
+        this.selectedImageFile = null;
+        this.imagePreviewUrl = null;
+        this.uploadingImage = false;
+    }
+
+    onImageSelect(event: any) {
+        const file: File | undefined = event?.files?.[0];
+        if (!file) return;
+
+        this.selectedImageFile = file;
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.imagePreviewUrl = e.target?.result || null;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    clearImage() {
+        this.selectedImageFile = null;
+        this.imagePreviewUrl = null;
+        this.selectedArtist.imageUrl = '';
     }
 
     saveArtist() {
@@ -101,26 +136,58 @@ export class ArtistListComponent implements OnInit {
         if (this.isNewArtist) {
             this.artistService.createArtist(this.selectedArtist).subscribe({
                 next: (artist) => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Artist created successfully' });
-                    this.artistDialog = false;
-                    this.loadArtists(0, this.rows);
+                    // Upload image if selected
+                    if (this.selectedImageFile && artist.id) {
+                        this.uploadImageForArtist(artist.id, 'Artist created successfully');
+                    } else {
+                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Artist created successfully' });
+                        this.artistDialog = false;
+                        this.loadArtists(0, this.rows);
+                    }
                 },
-                error: (err) => {
+                error: () => {
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create artist' });
                 }
             });
         } else {
             this.artistService.updateArtist(this.selectedArtist.id!, this.selectedArtist).subscribe({
                 next: (artist) => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Artist updated successfully' });
-                    this.artistDialog = false;
-                    this.loadArtists(0, this.rows);
+                    // Upload image if a new one was selected
+                    if (this.selectedImageFile && artist.id) {
+                        this.uploadImageForArtist(artist.id, 'Artist updated successfully');
+                    } else {
+                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Artist updated successfully' });
+                        this.artistDialog = false;
+                        this.loadArtists(0, this.rows);
+                    }
                 },
-                error: (err) => {
+                error: () => {
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update artist' });
                 }
             });
         }
+    }
+
+    private uploadImageForArtist(artistId: number, successMessage: string) {
+        if (!this.selectedImageFile) return;
+
+        this.uploadingImage = true;
+        this.artistService.uploadArtistImage(artistId, this.selectedImageFile).subscribe({
+            next: (updatedArtist) => {
+                this.uploadingImage = false;
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: successMessage });
+                this.artistDialog = false;
+                this.selectedImageFile = null;
+                this.imagePreviewUrl = null;
+                this.loadArtists(0, this.rows);
+            },
+            error: () => {
+                this.uploadingImage = false;
+                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Artist saved but image upload failed' });
+                this.artistDialog = false;
+                this.loadArtists(0, this.rows);
+            }
+        });
     }
 
     confirmDelete(artist: Artist) {

@@ -65,4 +65,17 @@ export class ArtistService {
     toggleVerification(id: number): Observable<Artist> {
         return this.http.post<Artist>(`${this.apiUrl}/${id}/verify`, {});
     }
+
+    uploadArtistImage(id: number, image: File): Observable<Artist> {
+        const formData = new FormData();
+        formData.append('image', image);
+        return this.http.post<Artist>(`${this.apiUrl}/${id}/image`, formData);
+    }
+
+    uploadArtistImageByName(artistName: string, image: File): Observable<{ imageUrl: string }> {
+        const formData = new FormData();
+        formData.append('name', artistName);
+        formData.append('image', image);
+        return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/image`, formData);
+    }
 }
