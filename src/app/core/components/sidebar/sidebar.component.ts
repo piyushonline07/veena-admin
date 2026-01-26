@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { MenuItem } from 'primeng/api';
+import { Router, NavigationEnd } from '@angular/router';
+import { SidebarService } from '../../service/sidebar.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
@@ -8,10 +11,34 @@ import { MenuItem } from 'primeng/api';
 })
 export class SidebarComponent implements OnInit {
     items: MenuItem[] = [];
+    private isMobile = false;
 
-    constructor() { }
+    constructor(
+        private router: Router,
+        private sidebarService: SidebarService
+    ) {
+        this.checkMobile();
+    }
+
+    @HostListener('window:resize')
+    onResize() {
+        this.checkMobile();
+    }
+
+    private checkMobile(): void {
+        this.isMobile = window.innerWidth <= 768;
+    }
 
     ngOnInit(): void {
+        // Close sidebar on navigation on mobile
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            if (this.isMobile) {
+                this.sidebarService.close();
+            }
+        });
+
         this.items = [
             {
                 label: 'Navigation',

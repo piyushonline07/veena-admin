@@ -362,4 +362,168 @@
   .artist-container .artist-content {
     grid-template-columns: 1fr;
   }
+
+  .artist-container .details-panel {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .artist-container {
+    padding: 0.75rem;
+
+    .artist-header {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+      }
+    }
+
+    .artist-content {
+      gap: 1rem;
+      min-height: auto;
+    }
+
+    .artists-panel {
+      padding: 0.75rem;
+
+      .panel-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        h3 {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .artist-card {
+      padding: 0.5rem;
+
+      .artist-avatar {
+        width: 40px;
+        height: 40px;
+
+        i {
+          font-size: 1rem;
+        }
+      }
+
+      .artist-info {
+        .artist-name {
+          font-size: 0.9rem;
+        }
+
+        .artist-meta {
+          font-size: 0.7rem;
+        }
+      }
+    }
+
+    .artist-details {
+      .details-header {
+        flex-direction: column;
+        gap: 1rem;
+
+        .artist-profile {
+          flex-direction: column;
+          text-align: center;
+
+          .profile-avatar {
+            width: 80px;
+            height: 80px;
+          }
+
+          .profile-info {
+            h2 {
+              font-size: 1.2rem;
+            }
+
+            .profile-meta {
+              justify-content: center;
+              flex-wrap: wrap;
+            }
+          }
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+      }
+
+      .stats-section {
+        .stat-card {
+          padding: 0.75rem;
+
+          .stat-value {
+            font-size: 1.25rem;
+          }
+        }
+      }
+
+      .social-links {
+        flex-wrap: wrap;
+
+        .social-link {
+          font-size: 0.8rem;
+          padding: 0.35rem 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .artist-container {
+    padding: 0.5rem;
+
+    .artist-header {
+      h1 {
+        font-size: 1.25rem;
+      }
+    }
+
+    .artists-panel {
+      .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+
+        ::ng-deep .p-button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .artist-actions {
+      button {
+        padding: 0.25rem !important;
+      }
+    }
+  }
+}
+
+/* Dialog Responsive */
+::ng-deep {
+  @media (max-width: 768px) {
+    .p-dialog {
+      width: 95vw !important;
+      max-width: 95vw !important;
+
+      .p-dialog-content {
+        padding: 0.75rem;
+      }
+
+      .grid {
+        .col-12.md\\:col-6 {
+          width: 100%;
+        }
+      }
+    }
+  }
 }

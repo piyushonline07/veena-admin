@@ -455,4 +455,129 @@
   .album-content {
     grid-template-columns: 1fr;
   }
+
+  .details-panel {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .album-container {
+    padding: 0.75rem;
+  }
+
+  .album-header {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+    }
+  }
+
+  .album-content {
+    gap: 1rem;
+    min-height: auto;
+  }
+
+  .albums-panel {
+    padding: 0.75rem;
+
+    .panel-header {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      h3 {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .album-card {
+    padding: 0.5rem;
+
+    .album-cover {
+      width: 40px;
+      height: 40px;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+
+    .album-info {
+      .album-name {
+        font-size: 0.9rem;
+      }
+
+      .album-meta {
+        font-size: 0.7rem;
+      }
+    }
+  }
+
+  .album-details {
+    .details-header {
+      flex-direction: column;
+      gap: 1rem;
+
+      .album-profile {
+        flex-direction: column;
+        text-align: center;
+
+        .profile-cover {
+          width: 80px;
+          height: 80px;
+        }
+
+        .profile-info {
+          h2 {
+            font-size: 1.2rem;
+          }
+        }
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .album-info-section {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .album-container {
+    padding: 0.5rem;
+  }
+
+  .album-header {
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .albums-panel {
+    .panel-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      ::ng-deep .p-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .album-actions {
+    button {
+      padding: 0.25rem !important;
+    }
+  }
 }

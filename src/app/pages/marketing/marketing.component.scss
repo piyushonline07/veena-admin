@@ -1,0 +1,117 @@
+.marketing-container {
+  padding: 1.5rem;
+}
+
+.marketing-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: #6366f1;
+    }
+  }
+
+  .subtitle {
+    margin: 0.25rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .marketing-container {
+    padding: 0.75rem;
+  }
+
+  .marketing-header {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+    }
+  }
+
+  ::ng-deep {
+    .p-card {
+      .p-card-body {
+        padding: 0.75rem;
+      }
+
+      .p-card-title {
+        font-size: 1.1rem;
+      }
+    }
+
+    .grid {
+      .col-12.md\:col-6 {
+        width: 100%;
+      }
+    }
+
+    .p-dropdown {
+      width: 100% !important;
+    }
+
+    .p-inputtextarea {
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .marketing-container {
+    padding: 0.5rem;
+  }
+
+  .marketing-header {
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  ::ng-deep {
+    .p-card {
+      .p-card-body {
+        padding: 0.5rem;
+      }
+
+      .p-card-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .p-button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .p-tabview {
+      .p-tabview-nav {
+        flex-wrap: wrap;
+
+        li {
+          flex: 1;
+
+          .p-tabview-nav-link {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+            justify-content: center;
+          }
+        }
+      }
+
+      .p-tabview-panels {
+        padding: 0.5rem;
+      }
+    }
+  }
+}

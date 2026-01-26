@@ -148,34 +148,6 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-container {
-    height: 250px;
-  }
-
-  .stat-card {
-    padding: 1.25rem;
-
-    .stat-value {
-      font-size: 1.5rem;
-    }
-  }
-}
-
 // Trending Section
 .rank-badge {
   width: 28px;
@@ -226,5 +198,115 @@
         padding: 1rem;
       }
     }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
+
+    .stat-trend {
+      font-size: 0.65rem;
+    }
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chart-card {
+    padding: 0.75rem;
+
+    .chart-header {
+      margin-bottom: 0.75rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      h3 {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+  .trending-section {
+    ::ng-deep .p-datatable {
+      .p-datatable-thead > tr > th {
+        padding: 0.5rem;
+        font-size: 0.65rem;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .rank-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    flex-direction: row;
+    text-align: left;
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+    }
+  }
+
+  .chart-container {
+    height: 180px;
   }
 }

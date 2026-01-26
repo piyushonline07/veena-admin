@@ -14,6 +14,26 @@
         }
     }
 
+    .thumbnail-cell {
+        position: relative;
+        display: inline-block;
+
+        .link-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
     .media-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -156,3 +176,338 @@
         }
     }
 }
+
+/* Preview Dialog Styles */
+.preview-content {
+    .video-preview,
+    .audio-preview {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .media-info-section {
+        h3 {
+            color: var(--text-primary);
+        }
+    }
+
+    .linked-media-section {
+        border: 1px solid var(--surface-border);
+
+        .linked-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+    }
+}
+
+::ng-deep .media-preview-dialog {
+    .p-dialog-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .media-list-container {
+        padding: 0.5rem;
+
+        .header-section {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-container {
+                width: 100%;
+
+                input {
+                    width: 100% !important;
+                }
+            }
+        }
+
+        .media-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .media-card {
+            .thumbnail-container {
+                aspect-ratio: 1;
+            }
+
+            .card-content {
+                padding: 0.75rem;
+
+                .media-title {
+                    font-size: 0.9rem;
+                }
+
+                .media-description {
+                    display: none;
+                }
+
+                .card-footer {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    align-items: flex-start;
+                }
+            }
+        }
+    }
+
+    .preview-content {
+        .media-info-section {
+            padding: 0.75rem !important;
+
+            h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        .linked-media-section {
+            .linked-thumbnail {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .media-list-container {
+        .header-section {
+            .flex {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+        }
+
+        .media-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .media-card {
+            .card-content {
+                padding: 0.5rem;
+
+                .media-title {
+                    font-size: 0.85rem;
+                }
+
+                .card-footer {
+                    .p-tag {
+                        font-size: 0.65rem;
+                    }
+
+                    button {
+                        padding: 0.25rem !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+::ng-deep {
+    @media (max-width: 768px) {
+        .media-preview-dialog {
+            width: 95vw !important;
+            max-width: 95vw !important;
+
+            .p-dialog-content {
+                padding: 0.75rem;
+            }
+        }
+
+        .p-datatable {
+            .p-datatable-wrapper {
+                overflow-x: visible;
+            }
+
+            .p-datatable-thead {
+                display: none !important;
+            }
+
+            .p-datatable-tbody > tr {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                position: relative;
+                background: var(--surface-card) !important;
+                border: 1px solid var(--surface-border);
+                border-radius: 8px;
+                margin-bottom: 0.75rem;
+                padding: 0.75rem;
+                padding-right: 4rem; // Space for action buttons
+                gap: 0.5rem;
+
+                > td {
+                    border: none !important;
+                    padding: 0 !important;
+                    background: transparent !important;
+
+                    // Thumbnail column
+                    &:nth-child(1) {
+                        width: 70px;
+                        flex-shrink: 0;
+
+                        img {
+                            width: 60px;
+                            height: 60px;
+                            object-fit: cover;
+                            border-radius: 6px;
+                        }
+                    }
+
+                    // Title column
+                    &:nth-child(2) {
+                        flex: 1;
+                        min-width: 0;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.25rem;
+
+                        .font-bold {
+                            font-size: 0.95rem !important;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .text-xs {
+                            font-size: 0.65rem !important;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                    }
+
+                    // Artist column
+                    &:nth-child(3) {
+                        width: 100%;
+                        order: 10;
+                        margin-top: 0.25rem;
+                        font-size: 0.85rem;
+
+                        &::before {
+                            content: "Artist: ";
+                            color: var(--text-secondary);
+                            font-size: 0.75rem;
+                        }
+                    }
+
+                    // Album column
+                    &:nth-child(4) {
+                        width: 100%;
+                        order: 11;
+                        font-size: 0.85rem;
+
+                        &::before {
+                            content: "Album: ";
+                            color: var(--text-secondary);
+                            font-size: 0.75rem;
+                        }
+                    }
+
+                    // Type, Status, Visibility columns - show inline
+                    &:nth-child(5),
+                    &:nth-child(6),
+                    &:nth-child(7) {
+                        width: auto;
+                        order: 5;
+
+                        .p-tag {
+                            font-size: 0.65rem !important;
+                            padding: 0.15rem 0.4rem !important;
+                        }
+                    }
+
+                    // Created At column
+                    &:nth-child(8) {
+                        width: 100%;
+                        order: 12;
+                        font-size: 0.75rem;
+                        color: var(--text-secondary);
+                        margin-top: 0.25rem;
+
+                        &::before {
+                            content: "Created: ";
+                        }
+                    }
+
+                    // Actions column
+                    &:nth-child(9) {
+                        position: absolute;
+                        right: 0.5rem;
+                        top: 0.5rem;
+                        width: auto !important;
+
+                        .flex {
+                            gap: 0.25rem !important;
+                        }
+
+                        button {
+                            width: 28px !important;
+                            height: 28px !important;
+                            padding: 0 !important;
+
+                            .pi {
+                                font-size: 0.8rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @media (max-width: 576px) {
+        .p-datatable {
+            .p-datatable-tbody > tr {
+                padding: 0.5rem;
+                padding-right: 3rem; // Space for action buttons
+
+                > td {
+                    // Thumbnail
+                    &:nth-child(1) {
+                        width: 50px;
+
+                        img {
+                            width: 45px;
+                            height: 45px;
+                        }
+                    }
+
+                    // Title
+                    &:nth-child(2) {
+                        .font-bold {
+                            font-size: 0.85rem !important;
+                        }
+                    }
+
+                    // Hide album on very small screens
+                    &:nth-child(4) {
+                        display: none;
+                    }
+
+                    // Actions
+                    &:nth-child(9) {
+                        button {
+                            width: 24px !important;
+                            height: 24px !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

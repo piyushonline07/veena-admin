@@ -4,3 +4,62 @@
 
 /* Add top margin to Admin Settings section to align with overall spacing */
 .admin-settings { margin-top: 1rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 0.75rem;
+  }
+
+  ::ng-deep {
+    .p-card {
+      .p-card-body {
+        padding: 0.75rem;
+      }
+
+      .p-card-title {
+        font-size: 1.1rem;
+      }
+    }
+
+    .grid {
+      .col-12.md\\:col-6 {
+        width: 100%;
+      }
+    }
+
+    .p-inputswitch {
+      transform: scale(0.9);
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .settings-container {
+    padding: 0.5rem;
+  }
+
+  .field {
+    margin-bottom: 0.75rem;
+
+    label {
+      font-size: 0.9rem;
+    }
+  }
+
+  ::ng-deep {
+    .p-card {
+      .p-card-body {
+        padding: 0.5rem;
+      }
+
+      .p-card-footer {
+        .p-button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+

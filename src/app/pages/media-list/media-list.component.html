@@ -35,6 +35,7 @@
                         <th style="width: 80px">Thumbnail</th>
                         <th>Title</th>
                         <th>Artist</th>
+                        <th>Album</th>
                         <th>Type</th>
                         <th>Status</th>
                         <th>Visibility</th>
@@ -46,8 +47,12 @@
                 <ng-template pTemplate="body" let-media>
                     <tr>
                         <td (click)="previewMedia(media)" class="cursor-pointer">
-                            <img [src]="media.thumbnailUrl || 'assets/placeholder-thumb.png'" [alt]="media.title"
-                                width="60" class="shadow-2 border-round" />
+                            <div class="thumbnail-cell">
+                                <img [src]="media.thumbnailUrl || 'assets/placeholder-thumb.png'" [alt]="media.title"
+                                    width="60" class="shadow-2 border-round" />
+                                <i *ngIf="media.linkedMediaId" class="pi pi-link link-indicator"
+                                   pTooltip="Has linked media"></i>
+                            </div>
                         </td>
                         <td>
                             <span class="font-bold text-lg cursor-pointer"
@@ -61,6 +66,13 @@
                                     pTooltip="Verified Artist"></i>
                             </div>
                             <span *ngIf="!media.artist" class="text-secondary">-</span>
+                        </td>
+                        <td>
+                            <div *ngIf="media.album" class="flex align-items-center gap-1">
+                                <i class="pi pi-book text-secondary text-sm"></i>
+                                <span>{{media.album.name}}</span>
+                            </div>
+                            <span *ngIf="!media.album" class="text-secondary">-</span>
                         </td>
                         <td>
                             <p-tag [value]="media.mediaType"
@@ -93,7 +105,7 @@
 
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="8">No media items found.</td>
+                        <td colspan="9">No media items found.</td>
                     </tr>
                 </ng-template>
             </p-table>
@@ -178,30 +190,81 @@
 </p-dialog>
 
 <!-- Preview Dialog -->
-<p-dialog [(visible)]="previewDialog" [style]="{width: '800px'}" [header]="selectedMediaForPreview?.title"
-    [modal]="true" class="p-fluid" (onHide)="closePreview()">
+<p-dialog [(visible)]="previewDialog" [style]="{width: '900px'}" [header]="selectedMediaForPreview?.title"
+    [modal]="true" class="p-fluid media-preview-dialog" (onHide)="closePreview()">
 
-    <div *ngIf="previewDialog && selectedMediaForPreview">
-        <app-hls-player *ngIf="selectedMediaForPreview.mediaType === 'VIDEO'" [url]="selectedMediaForPreview.hlsUrl"
-            [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''" [mediaType]="selectedMediaForPreview.mediaType"
-            maxHeight="500px">
-        </app-hls-player>
+    <div *ngIf="previewDialog && selectedMediaForPreview" class="preview-content">
+        <!-- Video Preview -->
+        <div *ngIf="selectedMediaForPreview.mediaType === 'VIDEO'" class="video-preview">
+            <app-hls-player [url]="selectedMediaForPreview.hlsUrl"
+                [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''" [mediaType]="selectedMediaForPreview.mediaType"
+                maxHeight="500px">
+            </app-hls-player>
+        </div>
 
-        <app-hls-audio-player *ngIf="selectedMediaForPreview.mediaType === 'AUDIO'"
-            [url]="selectedMediaForPreview.hlsUrl" [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''"
-            [lyricsUrl]="selectedMediaForPreview.lyricsUrl || ''">
-        </app-hls-audio-player>
-    </div>
+        <!-- Audio Preview with Prominent Thumbnail -->
+        <div *ngIf="selectedMediaForPreview.mediaType === 'AUDIO'" class="audio-preview">
+            <app-hls-audio-player
+                [url]="selectedMediaForPreview.hlsUrl"
+                [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''"
+                [lyricsUrl]="selectedMediaForPreview.lyricsUrl || ''">
+            </app-hls-audio-player>
+        </div>
 
-    <div class="mt-3" *ngIf="selectedMediaForPreview">
-        <div class="text-xl font-bold mb-2">{{selectedMediaForPreview.title}}</div>
-        <p class="text-secondary line-height-3">{{selectedMediaForPreview.description}}</p>
-        <div class="flex align-items-center gap-2 mt-2">
-            <p-tag [value]="selectedMediaForPreview.mediaType" severity="info"></p-tag>
-            <p-tag [value]="selectedMediaForPreview.visibility"
-                [severity]="selectedMediaForPreview.visibility === 'PUBLIC' ? 'success' : 'danger'"></p-tag>
-            <a [href]="selectedMediaForPreview.lyricsUrl" target="_blank" pButton icon="pi pi-file" label="View Lyrics"
-                class="p-button-sm p-button-outlined" *ngIf="selectedMediaForPreview.lyricsUrl"></a>
+        <!-- Media Info Section -->
+        <div class="media-info-section mt-4 p-3 surface-card border-round">
+            <div class="flex align-items-start gap-3">
+                <div class="flex-grow-1">
+                    <h3 class="m-0 mb-2">{{selectedMediaForPreview.title}}</h3>
+                    <p class="text-secondary m-0 line-height-3">{{selectedMediaForPreview.description || 'No description available.'}}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap align-items-center gap-2 mt-3">
+                <p-tag [value]="selectedMediaForPreview.mediaType"
+                       [severity]="selectedMediaForPreview.mediaType === 'VIDEO' ? 'primary' : 'info'">
+                </p-tag>
+                <p-tag [value]="selectedMediaForPreview.visibility"
+                       [severity]="selectedMediaForPreview.visibility === 'PUBLIC' ? 'success' : 'danger'">
+                </p-tag>
+                <p-tag *ngIf="selectedMediaForPreview.artist"
+                       [value]="selectedMediaForPreview.artist.name"
+                       severity="secondary">
+                </p-tag>
+                <p-tag *ngIf="selectedMediaForPreview.album"
+                       [value]="selectedMediaForPreview.album.name"
+                       severity="warning"
+                       icon="pi pi-book">
+                </p-tag>
+            </div>
+
+            <!-- Linked Media Section -->
+            <div *ngIf="selectedMediaForPreview.linkedMedia" class="linked-media-section mt-3 p-3 surface-ground border-round">
+                <div class="flex align-items-center gap-2 mb-2">
+                    <i class="pi pi-link text-primary"></i>
+                    <span class="font-semibold">Linked {{selectedMediaForPreview.linkedMedia.mediaType}}</span>
+                </div>
+                <div class="flex align-items-center gap-3">
+                    <img *ngIf="selectedMediaForPreview.linkedMedia.thumbnailUrl"
+                         [src]="selectedMediaForPreview.linkedMedia.thumbnailUrl"
+                         alt="Linked media thumbnail"
+                         class="linked-thumbnail border-round" />
+                    <div>
+                        <div class="font-medium">{{selectedMediaForPreview.linkedMedia.title}}</div>
+                        <p-tag [value]="selectedMediaForPreview.linkedMedia.mediaType"
+                               [severity]="selectedMediaForPreview.linkedMedia.mediaType === 'VIDEO' ? 'primary' : 'info'"
+                               class="mt-1">
+                        </p-tag>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex align-items-center gap-2 mt-3">
+                <a *ngIf="selectedMediaForPreview.lyricsUrl"
+                   [href]="selectedMediaForPreview.lyricsUrl" target="_blank"
+                   pButton icon="pi pi-file" label="View Lyrics"
+                   class="p-button-sm p-button-outlined"></a>
+            </div>
         </div>
     </div>
 </p-dialog>

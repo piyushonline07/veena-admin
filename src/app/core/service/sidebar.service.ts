@@ -15,8 +15,20 @@ export class SidebarService {
         }
     }
 
-    toggleSidebar() {
+    toggle() {
         this.sidebarVisibleSubject.next(!this.sidebarVisibleSubject.value);
+    }
+
+    toggleSidebar() {
+        this.toggle();
+    }
+
+    open() {
+        this.sidebarVisibleSubject.next(true);
+    }
+
+    close() {
+        this.sidebarVisibleSubject.next(false);
     }
 
     setSidebarState(visible: boolean) {

@@ -301,3 +301,148 @@ body.dark-theme .p-toast .p-toast-message {
 body.dark-theme ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
+/* ========================================
+   GLOBAL RESPONSIVE STYLES
+======================================== */
+@media (max-width: 768px) {
+  /* Typography */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* PrimeNG Components */
+  .p-card {
+    .p-card-body {
+      padding: 0.75rem !important;
+    }
+
+    .p-card-title {
+      font-size: 1.1rem !important;
+    }
+  }
+
+  .p-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 0.5rem !important;
+
+    .p-dialog-header {
+      padding: 0.75rem 1rem !important;
+
+      .p-dialog-title {
+        font-size: 1.1rem !important;
+      }
+    }
+
+    .p-dialog-content {
+      padding: 0.75rem !important;
+    }
+
+    .p-dialog-footer {
+      padding: 0.5rem 0.75rem !important;
+    }
+  }
+
+  .p-datatable {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  .p-paginator {
+    padding: 0.5rem !important;
+
+    .p-paginator-pages {
+      .p-paginator-page {
+        min-width: 2rem !important;
+        height: 2rem !important;
+      }
+    }
+  }
+
+  .p-dropdown {
+    width: 100% !important;
+  }
+
+  .p-inputtext {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+
+  .p-button {
+    &.p-button-sm {
+      padding: 0.4rem 0.75rem !important;
+      font-size: 0.8rem !important;
+    }
+  }
+
+  /* Grid adjustments */
+  .grid {
+    margin: 0 !important;
+
+    > [class*="col-"] {
+      padding: 0.5rem !important;
+    }
+
+    .md\:col-6 {
+      width: 100% !important;
+    }
+  }
+
+  /* Flex adjustments */
+  .flex.gap-3 {
+    gap: 0.5rem !important;
+  }
+
+  .flex.gap-2 {
+    gap: 0.25rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Even smaller screens */
+  .p-card {
+    .p-card-body {
+      padding: 0.5rem !important;
+    }
+  }
+
+  .p-button {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+
+    .p-button-icon {
+      font-size: 0.875rem !important;
+    }
+
+    &.p-button-icon-only {
+      width: 2.25rem !important;
+      padding: 0.5rem !important;
+    }
+  }
+
+  .p-tag {
+    font-size: 0.7rem !important;
+    padding: 0.15rem 0.4rem !important;
+  }
+
+  /* Hide labels on small buttons */
+  .mobile-icon-only {
+    .p-button-label {
+      display: none !important;
+    }
+
+    .p-button-icon {
+      margin-right: 0 !important;
+    }
+  }
+}
+

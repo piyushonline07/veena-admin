@@ -33,4 +33,8 @@ export class AppComponent implements OnInit {
       });
     }
   }
+
+  closeSidebar(): void {
+    this.sidebarService.toggle();
+  }
 }

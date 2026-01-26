@@ -14,3 +14,75 @@
         color: var(--text-primary);
     }
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-container {
+        padding: 0.75rem;
+
+        .field {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+        }
+    }
+
+    ::ng-deep {
+        .p-card {
+            .p-card-body {
+                padding: 0.75rem;
+            }
+
+            .p-card-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        .grid {
+            .col-12.md\\:col-6 {
+                width: 100%;
+            }
+        }
+
+        .p-fileupload {
+            .p-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .p-dropdown {
+            width: 100% !important;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .upload-container {
+        padding: 0.5rem;
+
+        .field {
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    ::ng-deep {
+        .p-card {
+            .p-card-body {
+                padding: 0.5rem;
+            }
+
+            .p-card-footer {
+                flex-direction: column;
+                gap: 0.5rem;
+
+                .p-button {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+}

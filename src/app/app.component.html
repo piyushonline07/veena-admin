@@ -1,7 +1,13 @@
 <div class="app-container" [class.sidebar-open]="isSidebarVisible" [class.sidebar-closed]="!isSidebarVisible">
     <app-header></app-header>
     <div class="main-layout">
-        <div class="sidebar-wrapper" *ngIf="isSidebarVisible">
+        <!-- Mobile overlay when sidebar is open -->
+        <div class="mobile-overlay"
+             [class.show]="isSidebarVisible"
+             (click)="closeSidebar()"></div>
+
+        <!-- Sidebar - always in DOM, visibility controlled by CSS -->
+        <div class="sidebar-wrapper" [class.sidebar-visible]="isSidebarVisible">
             <app-sidebar></app-sidebar>
         </div>
         <main class="content-area">
