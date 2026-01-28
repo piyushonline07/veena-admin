@@ -6,7 +6,17 @@ export const environment = {
   production: false,
   apiBaseUrl: 'http://localhost:8080',
   skipAuth: true,  // Set to false to enable authentication in development
-  enableNotifications: false
+  enableNotifications: false,
+  // CloudFront configuration for cache invalidation and media delivery
+  cloudfront: {
+    distributionId: 'E2Y0I9RRO4EI2G',
+    domainName: 'd2rn4a6nwzw5ey.cloudfront.net',
+    url: 'https://d2rn4a6nwzw5ey.cloudfront.net'
+  },
+  // S3 unified bucket
+  s3: {
+    unifiedBucket: 'veenainfrastack-unifiedmediabucket2c966cc9-6eile87tdmek'
+  }
 };
 
 /*
@@ -17,3 +27,5 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+
+

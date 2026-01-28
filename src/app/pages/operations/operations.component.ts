@@ -27,6 +27,9 @@ export class OperationsComponent implements OnInit, OnDestroy {
     loadingAws: boolean = false;
     systemStatus: string = 'Loading...';
 
+    // CloudFront info
+    cloudfrontInfo: any = {};
+
     constructor(
         private adminToolsService: AdminToolsService,
         private messageService: MessageService
@@ -52,9 +55,23 @@ export class OperationsComponent implements OnInit, OnDestroy {
 
     loadDistributions() {
         this.adminToolsService.getDistributions().subscribe(data => {
-            this.distributionOptions = Object.entries(data)
-                .filter(([_, value]) => !!value)
+            // Filter out non-distribution values (like domainName, url)
+            const distOptions = Object.entries(data)
+                .filter(([key, value]) => {
+                    const isValue = !!value && key !== 'domainName' && key !== 'url';
+                    if (key === 'domainName' || key === 'url') {
+                        this.cloudfrontInfo[key] = value;
+                    }
+                    return isValue;
+                })
                 .map(([key, value]) => ({ label: key, value: value }));
+
+            this.distributionOptions = distOptions;
+
+            // Auto-select the first (usually only) distribution
+            if (distOptions.length > 0 && !this.selectedDist) {
+                this.selectedDist = distOptions[0].value;
+            }
         });
     }
 
@@ -102,8 +119,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
                 this.awsHealth = data;
                 this.loadingAws = false;
             },
-            error: (err) => {
-                console.error('Error loading AWS health:', err);
+            error: () => {
                 this.loadingAws = false;
             }
         });
@@ -187,11 +203,11 @@ export class OperationsComponent implements OnInit, OnDestroy {
 
         this.invalidating = true;
         this.adminToolsService.invalidate(this.selectedDist, paths).subscribe({
-            next: (res) => {
+            next: () => {
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Invalidation request submitted' });
                 this.invalidating = false;
             },
-            error: (err) => {
+            error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit request' });
                 this.invalidating = false;
             }
