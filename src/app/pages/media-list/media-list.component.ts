@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
-import { MessageService } from 'primeng/api';
+import { ArtistService } from '../../core/service/artist.service';
+import { AlbumService } from '../../core/service/album.service';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-media-list',
     templateUrl: './media-list.component.html',
     styleUrls: ['./media-list.component.scss'],
-    providers: [MessageService]
+    providers: [MessageService, ConfirmationService]
 })
 export class MediaListComponent implements OnInit {
     mediaList: any[] = [];
@@ -21,6 +23,15 @@ export class MediaListComponent implements OnInit {
     previewDialog: boolean = false;
     selectedMedia: any = {};
     selectedMediaForPreview: any = null;
+    savingMedia: boolean = false;
+
+    // Artists and Albums for dropdowns
+    artistsList: any[] = [];
+    albumsList: any[] = [];
+
+    // File upload state
+    newThumbnailFile: File | null = null;
+    newLyricsFile: File | null = null;
 
     visibilityOptions: any[] = [
         { label: 'Private', value: 'PRIVATE' },
@@ -30,11 +41,37 @@ export class MediaListComponent implements OnInit {
 
     constructor(
         private mediaService: MediaService,
-        private messageService: MessageService
+        private artistService: ArtistService,
+        private albumService: AlbumService,
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService
     ) { }
 
     ngOnInit(): void {
         this.loadMedia(0, this.rows);
+        this.loadArtistsAndAlbums();
+    }
+
+    loadArtistsAndAlbums(): void {
+        // Load artists
+        this.artistService.getArtists(0, 100).subscribe({
+            next: (data) => {
+                this.artistsList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to load artists');
+            }
+        });
+
+        // Load albums
+        this.albumService.getAlbums(0, 100).subscribe({
+            next: (data) => {
+                this.albumsList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to load albums');
+            }
+        });
     }
 
     previewMedia(media: any) {
@@ -75,46 +112,126 @@ export class MediaListComponent implements OnInit {
     }
 
     editMedia(media: any) {
-        this.selectedMedia = { ...media };
+        this.selectedMedia = {
+            ...media,
+            artistId: media.artist?.id || null,
+            albumId: media.album?.id || null
+        };
+        this.newThumbnailFile = null;
+        this.newLyricsFile = null;
         this.mediaDialog = true;
     }
 
     deleteMedia(media: any) {
-        if (confirm(`Are you sure you want to delete "${media.title}"?`)) {
-            this.mediaService.deleteMedia(media.id).subscribe({
-                next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media deleted' });
-                    this.loadMedia(0, this.rows);
-                },
-                error: (err) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete media' });
-                    console.error(err);
-                }
-            });
-        }
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete "${media.title}"? This will also delete all associated files from storage.`,
+            header: 'Confirm Delete',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.mediaService.deleteMedia(media.id).subscribe({
+                    next: () => {
+                        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media and associated files deleted' });
+                        this.loadMedia(0, this.rows);
+                    },
+                    error: (err) => {
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete media' });
+                        console.error(err);
+                    }
+                });
+            }
+        });
     }
 
     hideDialog() {
         this.mediaDialog = false;
+        this.newThumbnailFile = null;
+        this.newLyricsFile = null;
+    }
+
+    onThumbnailSelect(event: any): void {
+        const file = event.files?.[0];
+        if (file) {
+            this.newThumbnailFile = file;
+        }
+    }
+
+    clearThumbnail(): void {
+        this.newThumbnailFile = null;
+    }
+
+    onLyricsSelect(event: any): void {
+        const file = event.files?.[0];
+        if (file) {
+            this.newLyricsFile = file;
+        }
+    }
+
+    clearLyrics(): void {
+        this.newLyricsFile = null;
     }
 
     saveMedia() {
-        const payload = {
-            title: this.selectedMedia.title,
-            description: this.selectedMedia.description,
-            visibility: this.selectedMedia.visibility
-        };
+        this.savingMedia = true;
 
-        this.mediaService.updateMedia(this.selectedMedia.id, payload).subscribe({
-            next: () => {
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media updated' });
-                this.loadMedia(0, this.rows);
-                this.mediaDialog = false;
-            },
-            error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update media' });
-                console.error(err);
+        // Check if we need to upload files
+        const hasFiles = this.newThumbnailFile || this.newLyricsFile;
+        const hasRelationshipChanges = this.selectedMedia.artistId !== undefined || this.selectedMedia.albumId !== undefined;
+
+        if (hasFiles || hasRelationshipChanges) {
+            // Use the new multipart endpoint
+            const formData = new FormData();
+            formData.append('title', this.selectedMedia.title);
+            formData.append('description', this.selectedMedia.description || '');
+            formData.append('visibility', this.selectedMedia.visibility);
+
+            if (this.selectedMedia.artistId !== undefined) {
+                formData.append('artistId', this.selectedMedia.artistId?.toString() || '0');
             }
-        });
+            if (this.selectedMedia.albumId !== undefined) {
+                formData.append('albumId', this.selectedMedia.albumId?.toString() || '0');
+            }
+            if (this.newThumbnailFile) {
+                formData.append('thumbnail', this.newThumbnailFile);
+            }
+            if (this.newLyricsFile) {
+                formData.append('lyrics', this.newLyricsFile);
+            }
+
+            this.mediaService.updateMediaWithFiles(this.selectedMedia.id, formData).subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media updated successfully' });
+                    this.loadMedia(0, this.rows);
+                    this.hideDialog();
+                    this.savingMedia = false;
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update media' });
+                    console.error(err);
+                    this.savingMedia = false;
+                }
+            });
+        } else {
+            // Use the simple PUT endpoint
+            const payload = {
+                title: this.selectedMedia.title,
+                description: this.selectedMedia.description,
+                visibility: this.selectedMedia.visibility
+            };
+
+            this.mediaService.updateMedia(this.selectedMedia.id, payload).subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Media updated' });
+                    this.loadMedia(0, this.rows);
+                    this.hideDialog();
+                    this.savingMedia = false;
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update media' });
+                    console.error(err);
+                    this.savingMedia = false;
+                }
+            });
+        }
     }
 }

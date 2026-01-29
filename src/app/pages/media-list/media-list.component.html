@@ -188,29 +188,116 @@
 </div>
 
 <!-- Edit Dialog -->
-<p-dialog [(visible)]="mediaDialog" [style]="{width: '450px'}" header="Media Details" [modal]="true" class="p-fluid">
+<p-dialog [(visible)]="mediaDialog" [style]="{width: '600px', maxWidth: '95vw'}" header="Edit Media Details" [modal]="true" class="p-fluid edit-media-dialog">
     <ng-template pTemplate="content">
-        <div class="field mb-4">
-            <label for="title" class="block font-bold mb-2">Title</label>
-            <input type="text" pInputText id="title" [(ngModel)]="selectedMedia.title" required autofocus
-                class="w-full" />
-        </div>
-        <div class="field mb-4">
-            <label for="description" class="block font-bold mb-2">Description</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="selectedMedia.description" required rows="3"
-                cols="20" class="w-full"></textarea>
-        </div>
-        <div class="field mb-4">
-            <label for="visibility" class="block font-bold mb-2">Visibility</label>
-            <p-dropdown [options]="visibilityOptions" [(ngModel)]="selectedMedia.visibility" optionLabel="label"
-                optionValue="value" class="w-full" id="visibility">
-            </p-dropdown>
+        <div class="edit-form-content">
+            <!-- Basic Info Section -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="pi pi-info-circle"></i> Basic Information</h4>
+                <div class="field mb-3">
+                    <label for="title" class="block font-bold mb-2">Title *</label>
+                    <input type="text" pInputText id="title" [(ngModel)]="selectedMedia.title" required autofocus class="w-full" />
+                </div>
+                <div class="field mb-3">
+                    <label for="description" class="block font-bold mb-2">Description</label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="selectedMedia.description" rows="3" class="w-full"></textarea>
+                </div>
+                <div class="field mb-3">
+                    <label for="visibility" class="block font-bold mb-2">Visibility</label>
+                    <p-dropdown [options]="visibilityOptions" [(ngModel)]="selectedMedia.visibility" optionLabel="label"
+                        optionValue="value" class="w-full" id="visibility">
+                    </p-dropdown>
+                </div>
+            </div>
+
+            <!-- Relationships Section -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="pi pi-users"></i> Relationships</h4>
+                <div class="field mb-3">
+                    <label for="artist" class="block font-bold mb-2">Artist</label>
+                    <p-dropdown [options]="artistsList" [(ngModel)]="selectedMedia.artistId"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Artist" [showClear]="true" [filter]="true"
+                        class="w-full" id="artist">
+                    </p-dropdown>
+                    <small class="text-secondary">Current: {{selectedMedia.artist?.name || 'None'}}</small>
+                </div>
+                <div class="field mb-3">
+                    <label for="album" class="block font-bold mb-2">Album</label>
+                    <p-dropdown [options]="albumsList" [(ngModel)]="selectedMedia.albumId"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Album" [showClear]="true" [filter]="true"
+                        class="w-full" id="album">
+                    </p-dropdown>
+                    <small class="text-secondary">Current: {{selectedMedia.album?.name || 'None'}}</small>
+                </div>
+            </div>
+
+            <!-- Media Files Section -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="pi pi-file"></i> Media Files</h4>
+
+                <!-- Thumbnail Upload -->
+                <div class="field mb-3">
+                    <label class="block font-bold mb-2">Thumbnail</label>
+                    <div class="file-upload-area">
+                        <div class="current-file" *ngIf="selectedMedia.thumbnailUrl">
+                            <img [src]="selectedMedia.thumbnailUrl" alt="Current thumbnail" class="thumbnail-preview" />
+                            <span class="text-sm text-secondary">Current thumbnail</span>
+                        </div>
+                        <div class="upload-section">
+                            <p-fileUpload #thumbnailUpload mode="basic" name="thumbnail"
+                                accept="image/*" [maxFileSize]="5000000"
+                                chooseLabel="Choose New Thumbnail" chooseIcon="pi pi-image"
+                                (onSelect)="onThumbnailSelect($event)"
+                                styleClass="p-button-outlined p-button-sm">
+                            </p-fileUpload>
+                            <small class="text-secondary block mt-1">Max 5MB. JPG, PNG, WebP supported.</small>
+                        </div>
+                        <div *ngIf="newThumbnailFile" class="new-file-info">
+                            <i class="pi pi-check-circle text-success"></i>
+                            <span>{{newThumbnailFile.name}} selected</span>
+                            <button pButton icon="pi pi-times" class="p-button-text p-button-sm p-button-danger"
+                                (click)="clearThumbnail()"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lyrics Upload -->
+                <div class="field mb-3">
+                    <label class="block font-bold mb-2">Lyrics (VTT)</label>
+                    <div class="file-upload-area">
+                        <div class="current-file" *ngIf="selectedMedia.lyricsUrl">
+                            <i class="pi pi-file-edit text-primary" style="font-size: 1.5rem;"></i>
+                            <a [href]="selectedMedia.lyricsUrl" target="_blank" class="text-primary">View Current Lyrics</a>
+                        </div>
+                        <div class="upload-section">
+                            <p-fileUpload #lyricsUpload mode="basic" name="lyrics"
+                                accept=".vtt,text/vtt" [maxFileSize]="2000000"
+                                chooseLabel="Choose New Lyrics" chooseIcon="pi pi-file-edit"
+                                (onSelect)="onLyricsSelect($event)"
+                                styleClass="p-button-outlined p-button-sm">
+                            </p-fileUpload>
+                            <small class="text-secondary block mt-1">VTT format only. Max 2MB.</small>
+                        </div>
+                        <div *ngIf="newLyricsFile" class="new-file-info">
+                            <i class="pi pi-check-circle text-success"></i>
+                            <span>{{newLyricsFile.name}} selected</span>
+                            <button pButton icon="pi pi-times" class="p-button-text p-button-sm p-button-danger"
+                                (click)="clearLyrics()"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton label="Save" icon="pi pi-check" class="p-button-text" (click)="saveMedia()"></button>
+        <div class="dialog-footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button pButton label="Save Changes" icon="pi pi-check" class="p-button-success"
+                (click)="saveMedia()" [loading]="savingMedia"></button>
+        </div>
     </ng-template>
 </p-dialog>
 
@@ -295,3 +382,4 @@
 </p-dialog>
 
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

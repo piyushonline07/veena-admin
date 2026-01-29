@@ -44,6 +44,11 @@ export class MediaService {
         return this.http.put(`${this.apiUrl}/${id}`, data);
     }
 
+    // Update media with files (thumbnail, lyrics) and relationships (artist, album)
+    updateMediaWithFiles(id: string, formData: FormData): Observable<any> {
+        return this.http.post(`${this.apiUrl}/${id}/update`, formData);
+    }
+
     deleteMedia(id: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/${id}`);
     }
