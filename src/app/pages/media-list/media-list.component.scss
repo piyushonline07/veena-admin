@@ -1,22 +1,72 @@
 .media-list-container {
     padding: 1rem;
+    max-width: 100%;
+    overflow: hidden;
 
     .header-section {
-        h1 {
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        .header-title {
+            h1 {
+                color: var(--text-primary);
+                margin: 0;
+                font-size: 1.75rem;
+            }
+
+            p {
+                margin-top: 0.5rem;
+                color: var(--text-secondary);
+            }
         }
 
-        p {
-            margin-top: 0.5rem;
-            color: var(--text-secondary);
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
+
+        .search-input {
+            width: 200px;
+        }
+    }
+
+    .table-section {
+        overflow: hidden;
+
+        ::ng-deep .p-card {
+            overflow: hidden;
+
+            .p-card-body {
+                padding: 0;
+            }
+
+            .p-card-content {
+                padding: 0;
+            }
+        }
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
     }
 
     .thumbnail-cell {
         position: relative;
         display: inline-block;
+
+        img {
+            width: 60px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
 
         .link-indicator {
             position: absolute;
@@ -209,30 +259,50 @@
 }
 
 /* Responsive Styles */
+@media (max-width: 992px) {
+    .media-list-container {
+        .header-section {
+            .search-input {
+                width: 160px;
+            }
+        }
+
+        .media-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    }
+}
+
 @media (max-width: 768px) {
     .media-list-container {
         padding: 0.5rem;
 
         .header-section {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 1rem;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
 
-            h1 {
-                font-size: 1.5rem;
+            .header-title h1 {
+                font-size: 1.25rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
             }
 
             .search-container {
-                width: 100%;
+                flex: 1;
+            }
 
-                input {
-                    width: 100% !important;
-                }
+            .search-input {
+                width: 100% !important;
             }
         }
 
         .media-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 0.75rem;
         }
 
@@ -245,7 +315,7 @@
                 padding: 0.75rem;
 
                 .media-title {
-                    font-size: 0.9rem;
+                    font-size: 0.85rem;
                 }
 
                 .media-description {
@@ -277,15 +347,159 @@
             }
         }
     }
+
+    /* Mobile card-based table layout */
+    ::ng-deep .p-datatable {
+        .p-datatable-wrapper {
+            overflow-x: visible !important;
+        }
+
+        .p-datatable-thead {
+            display: none !important;
+        }
+
+        .p-datatable-tbody > tr {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            position: relative;
+            background: var(--surface-card) !important;
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            padding-right: 3rem;
+            gap: 0.5rem;
+
+            > td {
+                border: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+
+                /* Thumbnail column */
+                &:nth-child(1) {
+                    width: 55px;
+                    flex-shrink: 0;
+
+                    img {
+                        width: 50px !important;
+                        height: 50px !important;
+                        object-fit: cover;
+                        border-radius: 6px;
+                    }
+                }
+
+                /* Title column */
+                &:nth-child(2) {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.15rem;
+
+                    .font-bold {
+                        font-size: 0.85rem !important;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .text-xs {
+                        font-size: 0.55rem !important;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-width: 100px;
+                    }
+                }
+
+                /* Artist column */
+                &:nth-child(3) {
+                    width: 100%;
+                    order: 10;
+                    margin-top: 0.25rem;
+                    font-size: 0.75rem;
+
+                    &::before {
+                        content: "Artist: ";
+                        color: var(--text-secondary);
+                        font-size: 0.65rem;
+                    }
+                }
+
+                /* Album column - hide on mobile */
+                &:nth-child(4) {
+                    display: none;
+                }
+
+                /* Type, Status, Visibility columns - show inline */
+                &:nth-child(5),
+                &:nth-child(6),
+                &:nth-child(7) {
+                    width: auto;
+                    order: 5;
+
+                    .p-tag {
+                        font-size: 0.55rem !important;
+                        padding: 0.1rem 0.3rem !important;
+                    }
+                }
+
+                /* Created At column - hide */
+                &:nth-child(8) {
+                    display: none;
+                }
+
+                /* Actions column */
+                &:nth-child(9) {
+                    position: absolute;
+                    right: 0.25rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: auto !important;
+
+                    .flex {
+                        flex-direction: column;
+                        gap: 0.1rem !important;
+                    }
+
+                    button {
+                        width: 24px !important;
+                        height: 24px !important;
+                        padding: 0 !important;
+
+                        .pi {
+                            font-size: 0.7rem;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ::ng-deep .media-preview-dialog {
+        width: 95vw !important;
+        max-width: 95vw !important;
+
+        .p-dialog-content {
+            padding: 0.75rem;
+        }
+    }
 }
 
 @media (max-width: 576px) {
     .media-list-container {
+        padding: 0.25rem;
+
         .header-section {
-            .flex {
+            .header-title h1 {
+                font-size: 1rem;
+            }
+
+            .header-actions {
                 flex-direction: column;
-                width: 100%;
                 gap: 0.5rem;
+                align-items: stretch;
             }
         }
 
@@ -299,214 +513,62 @@
                 padding: 0.5rem;
 
                 .media-title {
-                    font-size: 0.85rem;
+                    font-size: 0.75rem;
                 }
 
                 .card-footer {
                     .p-tag {
-                        font-size: 0.65rem;
+                        font-size: 0.55rem;
                     }
 
                     button {
-                        padding: 0.25rem !important;
-                    }
-                }
-            }
-        }
-    }
-}
-
-::ng-deep {
-    @media (max-width: 768px) {
-        .media-preview-dialog {
-            width: 95vw !important;
-            max-width: 95vw !important;
-
-            .p-dialog-content {
-                padding: 0.75rem;
-            }
-        }
-
-        .p-datatable {
-            .p-datatable-wrapper {
-                overflow-x: visible;
-            }
-
-            .p-datatable-thead {
-                display: none !important;
-            }
-
-            .p-datatable-tbody > tr {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: flex-start;
-                position: relative;
-                background: var(--surface-card) !important;
-                border: 1px solid var(--surface-border);
-                border-radius: 8px;
-                margin-bottom: 0.75rem;
-                padding: 0.75rem;
-                padding-right: 4rem; // Space for action buttons
-                gap: 0.5rem;
-
-                > td {
-                    border: none !important;
-                    padding: 0 !important;
-                    background: transparent !important;
-
-                    // Thumbnail column
-                    &:nth-child(1) {
-                        width: 70px;
-                        flex-shrink: 0;
-
-                        img {
-                            width: 60px;
-                            height: 60px;
-                            object-fit: cover;
-                            border-radius: 6px;
-                        }
-                    }
-
-                    // Title column
-                    &:nth-child(2) {
-                        flex: 1;
-                        min-width: 0;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 0.25rem;
-
-                        .font-bold {
-                            font-size: 0.95rem !important;
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-
-                        .text-xs {
-                            font-size: 0.65rem !important;
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-                    }
-
-                    // Artist column
-                    &:nth-child(3) {
-                        width: 100%;
-                        order: 10;
-                        margin-top: 0.25rem;
-                        font-size: 0.85rem;
-
-                        &::before {
-                            content: "Artist: ";
-                            color: var(--text-secondary);
-                            font-size: 0.75rem;
-                        }
-                    }
-
-                    // Album column
-                    &:nth-child(4) {
-                        width: 100%;
-                        order: 11;
-                        font-size: 0.85rem;
-
-                        &::before {
-                            content: "Album: ";
-                            color: var(--text-secondary);
-                            font-size: 0.75rem;
-                        }
-                    }
-
-                    // Type, Status, Visibility columns - show inline
-                    &:nth-child(5),
-                    &:nth-child(6),
-                    &:nth-child(7) {
-                        width: auto;
-                        order: 5;
-
-                        .p-tag {
-                            font-size: 0.65rem !important;
-                            padding: 0.15rem 0.4rem !important;
-                        }
-                    }
-
-                    // Created At column
-                    &:nth-child(8) {
-                        width: 100%;
-                        order: 12;
-                        font-size: 0.75rem;
-                        color: var(--text-secondary);
-                        margin-top: 0.25rem;
-
-                        &::before {
-                            content: "Created: ";
-                        }
-                    }
-
-                    // Actions column
-                    &:nth-child(9) {
-                        position: absolute;
-                        right: 0.5rem;
-                        top: 0.5rem;
-                        width: auto !important;
-
-                        .flex {
-                            gap: 0.25rem !important;
-                        }
-
-                        button {
-                            width: 28px !important;
-                            height: 28px !important;
-                            padding: 0 !important;
-
-                            .pi {
-                                font-size: 0.8rem;
-                            }
-                        }
+                        padding: 0.2rem !important;
                     }
                 }
             }
         }
     }
 
-    @media (max-width: 576px) {
-        .p-datatable {
-            .p-datatable-tbody > tr {
-                padding: 0.5rem;
-                padding-right: 3rem; // Space for action buttons
+    ::ng-deep .p-datatable {
+        .p-datatable-tbody > tr {
+            padding: 0.5rem;
+            padding-right: 2.25rem;
 
-                > td {
-                    // Thumbnail
-                    &:nth-child(1) {
-                        width: 50px;
+            > td {
+                &:nth-child(1) img {
+                    width: 40px !important;
+                    height: 40px !important;
+                }
 
-                        img {
-                            width: 45px;
-                            height: 45px;
-                        }
+                &:nth-child(2) {
+                    .font-bold {
+                        font-size: 0.75rem !important;
                     }
-
-                    // Title
-                    &:nth-child(2) {
-                        .font-bold {
-                            font-size: 0.85rem !important;
-                        }
-                    }
-
-                    // Hide album on very small screens
-                    &:nth-child(4) {
+                    .text-xs {
                         display: none;
                     }
+                }
 
-                    // Actions
-                    &:nth-child(9) {
-                        button {
-                            width: 24px !important;
-                            height: 24px !important;
-                        }
+                /* Hide artist on very small screens */
+                &:nth-child(3) {
+                    display: none;
+                }
+
+                &:nth-child(9) button {
+                    width: 20px !important;
+                    height: 20px !important;
+
+                    .pi {
+                        font-size: 0.6rem;
                     }
                 }
             }
+        }
+    }
+
+    ::ng-deep .media-preview-dialog {
+        .p-dialog-content {
+            padding: 0.5rem;
         }
     }
 }
