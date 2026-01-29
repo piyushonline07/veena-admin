@@ -18,6 +18,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: var(--text-primary);
 
     i {
       color: #6366f1;
@@ -34,6 +35,465 @@
 .swagger-wrapper {
   min-height: 500px;
   position: relative;
+  background: var(--bg-card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Dark Theme Styles for Swagger UI */
+:host-context(body.dark-theme) {
+  .swagger-wrapper {
+    background: var(--bg-card);
+  }
+
+  ::ng-deep .swagger-ui {
+    /* Main wrapper */
+    .wrapper {
+      background: var(--bg-primary);
+    }
+
+    /* Information section */
+    .information-container {
+      background: var(--bg-secondary);
+
+      .info {
+        .title {
+          color: #e2e8f0 !important;
+        }
+
+        .description {
+          color: #cbd5e1 !important;
+
+          p, h1, h2, h3, h4, h5, h6, li {
+            color: #cbd5e1 !important;
+          }
+
+          a {
+            color: #818cf8 !important;
+          }
+
+          code {
+            background: #334155 !important;
+            color: #f1f5f9 !important;
+          }
+        }
+
+        .base-url {
+          color: #94a3b8 !important;
+        }
+      }
+    }
+
+    /* Scheme container */
+    .scheme-container {
+      background: var(--bg-secondary) !important;
+      box-shadow: none;
+
+      .schemes-title {
+        color: #e2e8f0 !important;
+      }
+
+      select {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+      }
+    }
+
+    /* Operation blocks */
+    .opblock-tag {
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+
+      &:hover {
+        background: rgba(99, 102, 241, 0.1) !important;
+      }
+
+      small {
+        color: #94a3b8 !important;
+      }
+    }
+
+    .opblock {
+      background: var(--bg-secondary) !important;
+      border-color: #334155 !important;
+      box-shadow: none !important;
+
+      &.opblock-get {
+        background: rgba(97, 175, 254, 0.1) !important;
+        border-color: #61affe !important;
+
+        .opblock-summary {
+          border-color: #61affe !important;
+        }
+      }
+
+      &.opblock-post {
+        background: rgba(73, 204, 144, 0.1) !important;
+        border-color: #49cc90 !important;
+
+        .opblock-summary {
+          border-color: #49cc90 !important;
+        }
+      }
+
+      &.opblock-put {
+        background: rgba(252, 161, 48, 0.1) !important;
+        border-color: #fca130 !important;
+
+        .opblock-summary {
+          border-color: #fca130 !important;
+        }
+      }
+
+      &.opblock-delete {
+        background: rgba(249, 62, 62, 0.1) !important;
+        border-color: #f93e3e !important;
+
+        .opblock-summary {
+          border-color: #f93e3e !important;
+        }
+      }
+
+      &.opblock-patch {
+        background: rgba(80, 227, 194, 0.1) !important;
+        border-color: #50e3c2 !important;
+
+        .opblock-summary {
+          border-color: #50e3c2 !important;
+        }
+      }
+
+      .opblock-summary {
+        .opblock-summary-path {
+          color: #e2e8f0 !important;
+        }
+
+        .opblock-summary-description {
+          color: #94a3b8 !important;
+        }
+      }
+
+      .opblock-body {
+        background: var(--bg-primary) !important;
+
+        pre {
+          background: #1e293b !important;
+          color: #e2e8f0 !important;
+        }
+      }
+
+      .opblock-section-header {
+        background: var(--bg-secondary) !important;
+        box-shadow: none !important;
+
+        h4 {
+          color: #e2e8f0 !important;
+        }
+
+        label {
+          color: #94a3b8 !important;
+        }
+      }
+    }
+
+    /* Tables */
+    table {
+      thead {
+        tr {
+          th {
+            color: #e2e8f0 !important;
+            border-color: #334155 !important;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            color: #cbd5e1 !important;
+            border-color: #334155 !important;
+          }
+        }
+      }
+    }
+
+    .parameters-col_name {
+      color: #e2e8f0 !important;
+    }
+
+    .parameters-col_description {
+      color: #94a3b8 !important;
+
+      input, textarea, select {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+      }
+    }
+
+    .parameter__name {
+      color: #e2e8f0 !important;
+
+      &.required {
+        &::after {
+          color: #f87171 !important;
+        }
+      }
+    }
+
+    .parameter__type {
+      color: #94a3b8 !important;
+    }
+
+    .parameter__in {
+      color: #64748b !important;
+    }
+
+    /* Models */
+    .model-container {
+      background: var(--bg-secondary) !important;
+
+      .model-box {
+        background: #1e293b !important;
+      }
+    }
+
+    .model {
+      color: #e2e8f0 !important;
+    }
+
+    .model-title {
+      color: #e2e8f0 !important;
+    }
+
+    .prop-type {
+      color: #818cf8 !important;
+    }
+
+    .prop-format {
+      color: #94a3b8 !important;
+    }
+
+    /* Response section */
+    .responses-wrapper {
+      .responses-inner {
+        h4, h5 {
+          color: #e2e8f0 !important;
+        }
+      }
+    }
+
+    .response-col_status {
+      color: #e2e8f0 !important;
+    }
+
+    .response-col_description {
+      color: #94a3b8 !important;
+    }
+
+    /* Code blocks */
+    .highlight-code {
+      background: #1e293b !important;
+
+      pre {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+      }
+    }
+
+    .microlight {
+      background: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+
+    /* Buttons */
+    .btn {
+      background: #334155 !important;
+      color: #e2e8f0 !important;
+      border-color: #475569 !important;
+
+      &:hover {
+        background: #475569 !important;
+      }
+
+      &.execute {
+        background: #6366f1 !important;
+        border-color: #6366f1 !important;
+
+        &:hover {
+          background: #4f46e5 !important;
+        }
+      }
+
+      &.cancel {
+        background: #ef4444 !important;
+        border-color: #ef4444 !important;
+      }
+    }
+
+    /* Authorization */
+    .authorization__btn {
+      fill: #e2e8f0 !important;
+
+      &.unlocked {
+        fill: #94a3b8 !important;
+      }
+
+      &.locked {
+        fill: #22c55e !important;
+      }
+    }
+
+    /* Modal */
+    .dialog-ux {
+      .backdrop-ux {
+        background: rgba(0, 0, 0, 0.8) !important;
+      }
+
+      .modal-ux {
+        background: var(--bg-card) !important;
+        border-color: #334155 !important;
+
+        .modal-ux-header {
+          border-color: #334155 !important;
+
+          h3 {
+            color: #e2e8f0 !important;
+          }
+        }
+
+        .modal-ux-content {
+          color: #cbd5e1 !important;
+
+          p {
+            color: #94a3b8 !important;
+          }
+
+          label {
+            color: #e2e8f0 !important;
+          }
+
+          input {
+            background: #334155 !important;
+            color: #e2e8f0 !important;
+            border-color: #475569 !important;
+          }
+        }
+      }
+    }
+
+    /* Try it out section */
+    .try-out {
+      &__btn {
+        background: transparent !important;
+        border-color: #6366f1 !important;
+        color: #818cf8 !important;
+      }
+    }
+
+    /* Response body */
+    .responses-table {
+      .response {
+        .response-col_links {
+          color: #94a3b8 !important;
+        }
+      }
+    }
+
+    .live-responses-table {
+      .response {
+        background: var(--bg-secondary) !important;
+
+        .response-col_status {
+          color: #22c55e !important;
+        }
+      }
+    }
+
+    /* Markdown content */
+    .markdown {
+      color: #cbd5e1 !important;
+
+      p, li {
+        color: #cbd5e1 !important;
+      }
+
+      code {
+        background: #334155 !important;
+        color: #f1f5f9 !important;
+      }
+
+      pre {
+        background: #1e293b !important;
+
+        code {
+          background: transparent !important;
+        }
+      }
+
+      a {
+        color: #818cf8 !important;
+      }
+    }
+
+    /* Filter */
+    .filter-container {
+      background: var(--bg-secondary) !important;
+
+      input {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+
+        &::placeholder {
+          color: #64748b !important;
+        }
+      }
+    }
+
+    /* Expand/collapse icons */
+    .expand-operation,
+    .expand-methods {
+      fill: #94a3b8 !important;
+
+      &:hover {
+        fill: #e2e8f0 !important;
+      }
+    }
+
+    /* Arrows and toggles */
+    .arrow {
+      fill: #94a3b8 !important;
+    }
+
+    /* No margin blocks */
+    .no-margin {
+      color: #94a3b8 !important;
+    }
+
+    /* Server dropdown */
+    .servers {
+      > label {
+        color: #e2e8f0 !important;
+
+        select {
+          background: #334155 !important;
+          color: #e2e8f0 !important;
+          border-color: #475569 !important;
+        }
+      }
+    }
+
+    /* Loading */
+    .loading-container {
+      .loading {
+        &::after {
+          color: #e2e8f0 !important;
+        }
+      }
+    }
+  }
 }
 
 /* Responsive */

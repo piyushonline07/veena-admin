@@ -1,252 +1,263 @@
-<div class="p-4">
-    <div class="flex align-items-center justify-content-between mb-4">
-        <h1 class="text-2xl font-bold m-0 text-900">Infrastructure & Operations</h1>
+<div class="operations-container">
+    <div class="header-section">
+        <h1>Infrastructure & Operations</h1>
         <p-tag [value]="'System Status: ' + systemStatus" [severity]="getHealthSeverity()" [rounded]="true"></p-tag>
     </div>
 
     <div class="grid">
         <!-- Manual Cache Invalidator -->
         <div class="col-12 lg:col-6">
-            <p-card header="Manual Cache Invalidator" subheader="Clear CloudFront cache for updated content">
-                <div class="flex flex-column gap-3">
-                    <div class="field">
-                        <label for="dist" class="block mb-2 font-semibold">Distribution</label>
-                        <p-dropdown [options]="distributionOptions" [(ngModel)]="selectedDist" optionLabel="label"
-                            optionValue="value" placeholder="Select a distribution" styleClass="w-full"></p-dropdown>
+            <div class="card-wrapper">
+                <p-card header="Manual Cache Invalidator" subheader="Clear CloudFront cache for updated content">
+                    <div class="flex flex-column gap-3">
+                        <div class="field">
+                            <label for="dist" class="block mb-2 font-semibold">Distribution</label>
+                            <p-dropdown [options]="distributionOptions" [(ngModel)]="selectedDist" optionLabel="label"
+                                optionValue="value" placeholder="Select a distribution" styleClass="w-full"></p-dropdown>
+                        </div>
+                        <div class="field">
+                            <label for="paths" class="block mb-2 font-semibold">Paths (one per line)</label>
+                            <textarea pInputTextarea rows="3" [(ngModel)]="pathsText" placeholder="/media/* or /index.html"
+                                class="w-full"></textarea>
+                        </div>
+                        <p-button label="Invalidate Cache" icon="pi pi-bolt" [loading]="invalidating"
+                            (onClick)="onInvalidate()" styleClass="w-full md:w-auto"></p-button>
                     </div>
-                    <div class="field">
-                        <label for="paths" class="block mb-2 font-semibold">Paths (one per line)</label>
-                        <textarea pInputTextarea rows="3" [(ngModel)]="pathsText" placeholder="/media/* or /index.html"
-                            class="w-full"></textarea>
-                    </div>
-                    <p-button label="Invalidate Cache" icon="pi pi-bolt" [loading]="invalidating"
-                        (onClick)="onInvalidate()"></p-button>
-                </div>
-            </p-card>
+                </p-card>
+            </div>
         </div>
 
         <!-- AWS Health Widgets -->
         <div class="col-12 lg:col-6">
-            <div class="grid">
+            <div class="health-widgets-grid">
                 <!-- RDS Status -->
-                <div class="col-6">
+                <div class="health-widget">
                     <p-card class="text-center h-full">
-                        <div class="text-500 font-medium mb-2">RDS Instance</div>
+                        <div class="widget-label">RDS Instance</div>
                         <ng-container *ngIf="awsHealth?.rds as rds">
-                            <div class="text-900 font-bold text-xl">
-                                <i class="pi" [ngClass]="getHealthIcon(rds.status || '')"
-                                    style="margin-right: 0.5rem"></i>
-                                {{rds.status || 'Unknown'}}
+                            <div class="widget-value">
+                                <i class="pi" [ngClass]="getHealthIcon(rds.status || '')"></i>
+                                <span>{{rds.status || 'Unknown'}}</span>
                             </div>
-                            <div *ngIf="rds.instanceId" class="text-sm text-secondary mt-2">
+                            <div *ngIf="rds.instanceId" class="widget-detail">
                                 {{rds.engine}} {{rds.engineVersion}}
                             </div>
-                            <div *ngIf="rds.cpuUtilization != null" class="text-sm mt-1">
+                            <div *ngIf="rds.cpuUtilization != null" class="widget-detail">
                                 CPU: {{rds.cpuUtilization | number:'1.1-1'}}%
                             </div>
                         </ng-container>
-                        <div *ngIf="loadingAws && !awsHealth?.rds" class="text-secondary"><i
-                                class="pi pi-spin pi-spinner"></i></div>
+                        <div *ngIf="loadingAws && !awsHealth?.rds" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                         <div *ngIf="!loadingAws && !awsHealth?.rds" class="text-secondary">N/A</div>
                     </p-card>
                 </div>
 
                 <!-- ECS Services -->
-                <div class="col-6">
+                <div class="health-widget">
                     <p-card class="text-center h-full">
-                        <div class="text-500 font-medium mb-2">ECS Services</div>
+                        <div class="widget-label">ECS Services</div>
                         <ng-container *ngIf="awsHealth?.ecs as ecs">
-                            <div class="text-900 font-bold text-xl">
-                                <i class="pi pi-server text-green-500 mr-2"></i>
-                                {{ecs.runningServices}} Running
+                            <div class="widget-value">
+                                <i class="pi pi-server text-green-500"></i>
+                                <span>{{ecs.runningServices}} Running</span>
                             </div>
-                            <div *ngIf="ecs.runningTasks != null" class="text-sm text-secondary mt-2">
+                            <div *ngIf="ecs.runningTasks != null" class="widget-detail">
                                 Tasks: {{ecs.runningTasks}} running, {{ecs.pendingTasks || 0}} pending
                             </div>
-                            <div *ngIf="ecs.clusterName" class="text-xs text-secondary mt-1">
+                            <div *ngIf="ecs.clusterName" class="widget-detail hide-mobile">
                                 Cluster: {{ecs.clusterName}}
                             </div>
                         </ng-container>
-                        <div *ngIf="loadingAws && !awsHealth?.ecs" class="text-secondary"><i
-                                class="pi pi-spin pi-spinner"></i></div>
+                        <div *ngIf="loadingAws && !awsHealth?.ecs" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                         <div *ngIf="!loadingAws && !awsHealth?.ecs" class="text-secondary">N/A</div>
                     </p-card>
                 </div>
 
                 <!-- S3 Latency -->
-                <div class="col-6">
+                <div class="health-widget">
                     <p-card class="text-center h-full">
-                        <div class="text-500 font-medium mb-2">S3 Latency</div>
+                        <div class="widget-label">S3 Latency</div>
                         <ng-container *ngIf="awsHealth as health">
-                            <div *ngIf="health.s3Latency != null && health.s3Latency >= 0"
-                                class="text-900 font-bold text-xl">
-                                <i class="pi pi-clock mr-2"
+                            <div *ngIf="health.s3Latency != null && health.s3Latency >= 0" class="widget-value">
+                                <i class="pi pi-clock"
                                     [ngClass]="health.s3Latency < 100 ? 'text-green-500' : health.s3Latency < 300 ? 'text-yellow-500' : 'text-red-500'"></i>
-                                {{health.s3Latency}}ms
+                                <span>{{health.s3Latency}}ms</span>
                             </div>
                             <div *ngIf="health.s3Latency != null && health.s3Latency < 0" class="text-secondary">
-                                <i class="pi pi-times-circle text-red-500 mr-2"></i>Error
+                                <i class="pi pi-times-circle text-red-500"></i> Error
                             </div>
                         </ng-container>
-                        <div *ngIf="loadingAws && awsHealth?.s3Latency == null" class="text-secondary"><i
-                                class="pi pi-spin pi-spinner"></i></div>
+                        <div *ngIf="loadingAws && awsHealth?.s3Latency == null" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                     </p-card>
                 </div>
 
                 <!-- CloudFront -->
-                <div class="col-6">
+                <div class="health-widget">
                     <p-card class="text-center h-full">
-                        <div class="text-500 font-medium mb-2">CloudFront Cache</div>
+                        <div class="widget-label">CloudFront Cache</div>
                         <ng-container *ngIf="awsHealth?.cloudFrontMetrics as cf">
-                            <div class="text-900 font-bold text-xl">
-                                <i class="pi pi-check-circle text-green-500 mr-2"></i>
-                                {{cf.cacheHitRate | number:'1.1-1'}}% Hit Rate
+                            <div class="widget-value">
+                                <i class="pi pi-check-circle text-green-500"></i>
+                                <span>{{cf.cacheHitRate | number:'1.1-1'}}% Hit</span>
                             </div>
-                            <div class="text-sm text-secondary mt-2">
-                                Errors: 4xx {{cf.errorRate4xx | number:'1.2-2'}}%, 5xx {{cf.errorRate5xx |
-                                number:'1.2-2'}}%
+                            <div class="widget-detail">
+                                4xx: {{cf.errorRate4xx | number:'1.2-2'}}%, 5xx: {{cf.errorRate5xx | number:'1.2-2'}}%
                             </div>
                         </ng-container>
-                        <div *ngIf="loadingAws && !awsHealth?.cloudFrontMetrics" class="text-secondary"><i
-                                class="pi pi-spin pi-spinner"></i></div>
+                        <div *ngIf="loadingAws && !awsHealth?.cloudFrontMetrics" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                     </p-card>
                 </div>
             </div>
         </div>
 
         <!-- Application Stats -->
-        <div class="col-12 lg:col-6 mt-4">
-            <p-card header="Application Statistics">
-                <div class="grid">
-                    <div class="col-4 text-center">
-                        <div class="text-500 font-medium mb-2">Total Media</div>
-                        <div class="text-900 font-bold text-2xl" *ngIf="systemHealth">
-                            <i class="pi pi-video text-blue-500 mr-2"></i>{{systemHealth.totalMedia}}
+        <div class="col-12 lg:col-6 mt-3">
+            <div class="card-wrapper">
+                <p-card header="Application Statistics">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Media</div>
+                            <div class="stat-value" *ngIf="systemHealth">
+                                <i class="pi pi-video text-blue-500"></i>
+                                <span>{{systemHealth.totalMedia}}</span>
+                            </div>
+                            <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                         </div>
-                        <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
-                    </div>
-                    <div class="col-4 text-center">
-                        <div class="text-500 font-medium mb-2">Total Users</div>
-                        <div class="text-900 font-bold text-2xl" *ngIf="systemHealth">
-                            <i class="pi pi-users text-purple-500 mr-2"></i>{{systemHealth.totalUsers}}
+                        <div class="stat-item">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value" *ngIf="systemHealth">
+                                <i class="pi pi-users text-purple-500"></i>
+                                <span>{{systemHealth.totalUsers}}</span>
+                            </div>
+                            <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                         </div>
-                        <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
-                    </div>
-                    <div class="col-4 text-center">
-                        <div class="text-500 font-medium mb-2">Total Artists</div>
-                        <div class="text-900 font-bold text-2xl" *ngIf="systemHealth">
-                            <i class="pi pi-star text-yellow-500 mr-2"></i>{{systemHealth.totalArtists}}
+                        <div class="stat-item">
+                            <div class="stat-label">Total Artists</div>
+                            <div class="stat-value" *ngIf="systemHealth">
+                                <i class="pi pi-star text-yellow-500"></i>
+                                <span>{{systemHealth.totalArtists}}</span>
+                            </div>
+                            <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                         </div>
-                        <div *ngIf="loadingHealth" class="text-secondary"><i class="pi pi-spin pi-spinner"></i></div>
                     </div>
-                </div>
-            </p-card>
+                </p-card>
+            </div>
         </div>
 
         <!-- Server Resources -->
-        <div class="col-12 lg:col-6 mt-4" *ngIf="detailedStats">
-            <p-card header="Server Resources">
-                <div class="grid">
-                    <div class="col-12 mb-3">
-                        <div class="flex justify-content-between align-items-center mb-2">
-                            <span class="text-500 font-medium">Memory Usage</span>
-                            <span class="text-900 font-bold">{{detailedStats.memory.usagePercent}}%</span>
+        <div class="col-12 lg:col-6 mt-3" *ngIf="detailedStats">
+            <div class="card-wrapper">
+                <p-card header="Server Resources">
+                    <div class="resources-content">
+                        <div class="memory-section mb-3">
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <span class="resource-label">Memory Usage</span>
+                                <span class="resource-value">{{detailedStats.memory.usagePercent}}%</span>
+                            </div>
+                            <p-progressBar [value]="detailedStats.memory.usagePercent" [showValue]="false"
+                                [style]="{'height': '8px'}"></p-progressBar>
+                            <div class="flex justify-content-between resource-detail mt-1">
+                                <span>Used: {{detailedStats.memory.used}}</span>
+                                <span>Max: {{detailedStats.memory.max}}</span>
+                            </div>
                         </div>
-                        <p-progressBar [value]="detailedStats.memory.usagePercent" [showValue]="false"
-                            [style]="{'height': '8px'}"></p-progressBar>
-                        <div class="flex justify-content-between text-sm text-secondary mt-1">
-                            <span>Used: {{detailedStats.memory.used}}</span>
-                            <span>Max: {{detailedStats.memory.max}}</span>
+                        <div class="jvm-info">
+                            <div class="jvm-item">
+                                <div class="jvm-label">CPU Cores</div>
+                                <div class="jvm-value">{{detailedStats.jvm.availableProcessors}}</div>
+                            </div>
+                            <div class="jvm-item">
+                                <div class="jvm-label">Java Version</div>
+                                <div class="jvm-value">{{detailedStats.jvm.javaVersion}}</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="text-500 text-sm mb-1">CPU Cores</div>
-                        <div class="text-900 font-bold">{{detailedStats.jvm.availableProcessors}}</div>
-                    </div>
-                    <div class="col-6">
-                        <div class="text-500 text-sm mb-1">Java Version</div>
-                        <div class="text-900 font-bold">{{detailedStats.jvm.javaVersion}}</div>
-                    </div>
-                </div>
-            </p-card>
+                </p-card>
+            </div>
         </div>
 
         <!-- ECS Services Details -->
         <ng-container *ngIf="awsHealth?.ecs as ecs">
-            <div class="col-12 mt-4" *ngIf="ecs.services && ecs.services.length > 0">
-                <p-card header="ECS Service Details">
-                    <p-table [value]="ecs.services" styleClass="p-datatable-sm">
-                        <ng-template pTemplate="header">
-                            <tr>
-                                <th>Service Name</th>
-                                <th>Status</th>
-                                <th>Desired</th>
-                                <th>Running</th>
-                                <th>Pending</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-service>
-                            <tr>
-                                <td><span class="font-semibold">{{service.name}}</span></td>
-                                <td>
-                                    <p-tag [value]="service.status"
-                                        [severity]="service.status === 'ACTIVE' ? 'success' : 'warn'"></p-tag>
-                                </td>
-                                <td>{{service.desiredCount}}</td>
-                                <td>
-                                    <span
-                                        [class]="service.runningCount === service.desiredCount ? 'text-green-500' : 'text-yellow-500'">
-                                        {{service.runningCount}}
-                                    </span>
-                                </td>
-                                <td>{{service.pendingCount}}</td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </p-card>
+            <div class="col-12 mt-3" *ngIf="ecs.services && ecs.services.length > 0">
+                <div class="card-wrapper">
+                    <p-card header="ECS Service Details">
+                        <div class="table-wrapper">
+                            <p-table [value]="ecs.services" styleClass="p-datatable-sm" [responsive]="true">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th>Service Name</th>
+                                        <th>Status</th>
+                                        <th class="hide-mobile">Desired</th>
+                                        <th>Running</th>
+                                        <th class="hide-mobile">Pending</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-service>
+                                    <tr>
+                                        <td><span class="font-semibold service-name">{{service.name}}</span></td>
+                                        <td>
+                                            <p-tag [value]="service.status"
+                                                [severity]="service.status === 'ACTIVE' ? 'success' : 'warn'"></p-tag>
+                                        </td>
+                                        <td class="hide-mobile">{{service.desiredCount}}</td>
+                                        <td>
+                                            <span [class]="service.runningCount === service.desiredCount ? 'text-green-500' : 'text-yellow-500'">
+                                                {{service.runningCount}}
+                                            </span>
+                                        </td>
+                                        <td class="hide-mobile">{{service.pendingCount}}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </p-card>
+                </div>
             </div>
         </ng-container>
 
         <!-- Transcoding Queue Monitor -->
-        <div class="col-12 mt-4">
-            <p-card header="Transcoding Queue Monitor">
-                <p-table [value]="jobs" [loading]="loadingJobs" [rows]="5" styleClass="p-datatable-sm">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Job ID</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Progress</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-job>
-                        <tr>
-                            <td><span class="font-mono text-sm">{{job.id}}</span></td>
-                            <td>
-                                <p-tag [severity]="getStatusSeverity(job.status)" [value]="job.status"></p-tag>
-                            </td>
-                            <td>{{job.createdAt | date:'short'}}</td>
-                            <td style="width: 250px">
-                                <div class="flex align-items-center gap-2">
-                                    <p-progressBar [value]="job.percentComplete" [showValue]="false"
-                                        class="w-full h-8rem"></p-progressBar>
-                                    <span class="text-sm font-semibold">{{job.percentComplete}}%</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="emptymessage">
-                        <tr>
-                            <td colspan="4" class="text-center py-4">No recent transcoding jobs found.</td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </p-card>
+        <div class="col-12 mt-3">
+            <div class="card-wrapper">
+                <p-card header="Transcoding Queue Monitor">
+                    <div class="table-wrapper">
+                        <p-table [value]="jobs" [loading]="loadingJobs" [rows]="5" styleClass="p-datatable-sm" [responsive]="true">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Status</th>
+                                    <th class="hide-mobile">Created</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-job>
+                                <tr>
+                                    <td><span class="font-mono text-sm job-id">{{job.id}}</span></td>
+                                    <td>
+                                        <p-tag [severity]="getStatusSeverity(job.status)" [value]="job.status"></p-tag>
+                                    </td>
+                                    <td class="hide-mobile">{{job.createdAt | date:'short'}}</td>
+                                    <td class="progress-cell">
+                                        <div class="progress-wrapper">
+                                            <p-progressBar [value]="job.percentComplete" [showValue]="false"
+                                                [style]="{'height': '8px'}"></p-progressBar>
+                                            <span class="progress-text">{{job.percentComplete}}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No recent transcoding jobs found.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </p-card>
+            </div>
         </div>
     </div>
 
     <!-- Last Updated -->
-    <div class="text-center text-secondary text-sm mt-4" *ngIf="awsHealth?.timestamp || systemHealth?.timestamp">
+    <div class="last-updated" *ngIf="awsHealth?.timestamp || systemHealth?.timestamp">
         Last updated: {{(awsHealth?.timestamp || systemHealth?.timestamp) | date:'medium'}}
     </div>
 </div>
