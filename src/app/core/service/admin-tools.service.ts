@@ -112,12 +112,35 @@ export interface ServiceCost {
     amount: number;
 }
 
+// Pipeline Status Interfaces
+export interface PipelineStatus {
+    pipelineName: string;
+    status: string;
+    message?: string;
+    updatedAt: string;
+    stages: StageStatus[];
+}
+
+export interface StageStatus {
+    stageName: string;
+    status: string;
+    actions: ActionStatus[];
+}
+
+export interface ActionStatus {
+    actionName: string;
+    status: string;
+    lastStatusChange: string;
+    errorMessage?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class AdminToolsService {
     private apiUrl = `${environment.apiBaseUrl}/api/admin/tools`;
     private healthUrl = `${environment.apiBaseUrl}/api/admin/health`;
+    private pipelinesUrl = `${environment.apiBaseUrl}/api/admin/pipelines`;
 
     constructor(private http: HttpClient) { }
 
@@ -163,5 +186,14 @@ export class AdminToolsService {
 
     getRdsHealth(): Observable<RdsStatus> {
         return this.http.get<RdsStatus>(`${this.healthUrl}/aws/rds`);
+    }
+
+    // Pipeline Status Methods
+    getAllPipelineStatuses(): Observable<PipelineStatus[]> {
+        return this.http.get<PipelineStatus[]>(this.pipelinesUrl);
+    }
+
+    getPipelineStatus(pipelineName: string): Observable<PipelineStatus> {
+        return this.http.get<PipelineStatus>(`${this.pipelinesUrl}/${pipelineName}`);
     }
 }

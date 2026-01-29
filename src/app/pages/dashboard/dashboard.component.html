@@ -153,4 +153,69 @@
       </div>
     </div>
   </div>
+
+  <!-- CI/CD Pipeline Status Section -->
+  <div class="pipeline-section mt-4">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">
+          <i class="pi pi-sitemap"></i>
+          <span>CI/CD Pipeline Status</span>
+        </div>
+        <span class="chart-subtitle">Real-time deployment status</span>
+        <button pButton icon="pi pi-refresh" class="p-button-text p-button-sm ml-auto"
+          (click)="loadPipelineStatuses()" [loading]="pipelinesLoading"></button>
+      </div>
+      <div class="p-4">
+        <div *ngIf="pipelinesLoading" class="flex justify-content-center p-4">
+          <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+        </div>
+        <div *ngIf="!pipelinesLoading && pipelines.length === 0" class="text-center p-4 text-secondary">
+          No pipelines found.
+        </div>
+        <div *ngIf="!pipelinesLoading && pipelines.length > 0" class="pipeline-grid">
+          <div *ngFor="let pipeline of pipelines" class="pipeline-card p-3 border-round surface-ground mb-2">
+            <div class="flex align-items-center justify-content-between mb-2">
+              <div class="flex align-items-center gap-2">
+                <i [class]="getPipelineIcon(pipeline.status)"
+                   [ngClass]="{
+                     'text-green-500': pipeline.status === 'Succeeded',
+                     'text-yellow-500': pipeline.status === 'InProgress',
+                     'text-red-500': pipeline.status === 'Failed'
+                   }"></i>
+                <span class="font-bold">{{ pipeline.pipelineName }}</span>
+              </div>
+              <p-tag [value]="pipeline.status" [severity]="getPipelineStatusSeverity(pipeline.status)"></p-tag>
+            </div>
+            <div *ngIf="pipeline.stages && pipeline.stages.length > 0" class="stages-container">
+              <div class="flex gap-1 align-items-center">
+                <ng-container *ngFor="let stage of pipeline.stages; let last = last">
+                  <div class="stage-indicator flex align-items-center gap-1 px-2 py-1 border-round text-xs"
+                       [ngClass]="{
+                         'bg-green-100 text-green-700': stage.status === 'Succeeded',
+                         'bg-yellow-100 text-yellow-700': stage.status === 'InProgress',
+                         'bg-red-100 text-red-700': stage.status === 'Failed',
+                         'bg-gray-100 text-gray-500': stage.status === 'NotStarted'
+                       }">
+                    <i class="pi text-xs"
+                       [ngClass]="{
+                         'pi-check': stage.status === 'Succeeded',
+                         'pi-spin pi-spinner': stage.status === 'InProgress',
+                         'pi-times': stage.status === 'Failed',
+                         'pi-circle': stage.status === 'NotStarted'
+                       }"></i>
+                    {{ stage.stageName }}
+                  </div>
+                  <i *ngIf="!last" class="pi pi-arrow-right text-gray-400 text-xs"></i>
+                </ng-container>
+              </div>
+            </div>
+            <div *ngIf="pipeline.updatedAt" class="text-xs text-secondary mt-2">
+              Last updated: {{ pipeline.updatedAt | date:'medium' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

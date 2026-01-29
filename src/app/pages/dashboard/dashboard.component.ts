@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from '../../core/service/analytics.service';
-import { AdminToolsService } from '../../core/service/admin-tools.service';
+import { AdminToolsService, PipelineStatus } from '../../core/service/admin-tools.service';
 
 
 @Component({
@@ -29,6 +29,10 @@ export class DashboardComponent implements OnInit {
   costUnit: string = 'USD';
   currentMonth: string = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 
+  // Pipeline Status
+  pipelines: PipelineStatus[] = [];
+  pipelinesLoading: boolean = false;
+
   constructor(
     private analyticsService: AnalyticsService,
     private adminToolsService: AdminToolsService
@@ -38,6 +42,7 @@ export class DashboardComponent implements OnInit {
     this.loadStats();
     this.loadChartData();
     this.loadServerCost();
+    this.loadPipelineStatuses();
   }
 
   loadServerCost() {
@@ -51,6 +56,38 @@ export class DashboardComponent implements OnInit {
         this.serverCost = 'N/A';
       }
     });
+  }
+
+  loadPipelineStatuses() {
+    this.pipelinesLoading = true;
+    this.adminToolsService.getAllPipelineStatuses().subscribe({
+      next: (data) => {
+        this.pipelines = data;
+        this.pipelinesLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load pipeline statuses', err);
+        this.pipelinesLoading = false;
+      }
+    });
+  }
+
+  getPipelineStatusSeverity(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'succeeded': return 'success';
+      case 'inprogress': return 'warning';
+      case 'failed': return 'danger';
+      default: return 'info';
+    }
+  }
+
+  getPipelineIcon(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'succeeded': return 'pi pi-check-circle';
+      case 'inprogress': return 'pi pi-spin pi-spinner';
+      case 'failed': return 'pi pi-times-circle';
+      default: return 'pi pi-circle';
+    }
   }
 
   loadStats() {

@@ -310,3 +310,39 @@
     height: 180px;
   }
 }
+
+// Pipeline Status Section
+.pipeline-section {
+  .chart-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1rem;
+  }
+
+  .pipeline-card {
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .stages-container {
+    overflow-x: auto;
+    padding: 0.25rem 0;
+  }
+
+  .stage-indicator {
+    white-space: nowrap;
+    font-weight: 500;
+  }
+}
+
