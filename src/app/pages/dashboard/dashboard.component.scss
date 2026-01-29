@@ -106,8 +106,12 @@
 // Charts Grid
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-card {
@@ -116,12 +120,16 @@
   padding: 1.5rem;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-md);
+  min-width: 0;
+  overflow: hidden;
 
   .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .chart-title {
@@ -144,8 +152,31 @@
   }
 
   .chart-container {
-    height: 300px;
     position: relative;
+    width: 100%;
+    height: 280px;
+
+    ::ng-deep {
+      .p-chart {
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+      }
+
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      height: 220px;
+    }
+
+    @media (max-width: 576px) {
+      height: 180px;
+    }
   }
 }
 
@@ -162,6 +193,7 @@
   font-weight: 700;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
+  flex-shrink: 0;
 
   &.top-3 {
     background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -172,17 +204,45 @@
 }
 
 .trending-section {
+  .chart-card {
+    overflow: hidden;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .media-title-cell {
+    max-width: 200px;
+    overflow: hidden;
+
+    .text-truncate {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   ::ng-deep .p-datatable {
     background: transparent !important;
+    min-width: 400px;
+
+    .p-datatable-wrapper {
+      overflow: visible;
+    }
 
     .p-datatable-thead>tr>th {
       background: transparent !important;
       border-bottom: 1px solid var(--border-color) !important;
       color: var(--text-secondary) !important;
       text-transform: uppercase;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       letter-spacing: 0.05em;
-      padding: 1rem;
+      padding: 0.75rem 0.5rem;
+      white-space: nowrap;
     }
 
     .p-datatable-tbody>tr {
@@ -204,56 +264,156 @@
 
 // Pipeline Status Section
 .pipeline-section {
+  .chart-card {
+    overflow: hidden;
+  }
+
   .chart-header {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .pipeline-content {
+    padding: 1rem;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .pipeline-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .pipeline-card {
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
     transition: all 0.2s ease;
+    overflow: hidden;
 
     &:hover {
       box-shadow: var(--shadow-sm);
     }
   }
 
+  .pipeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .pipeline-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+
+    i {
+      flex-shrink: 0;
+    }
+  }
+
+  .pipeline-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .stages-container {
     overflow-x: auto;
-    padding: 0.25rem 0;
     -webkit-overflow-scrolling: touch;
+    margin: 0.5rem 0;
+    padding-bottom: 0.25rem;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 2px;
+    }
+  }
+
+  .stages-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: max-content;
   }
 
   .stage-indicator {
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
     font-weight: 500;
+    white-space: nowrap;
+
+    i {
+      font-size: 0.65rem;
+    }
+
+    &.stage-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
+    }
+
+    &.stage-progress {
+      background: rgba(245, 158, 11, 0.15);
+      color: #d97706;
+    }
+
+    &.stage-failed {
+      background: rgba(239, 68, 68, 0.15);
+      color: #dc2626;
+    }
+
+    &.stage-pending {
+      background: rgba(107, 114, 128, 0.15);
+      color: #6b7280;
+    }
+  }
+
+  .stage-arrow {
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .stage-name {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pipeline-updated {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
   }
 }
 
 // Responsive Styles
 @media (max-width: 992px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-card {
-    padding: 1rem;
-
-    .chart-container {
-      height: 250px;
+  .pipeline-section {
+    .pipeline-content {
+      padding: 0.75rem;
     }
-  }
-
-  .pipeline-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -265,6 +425,26 @@
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+  }
+
+  .chart-card {
+    padding: 1rem;
+    border-radius: 12px;
+
+    .chart-header {
+      margin-bottom: 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+
+      i {
+        font-size: 1rem;
+      }
+    }
   }
 
   .stat-card {
@@ -290,29 +470,6 @@
     }
   }
 
-  .chart-card {
-    border-radius: 12px;
-    padding: 0.75rem;
-
-    .chart-header {
-      margin-bottom: 1rem;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
-    }
-
-    .chart-title {
-      font-size: 1rem;
-
-      i {
-        font-size: 1rem;
-      }
-    }
-
-    .chart-container {
-      height: 200px;
-    }
-  }
 
   .trending-section {
     .chart-card {
@@ -393,6 +550,46 @@
       .p-datatable-tbody > tr > td {
         padding: 0.4rem;
       }
+    }
+  }
+
+  .pipeline-section {
+    .chart-header {
+      padding: 0.75rem;
+    }
+
+    .pipeline-content {
+      padding: 0.5rem;
+    }
+
+    .pipeline-card {
+      padding: 0.5rem;
+    }
+
+    .pipeline-name {
+      font-size: 0.8rem;
+      max-width: 120px;
+    }
+
+    .stage-indicator {
+      font-size: 0.6rem;
+      padding: 0.2rem 0.4rem;
+
+      i {
+        font-size: 0.55rem;
+      }
+    }
+
+    .stage-name {
+      max-width: 50px;
+    }
+
+    .stage-arrow {
+      font-size: 0.5rem;
+    }
+
+    .pipeline-updated {
+      font-size: 0.65rem;
     }
   }
 }

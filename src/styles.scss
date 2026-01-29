@@ -450,6 +450,16 @@ body.dark-theme ::-webkit-scrollbar-track {
    ADDITIONAL RESPONSIVE UTILITIES
 ======================================== */
 
+/* Hide on mobile - always available */
+.hide-mobile {
+  display: table-cell;
+}
+
+/* Show only on mobile */
+.show-mobile {
+  display: none !important;
+}
+
 /* Responsive text utilities */
 @media (max-width: 768px) {
   .text-responsive {
@@ -526,5 +536,62 @@ body.dark-theme ::-webkit-scrollbar-track {
     background: var(--surface-border);
     border-radius: 3px;
   }
+}
+
+/* ========================================
+   CHART.JS / PRIMENG CHART FIXES
+======================================== */
+
+/* Force Chart.js canvas to be responsive */
+.p-chart {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+
+  canvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Chart container base styles */
+.chart-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+
+  .p-chart {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* Chart card - prevent any overflow */
+.chart-card {
+  overflow: hidden;
+  max-width: 100%;
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+}
+
+/* Ensure charts resize properly on window resize */
+@media screen {
+  .p-chart canvas {
+    max-width: 100% !important;
+  }
+}
+
+/* Text truncation utility */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
