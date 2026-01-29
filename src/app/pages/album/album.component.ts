@@ -34,6 +34,10 @@ export class AlbumComponent implements OnInit {
   songSearchQuery = '';
   isLoadingSongs = false;
 
+  // Album songs list
+  albumSongs: any[] = [];
+  loadingAlbumSongs = false;
+
   constructor(
     private albumService: AlbumService,
     private mediaService: MediaService,
@@ -60,6 +64,21 @@ export class AlbumComponent implements OnInit {
     });
   }
 
+  loadAlbumSongs(albumId: number): void {
+    this.loadingAlbumSongs = true;
+    this.albumSongs = [];
+    this.mediaService.getMediaByAlbum(albumId).subscribe({
+      next: (songs) => {
+        this.albumSongs = songs || [];
+        this.loadingAlbumSongs = false;
+      },
+      error: () => {
+        this.albumSongs = [];
+        this.loadingAlbumSongs = false;
+      }
+    });
+  }
+
   onSearch(): void {
     this.loadAlbums();
   }
@@ -72,6 +91,13 @@ export class AlbumComponent implements OnInit {
         this.totalRecords = data.totalElements;
       }
     });
+  }
+
+  selectAlbum(album: Album): void {
+    this.selectedAlbum = album;
+    if (album.id) {
+      this.loadAlbumSongs(album.id);
+    }
   }
 
   openNewAlbumDialog(): void {
@@ -196,11 +222,7 @@ export class AlbumComponent implements OnInit {
           });
         }
       }
-    });
-  }
-
-  selectAlbum(album: Album): void {
-    this.selectedAlbum = album;
+});
   }
 
   openAddSongsDialog(): void {

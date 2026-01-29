@@ -84,6 +84,68 @@
         }
     }
 
+    // Title cell with text truncation
+    .title-cell {
+        max-width: 200px;
+
+        .title-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+
+        .media-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            max-width: 180px;
+        }
+
+        .media-id {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+    }
+
+    // Artist cell with truncation
+    .artist-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        min-width: 0;
+
+        .artist-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            display: inline-block;
+        }
+    }
+
+    // Album cell with truncation
+    .album-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        min-width: 0;
+
+        .album-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            display: inline-block;
+        }
+    }
+
     .media-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

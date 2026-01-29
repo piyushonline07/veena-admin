@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ArtistService, Artist } from '../../core/service/artist.service';
+import { MediaService } from '../../core/service/media.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
@@ -30,8 +31,13 @@ export class ArtistListComponent implements OnInit {
     imagePreviewUrl: string | null = null;
     uploadingImage: boolean = false;
 
+    // Artist songs
+    artistSongs: any[] = [];
+    loadingArtistSongs: boolean = false;
+
     constructor(
         private artistService: ArtistService,
+        private mediaService: MediaService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) { }
@@ -99,6 +105,24 @@ export class ArtistListComponent implements OnInit {
 
     selectArtist(artist: Artist) {
         this.selectedArtist = { ...artist };
+        if (artist.id) {
+            this.loadArtistSongs(artist.id);
+        }
+    }
+
+    loadArtistSongs(artistId: number): void {
+        this.loadingArtistSongs = true;
+        this.artistSongs = [];
+        this.mediaService.getMediaByArtist(artistId).subscribe({
+            next: (songs) => {
+                this.artistSongs = songs || [];
+                this.loadingArtistSongs = false;
+            },
+            error: () => {
+                this.artistSongs = [];
+                this.loadingArtistSongs = false;
+            }
+        });
     }
 
     hideDialog() {

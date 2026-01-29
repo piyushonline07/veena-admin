@@ -56,23 +56,36 @@
                                    pTooltip="Has linked media"></i>
                             </div>
                         </td>
-                        <td>
-                            <span class="font-bold text-lg cursor-pointer"
-                                (click)="previewMedia(media)">{{media.title}}</span>
-                            <div class="text-xs text-secondary">{{media.id}}</div>
+                        <td class="title-cell">
+                            <div class="title-wrapper">
+                                <span class="media-title font-bold cursor-pointer"
+                                    (click)="previewMedia(media)"
+                                    [pTooltip]="media.title"
+                                    tooltipPosition="top"
+                                    [tooltipDisabled]="media.title?.length < 25">{{media.title}}</span>
+                                <div class="media-id text-xs text-secondary"
+                                     [pTooltip]="media.id"
+                                     tooltipPosition="bottom">{{media.id}}</div>
+                            </div>
                         </td>
                         <td>
-                            <div *ngIf="media.artist" class="flex align-items-center gap-1">
-                                <span>{{media.artist.name}}</span>
+                            <div *ngIf="media.artist" class="artist-cell">
+                                <span class="artist-name"
+                                      [pTooltip]="media.artist.name"
+                                      tooltipPosition="top"
+                                      [tooltipDisabled]="media.artist.name?.length < 15">{{media.artist.name}}</span>
                                 <i *ngIf="media.artist.verified" class="pi pi-verified text-primary text-sm"
                                     pTooltip="Verified Artist"></i>
                             </div>
                             <span *ngIf="!media.artist" class="text-secondary">-</span>
                         </td>
                         <td>
-                            <div *ngIf="media.album" class="flex align-items-center gap-1">
+                            <div *ngIf="media.album" class="album-cell">
                                 <i class="pi pi-book text-secondary text-sm"></i>
-                                <span>{{media.album.name}}</span>
+                                <span class="album-name"
+                                      [pTooltip]="media.album.name"
+                                      tooltipPosition="top"
+                                      [tooltipDisabled]="media.album.name?.length < 15">{{media.album.name}}</span>
                             </div>
                             <span *ngIf="!media.album" class="text-secondary">-</span>
                         </td>
@@ -131,17 +144,23 @@
                         number:'1.0-0'}}s</div>
                 </div>
                 <div class="card-content">
-                    <div class="media-title" [title]="media.title">{{media.title}}</div>
-                    <div class="media-description">{{media.description || 'No description available.'}}</div>
+                    <div class="media-title"
+                         [pTooltip]="media.title"
+                         tooltipPosition="top"
+                         [tooltipDisabled]="media.title?.length < 30">{{media.title}}</div>
+                    <div class="media-description"
+                         [pTooltip]="media.description"
+                         tooltipPosition="bottom"
+                         [tooltipDisabled]="!media.description || media.description?.length < 50">{{media.description || 'No description available.'}}</div>
                     <div class="card-footer">
                         <p-tag [value]="media.status"
                             [severity]="media.status === 'READY' ? 'success' : 'warning'"></p-tag>
                         <div class="flex gap-1" (click)="$event.stopPropagation()">
                             <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
-                                (click)="editMedia(media)"></button>
+                                (click)="editMedia(media)" pTooltip="Edit"></button>
                             <button pButton icon="pi pi-trash"
                                 class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                (click)="deleteMedia(media)"></button>
+                                (click)="deleteMedia(media)" pTooltip="Delete"></button>
                         </div>
                     </div>
                 </div>

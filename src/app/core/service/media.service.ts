@@ -124,4 +124,14 @@ export class MediaService {
     getDraftMedia(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/drafts`);
     }
+
+    // Get media by album ID
+    getMediaByAlbum(albumId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/album/${albumId}`);
+    }
+
+    // Get media by artist ID
+    getMediaByArtist(artistId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/artist/${artistId}`);
+    }
 }

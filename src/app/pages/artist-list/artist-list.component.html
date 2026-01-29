@@ -36,6 +36,10 @@
               <i *ngIf="artist.verified" class="pi pi-verified text-primary"></i>
             </div>
             <div class="artist-meta">{{ artist.genre || 'No genre' }} • {{ formatNumber(artist.monthlyListeners) }} listeners</div>
+            <div class="text-tooltip" *ngIf="artist.name && artist.name.length > 20">
+              <div class="tooltip-title">{{ artist.name }}</div>
+              <div class="tooltip-desc">{{ artist.genre || 'No genre' }} • {{ formatNumber(artist.monthlyListeners) }} monthly listeners</div>
+            </div>
           </div>
           <div class="artist-actions">
             <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editArtist(artist); $event.stopPropagation()"></button>
@@ -124,6 +128,47 @@
               </a>
               <span *ngIf="!selectedArtist.spotifyUrl && !selectedArtist.youtubeUrl && !selectedArtist.instagramUrl && !selectedArtist.websiteUrl"
                     class="text-secondary">No social links added</span>
+            </div>
+          </div>
+
+          <!-- Songs Section -->
+          <div class="songs-section">
+            <div class="songs-header">
+              <h4><i class="pi pi-music mr-2"></i>Songs by this Artist</h4>
+              <span class="songs-count">{{ artistSongs.length }} track(s)</span>
+            </div>
+
+            <div *ngIf="loadingArtistSongs" class="loading-songs">
+              <p-progressSpinner strokeWidth="4" [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
+              <span>Loading songs...</span>
+            </div>
+
+            <div *ngIf="!loadingArtistSongs && artistSongs.length === 0" class="empty-songs">
+              <i class="pi pi-music"></i>
+              <p>No songs by this artist yet</p>
+              <small>Add songs from the Media Upload page</small>
+            </div>
+
+            <div *ngIf="!loadingArtistSongs && artistSongs.length > 0" class="songs-list">
+              <div *ngFor="let song of artistSongs; let i = index" class="song-row">
+                <div class="song-number">{{ i + 1 }}</div>
+                <div class="song-info">
+                  <img *ngIf="song.thumbnailUrl" [src]="song.thumbnailUrl" class="song-thumb" alt="thumb">
+                  <div *ngIf="!song.thumbnailUrl" class="song-thumb-placeholder">
+                    <i class="pi pi-music"></i>
+                  </div>
+                  <div class="song-details">
+                    <span class="song-title" [pTooltip]="song.title" tooltipPosition="top">{{ song.title }}</span>
+                    <span class="song-album" *ngIf="song.album">{{ song.album.name }}</span>
+                  </div>
+                </div>
+                <div class="song-type">
+                  <p-tag [value]="song.mediaType" [severity]="song.mediaType === 'VIDEO' ? 'primary' : 'info'" styleClass="song-type-tag"></p-tag>
+                </div>
+                <div class="song-duration" *ngIf="song.durationSeconds">
+                  {{ song.durationSeconds | number:'1.0-0' }}s
+                </div>
+              </div>
             </div>
           </div>
         </div>
