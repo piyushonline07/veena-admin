@@ -78,13 +78,12 @@
                 <label class="block text-secondary text-sm mb-1">Role</label>
                 <div class="flex align-items-center gap-2">
                     <p-dropdown [options]="roleOptions" [(ngModel)]="selectedUser.role"
-                        (onChange)="confirmRoleChange($event.value)"
                         [disabled]="updatingRole"
                         styleClass="w-full md:w-10rem">
                     </p-dropdown>
                     <i *ngIf="updatingRole" class="pi pi-spin pi-spinner"></i>
                 </div>
-                <small class="block mt-1 text-secondary">Select a role to update. Changes apply to both database and Cognito.</small>
+                <small class="block mt-1 text-secondary">Select a role and click Save to update. Changes apply to both database and Cognito.</small>
             </div>
             <div class="detail-item">
                 <label class="block text-secondary text-sm mb-1">Joined Date</label>
@@ -93,7 +92,9 @@
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()" [disabled]="updatingRole"></button>
+        <button pButton label="Save" icon="pi pi-check" class="p-button-primary" (click)="saveUserRole()"
+            [disabled]="!hasRoleChanged() || updatingRole" [loading]="updatingRole"></button>
     </ng-template>
 </p-dialog>
 

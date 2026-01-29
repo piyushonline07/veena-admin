@@ -17,6 +17,7 @@ export class UserListComponent implements OnInit {
 
     userDialog: boolean = false;
     selectedUser: any = {};
+    originalRole: string = '';
 
     // Role options for dropdown
     roleOptions = [
@@ -44,7 +45,7 @@ export class UserListComponent implements OnInit {
                 this.totalRecords = data.totalElements;
                 this.loading = false;
             },
-            error: (err) => {
+            error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
                 this.loading = false;
             }
@@ -62,28 +63,32 @@ export class UserListComponent implements OnInit {
 
     showDetails(user: any) {
         this.selectedUser = { ...user };
+        this.originalRole = user.role;
         this.userDialog = true;
     }
 
     hideDialog() {
         this.userDialog = false;
+        this.selectedUser = {};
+        this.originalRole = '';
     }
 
-    confirmRoleChange(newRole: string) {
-        if (newRole === this.selectedUser.role) {
+    hasRoleChanged(): boolean {
+        return this.selectedUser.role !== this.originalRole;
+    }
+
+    saveUserRole() {
+        if (!this.hasRoleChanged()) {
+            this.hideDialog();
             return;
         }
 
         this.confirmationService.confirm({
-            message: `Are you sure you want to change this user's role to ${newRole}?`,
+            message: `Are you sure you want to change this user's role from ${this.originalRole} to ${this.selectedUser.role}?`,
             header: 'Confirm Role Change',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.updateRole(newRole);
-            },
-            reject: () => {
-                // Reset the dropdown to original value
-                this.selectedUser = { ...this.selectedUser };
+                this.updateRole(this.selectedUser.role);
             }
         });
     }
@@ -93,6 +98,7 @@ export class UserListComponent implements OnInit {
         this.userService.updateUserRole(this.selectedUser.id, newRole).subscribe({
             next: (updatedUser) => {
                 this.selectedUser = updatedUser;
+                this.originalRole = updatedUser.role;
                 // Update the user in the list
                 const index = this.users.findIndex(u => u.id === updatedUser.id);
                 if (index !== -1) {
@@ -104,10 +110,21 @@ export class UserListComponent implements OnInit {
                     detail: `User role updated to ${newRole}`
                 });
                 this.updatingRole = false;
+                this.hideDialog();
             },
             error: (err) => {
                 this.messageService.add({
                     severity: 'error',
+                    summary: 'Error',
+                    detail: err.error?.message || 'Failed to update user role'
+                });
+                this.updatingRole = false;
+                // Reset to original role on error
+                this.selectedUser.role = this.originalRole;
+            }
+        });
+    }
+}
                     summary: 'Error',
                     detail: err.error?.message || 'Failed to update user role'
                 });
