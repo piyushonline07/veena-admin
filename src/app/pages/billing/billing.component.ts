@@ -51,12 +51,15 @@ export class BillingComponent implements OnInit, OnDestroy {
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border') || '#dee2e6';
 
         this.chartOptions = {
+            responsive: true,
             maintainAspectRatio: false,
-            aspectRatio: 0.6,
             plugins: {
                 legend: {
+                    display: true,
+                    position: 'top',
                     labels: {
-                        color: textColor
+                        color: textColor,
+                        usePointStyle: true
                     }
                 },
                 tooltip: {
@@ -68,31 +71,40 @@ export class BillingComponent implements OnInit, OnDestroy {
             scales: {
                 x: {
                     ticks: {
-                        color: textColorSecondary
+                        color: textColorSecondary,
+                        maxRotation: 45,
+                        minRotation: 45
                     },
                     grid: {
-                        color: surfaceBorder
+                        color: surfaceBorder,
+                        display: false
                     }
                 },
                 y: {
                     ticks: {
                         color: textColorSecondary,
-                        callback: (value: number) => `$${value.toFixed(2)}`
+                        callback: (value: number) => `$${value}`
                     },
                     grid: {
                         color: surfaceBorder
-                    }
+                    },
+                    beginAtZero: true
                 }
             }
         };
 
         this.pieChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
+                    display: true,
+                    position: 'bottom',
                     labels: {
-                        color: textColor
-                    },
-                    position: 'right'
+                        color: textColor,
+                        usePointStyle: true,
+                        padding: 15
+                    }
                 },
                 tooltip: {
                     callbacks: {

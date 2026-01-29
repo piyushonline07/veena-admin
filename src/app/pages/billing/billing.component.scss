@@ -11,20 +11,39 @@
 
     .chart-container {
         position: relative;
-        min-height: 300px;
+        width: 100%;
+        min-height: 280px;
+
+        canvas {
+            max-width: 100% !important;
+            max-height: 280px !important;
+        }
     }
 
     ::ng-deep {
         .p-card {
             height: 100%;
+            overflow: hidden;
 
             .p-card-body {
                 height: 100%;
+                padding: 1rem;
             }
 
             .p-card-content {
                 height: 100%;
+                padding: 0;
             }
+
+            .p-card-title {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .p-chart {
+            width: 100% !important;
+            height: 280px !important;
         }
 
         .p-datatable {

@@ -58,11 +58,11 @@
     <!-- Charts -->
     <div class="grid">
         <!-- Daily Cost Bar Chart -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 mb-3">
             <p-card header="Daily Cost Breakdown">
-                <div class="chart-container" style="height: 300px;">
+                <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
                     <p-chart *ngIf="dailyChartData" type="bar" [data]="dailyChartData"
-                        [options]="chartOptions" [style]="{'height': '100%', 'width': '100%'}"></p-chart>
+                        [options]="chartOptions" height="280"></p-chart>
                     <div *ngIf="!dailyChartData && !loading" class="flex align-items-center justify-content-center h-full">
                         <span class="text-secondary">No data available</span>
                     </div>
@@ -74,11 +74,11 @@
         </div>
 
         <!-- Cumulative Cost Line Chart -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 mb-3">
             <p-card header="Cumulative Cost Trend">
-                <div class="chart-container" style="height: 300px;">
+                <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
                     <p-chart *ngIf="cumulativeChartData" type="line" [data]="cumulativeChartData"
-                        [options]="chartOptions" [style]="{'height': '100%', 'width': '100%'}"></p-chart>
+                        [options]="chartOptions" height="280"></p-chart>
                     <div *ngIf="!cumulativeChartData && !loading" class="flex align-items-center justify-content-center h-full">
                         <span class="text-secondary">No data available</span>
                     </div>
@@ -90,11 +90,11 @@
         </div>
 
         <!-- Cost by Service Pie Chart -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 mb-3">
             <p-card header="Cost by AWS Service">
-                <div class="chart-container" style="height: 300px;">
+                <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
                     <p-chart *ngIf="serviceChartData" type="doughnut" [data]="serviceChartData"
-                        [options]="pieChartOptions" [style]="{'height': '100%', 'width': '100%'}"></p-chart>
+                        [options]="pieChartOptions" height="280"></p-chart>
                     <div *ngIf="!serviceChartData && !loading" class="flex align-items-center justify-content-center h-full">
                         <span class="text-secondary">No data available</span>
                     </div>
@@ -106,7 +106,7 @@
         </div>
 
         <!-- Service Cost Table -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 mb-3">
             <p-card header="Service Cost Details">
                 <p-table [value]="serviceCosts" [loading]="loading" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">

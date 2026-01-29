@@ -27,9 +27,17 @@ export class AppComponent implements OnInit {
     if (this.auth.isLoggedIn()) {
       this.initialized = true;
 
-      this.router.navigate(['/'], {
-        queryParams: { token: null },
-        queryParamsHandling: 'merge'
+      // Only clear token from URL if it exists, without changing the current route
+      this.route.queryParams.subscribe(params => {
+        if (params['token']) {
+          // Remove token from URL while staying on the current page
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { token: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+          });
+        }
       });
     }
   }
