@@ -131,17 +131,21 @@
                   {{item.rank}}
                 </span>
               </td>
-              <td>
+              <td class="title-cell">
                 <div class="media-title-cell">
-                  <span class="font-bold text-truncate">{{item.media.title}}</span>
+                  <span class="media-title-text"
+                        [pTooltip]="item.media.title"
+                        tooltipPosition="top"
+                        [tooltipDisabled]="item.media.title?.length < 25">{{item.media.title}}</span>
                 </div>
               </td>
-              <td>
+              <td class="type-cell">
                 <p-tag [value]="item.media.mediaType"
-                  [severity]="item.media.mediaType === 'VIDEO' ? 'primary' : 'success'"></p-tag>
+                  [severity]="item.media.mediaType === 'VIDEO' ? 'primary' : 'success'"
+                  styleClass="media-type-tag"></p-tag>
               </td>
-              <td class="font-medium hide-mobile">{{item.playCount | number}}</td>
-              <td class="text-secondary text-sm hide-mobile">{{item.updatedAt | date:'shortDate'}}</td>
+              <td class="plays-cell hide-mobile">{{item.playCount | number}}</td>
+              <td class="date-cell hide-mobile">{{item.updatedAt | date:'shortDate'}}</td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">

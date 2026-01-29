@@ -38,6 +38,10 @@ export class AlbumComponent implements OnInit {
   albumSongs: any[] = [];
   loadingAlbumSongs = false;
 
+  // Media preview dialog
+  previewDialog = false;
+  selectedSongForPreview: any = null;
+
   constructor(
     private albumService: AlbumService,
     private mediaService: MediaService,
@@ -279,5 +283,23 @@ export class AlbumComponent implements OnInit {
     } else {
       this.selectedSongs.push(song);
     }
+  }
+
+  previewSong(song: any): void {
+    if (song.status !== 'READY') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Not Ready',
+        detail: 'This media is not ready for playback yet.'
+      });
+      return;
+    }
+    this.selectedSongForPreview = song;
+    this.previewDialog = true;
+  }
+
+  closePreview(): void {
+    this.previewDialog = false;
+    this.selectedSongForPreview = null;
   }
 }

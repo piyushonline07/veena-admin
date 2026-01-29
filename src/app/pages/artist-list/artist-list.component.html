@@ -150,7 +150,7 @@
             </div>
 
             <div *ngIf="!loadingArtistSongs && artistSongs.length > 0" class="songs-list">
-              <div *ngFor="let song of artistSongs; let i = index" class="song-row">
+              <div *ngFor="let song of artistSongs; let i = index" class="song-row" (click)="previewSong(song)">
                 <div class="song-number">{{ i + 1 }}</div>
                 <div class="song-info">
                   <img *ngIf="song.thumbnailUrl" [src]="song.thumbnailUrl" class="song-thumb" alt="thumb">
@@ -165,8 +165,9 @@
                 <div class="song-type">
                   <p-tag [value]="song.mediaType" [severity]="song.mediaType === 'VIDEO' ? 'primary' : 'info'" styleClass="song-type-tag"></p-tag>
                 </div>
-                <div class="song-duration" *ngIf="song.durationSeconds">
-                  {{ song.durationSeconds | number:'1.0-0' }}s
+                <div class="song-actions">
+                  <button pButton icon="pi pi-play" class="p-button-rounded p-button-text p-button-success p-button-sm"
+                      (click)="previewSong(song); $event.stopPropagation()" pTooltip="Play"></button>
                 </div>
               </div>
             </div>
@@ -296,6 +297,50 @@
         <button pButton label="No" icon="pi pi-times" class="p-button-text" (click)="deleteDialog = false"></button>
         <button pButton label="Yes" icon="pi pi-check" class="p-button-danger" (click)="deleteArtist()"></button>
     </ng-template>
+</p-dialog>
+
+<!-- Media Preview Dialog -->
+<p-dialog [(visible)]="previewDialog" [style]="{width: '900px', maxWidth: '95vw'}" [header]="selectedSongForPreview?.title"
+    [modal]="true" class="p-fluid media-preview-dialog" (onHide)="closePreview()">
+
+    <div *ngIf="previewDialog && selectedSongForPreview" class="preview-content">
+        <!-- Video Preview -->
+        <div *ngIf="selectedSongForPreview.mediaType === 'VIDEO'" class="video-preview">
+            <app-hls-player [url]="selectedSongForPreview.hlsUrl"
+                [posterUrl]="selectedSongForPreview.thumbnailUrl || ''" [mediaType]="selectedSongForPreview.mediaType"
+                maxHeight="500px">
+            </app-hls-player>
+        </div>
+
+        <!-- Audio Preview -->
+        <div *ngIf="selectedSongForPreview.mediaType === 'AUDIO'" class="audio-preview">
+            <app-hls-audio-player
+                [url]="selectedSongForPreview.hlsUrl"
+                [posterUrl]="selectedSongForPreview.thumbnailUrl || ''"
+                [lyricsUrl]="selectedSongForPreview.lyricsUrl || ''">
+            </app-hls-audio-player>
+        </div>
+
+        <!-- Media Info Section -->
+        <div class="media-info-section mt-4 p-3 surface-card border-round">
+            <div class="flex align-items-start gap-3">
+                <div class="flex-grow-1">
+                    <h3 class="m-0 mb-2">{{selectedSongForPreview.title}}</h3>
+                    <p class="text-secondary m-0 line-height-3">{{selectedSongForPreview.description || 'No description available.'}}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap align-items-center gap-2 mt-3">
+                <p-tag [value]="selectedSongForPreview.mediaType"
+                       [severity]="selectedSongForPreview.mediaType === 'VIDEO' ? 'primary' : 'info'">
+                </p-tag>
+                <p-tag *ngIf="selectedSongForPreview.album"
+                       [value]="selectedSongForPreview.album.name"
+                       severity="secondary">
+                </p-tag>
+            </div>
+        </div>
+    </div>
 </p-dialog>
 
 <p-toast></p-toast>

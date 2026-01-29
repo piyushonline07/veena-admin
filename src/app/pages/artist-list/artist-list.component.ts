@@ -35,6 +35,10 @@ export class ArtistListComponent implements OnInit {
     artistSongs: any[] = [];
     loadingArtistSongs: boolean = false;
 
+    // Media preview dialog
+    previewDialog: boolean = false;
+    selectedSongForPreview: any = null;
+
     constructor(
         private artistService: ArtistService,
         private mediaService: MediaService,
@@ -257,5 +261,23 @@ export class ArtistListComponent implements OnInit {
             return (num / 1000).toFixed(1) + 'K';
         }
         return num.toString();
+    }
+
+    previewSong(song: any): void {
+        if (song.status !== 'READY') {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Not Ready',
+                detail: 'This media is not ready for playback yet.'
+            });
+            return;
+        }
+        this.selectedSongForPreview = song;
+        this.previewDialog = true;
+    }
+
+    closePreview(): void {
+        this.previewDialog = false;
+        this.selectedSongForPreview = null;
     }
 }

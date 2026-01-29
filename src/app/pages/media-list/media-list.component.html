@@ -34,15 +34,15 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 80px">Thumbnail</th>
-                        <th>Title</th>
-                        <th>Artist</th>
-                        <th>Album</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Visibility</th>
-                        <th>Created At</th>
-                        <th style="width: 150px">Actions</th>
+                        <th style="width: 70px; min-width: 70px;">Thumb</th>
+                        <th style="width: 150px; min-width: 120px;">Title</th>
+                        <th style="width: 100px; min-width: 80px;" class="hide-mobile">Artist</th>
+                        <th style="width: 100px; min-width: 80px;" class="hide-tablet">Album</th>
+                        <th style="width: 70px; min-width: 60px;">Type</th>
+                        <th style="width: 70px; min-width: 60px;" class="hide-mobile">Status</th>
+                        <th style="width: 80px; min-width: 70px;" class="hide-tablet">Visibility</th>
+                        <th style="width: 90px; min-width: 80px;" class="hide-tablet">Created</th>
+                        <th style="width: 100px; min-width: 90px;">Actions</th>
                     </tr>
                 </ng-template>
 
@@ -68,20 +68,20 @@
                                      tooltipPosition="bottom">{{media.id}}</div>
                             </div>
                         </td>
-                        <td>
+                        <td class="hide-mobile">
                             <div *ngIf="media.artist" class="artist-cell">
                                 <span class="artist-name"
                                       [pTooltip]="media.artist.name"
                                       tooltipPosition="top"
                                       [tooltipDisabled]="media.artist.name?.length < 15">{{media.artist.name}}</span>
-                                <i *ngIf="media.artist.verified" class="pi pi-verified text-primary text-sm"
+                                <i *ngIf="media.artist.verified" class="pi pi-verified verified-icon"
                                     pTooltip="Verified Artist"></i>
                             </div>
                             <span *ngIf="!media.artist" class="text-secondary">-</span>
                         </td>
-                        <td>
+                        <td class="hide-tablet">
                             <div *ngIf="media.album" class="album-cell">
-                                <i class="pi pi-book text-secondary text-sm"></i>
+                                <i class="pi pi-book text-secondary text-sm hide-mobile"></i>
                                 <span class="album-name"
                                       [pTooltip]="media.album.name"
                                       tooltipPosition="top"
@@ -89,29 +89,32 @@
                             </div>
                             <span *ngIf="!media.album" class="text-secondary">-</span>
                         </td>
-                        <td>
+                        <td class="type-cell">
                             <p-tag [value]="media.mediaType"
-                                [severity]="media.mediaType === 'VIDEO' ? 'primary' : 'info'"></p-tag>
+                                [severity]="media.mediaType === 'VIDEO' ? 'primary' : 'info'"
+                                styleClass="type-tag"></p-tag>
                         </td>
-                        <td>
+                        <td class="hide-mobile">
                             <p-tag [value]="media.status"
-                                [severity]="media.status === 'READY' ? 'success' : 'warning'"></p-tag>
+                                [severity]="media.status === 'READY' ? 'success' : 'warning'"
+                                styleClass="status-tag"></p-tag>
                         </td>
-                        <td>
+                        <td class="hide-tablet">
                             <p-tag [value]="media.visibility"
-                                [severity]="media.visibility === 'PUBLIC' ? 'success' : 'danger'"></p-tag>
+                                [severity]="media.visibility === 'PUBLIC' ? 'success' : 'danger'"
+                                styleClass="visibility-tag"></p-tag>
                         </td>
-                        <td>{{media.createdAt | date:'short'}}</td>
-                        <td>
-                            <div class="flex gap-2">
+                        <td class="hide-tablet">{{media.createdAt | date:'shortDate'}}</td>
+                        <td class="actions-cell">
+                            <div class="action-buttons">
                                 <button pButton icon="pi pi-play"
-                                    class="p-button-rounded p-button-text p-button-success"
+                                    class="p-button-rounded p-button-text p-button-success p-button-sm"
                                     (click)="previewMedia(media)" [disabled]="media.status !== 'READY'"
                                     pTooltip="Preview"></button>
-                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
                                     (click)="editMedia(media)" pTooltip="Edit"></button>
                                 <button pButton icon="pi pi-trash"
-                                    class="p-button-rounded p-button-text p-button-danger" (click)="deleteMedia(media)"
+                                    class="p-button-rounded p-button-text p-button-danger p-button-sm" (click)="deleteMedia(media)"
                                     pTooltip="Delete"></button>
                             </div>
                         </td>

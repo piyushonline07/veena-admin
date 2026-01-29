@@ -1,7 +1,8 @@
 .artist-container {
   padding: 1rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .artist-header {
     margin-bottom: 1.5rem;
@@ -31,6 +32,7 @@
     grid-template-columns: 320px 1fr;
     gap: 1.5rem;
     min-height: calc(100vh - 200px);
+    overflow: hidden;
   }
 
   .artists-panel {
@@ -541,6 +543,18 @@
             }
           }
 
+          .song-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            button {
+              width: 28px !important;
+              height: 28px !important;
+              padding: 0 !important;
+            }
+          }
+
           .song-duration {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -548,7 +562,35 @@
             text-align: right;
           }
         }
+
+        // Song row cursor for clickable
+        .song-row {
+          cursor: pointer;
+        }
       }
+    }
+  }
+
+  // Preview dialog styles
+  .media-preview-dialog {
+    ::ng-deep .p-dialog-content {
+      padding: 1rem;
+    }
+
+    .preview-content {
+      max-width: 100%;
+    }
+
+    .video-preview,
+    .audio-preview {
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface-ground);
+    }
+
+    .media-info-section {
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
     }
   }
 
@@ -591,14 +633,20 @@
     grid-template-columns: 1fr;
   }
 
+  // Artists list on top, details below on mobile
+  .artist-container .artists-panel {
+    order: 1;
+  }
+
   .artist-container .details-panel {
-    order: -1;
+    order: 2;
   }
 }
 
 @media (max-width: 768px) {
   .artist-container {
     padding: 0.5rem;
+    overflow-x: hidden;
 
     .artist-header {
       margin-bottom: 1rem;
@@ -615,6 +663,7 @@
     .artist-content {
       gap: 0.75rem;
       min-height: auto;
+      overflow: hidden;
     }
 
     .artists-panel {

@@ -214,21 +214,58 @@
     padding: 0 1rem 1rem 1rem;
   }
 
-  .media-title-cell {
-    max-width: 200px;
+  // Title cell with truncation
+  .title-cell {
+    max-width: 180px;
     overflow: hidden;
+  }
 
-    .text-truncate {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+  .media-title-cell {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .media-title-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    max-width: 160px;
+  }
+
+  // Type cell
+  .type-cell {
+    width: 70px;
+    min-width: 70px;
+
+    ::ng-deep .media-type-tag {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.35rem;
     }
+  }
+
+  // Plays cell
+  .plays-cell {
+    width: 90px;
+    min-width: 80px;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  // Date cell
+  .date-cell {
+    width: 90px;
+    min-width: 80px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
   ::ng-deep .p-datatable {
     background: transparent !important;
-    min-width: 400px;
+    min-width: 350px;
+    table-layout: fixed;
+    width: 100%;
 
     .p-datatable-wrapper {
       overflow: visible;
@@ -239,10 +276,12 @@
       border-bottom: 1px solid var(--border-color) !important;
       color: var(--text-secondary) !important;
       text-transform: uppercase;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       letter-spacing: 0.05em;
-      padding: 0.75rem 0.5rem;
+      padding: 0.5rem;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .p-datatable-tbody>tr {
@@ -256,7 +295,10 @@
 
       >td {
         border-bottom: 1px solid var(--border-color) !important;
-        padding: 1rem;
+        padding: 0.75rem 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
@@ -546,9 +588,30 @@
 
   .trending-section {
     ::ng-deep .p-datatable {
+      min-width: 280px;
+
       .p-datatable-thead > tr > th,
       .p-datatable-tbody > tr > td {
-        padding: 0.4rem;
+        padding: 0.4rem 0.25rem;
+      }
+    }
+
+    .title-cell {
+      max-width: 100px;
+    }
+
+    .media-title-text {
+      max-width: 90px;
+      font-size: 0.75rem;
+    }
+
+    .type-cell {
+      width: 55px;
+      min-width: 55px;
+
+      ::ng-deep .media-type-tag {
+        font-size: 0.55rem;
+        padding: 0.1rem 0.25rem;
       }
     }
   }

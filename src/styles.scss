@@ -595,3 +595,76 @@ body.dark-theme ::-webkit-scrollbar-track {
   white-space: nowrap;
 }
 
+/* ========================================
+   PRIMENG TOOLTIP - DARK MODE FIX
+======================================== */
+.p-tooltip {
+  max-width: 300px;
+  z-index: 10000;
+
+  .p-tooltip-text {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-md) !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 6px !important;
+  }
+
+  .p-tooltip-arrow {
+    border-top-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--bg-secondary) !important;
+    border-left-color: var(--bg-secondary) !important;
+    border-right-color: var(--bg-secondary) !important;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: var(--bg-secondary) !important;
+  }
+
+  &.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: var(--bg-secondary) !important;
+  }
+
+  &.p-tooltip-left .p-tooltip-arrow {
+    border-left-color: var(--bg-secondary) !important;
+  }
+
+  &.p-tooltip-right .p-tooltip-arrow {
+    border-right-color: var(--bg-secondary) !important;
+  }
+}
+
+/* Dark theme specific tooltip styles */
+body.dark-theme .p-tooltip {
+  .p-tooltip-text {
+    background: #334155 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+  }
+
+  .p-tooltip-arrow {
+    border-top-color: #334155 !important;
+    border-bottom-color: #334155 !important;
+    border-left-color: #334155 !important;
+    border-right-color: #334155 !important;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: #334155 !important;
+  }
+
+  &.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: #334155 !important;
+  }
+
+  &.p-tooltip-left .p-tooltip-arrow {
+    border-left-color: #334155 !important;
+  }
+
+  &.p-tooltip-right .p-tooltip-arrow {
+    border-right-color: #334155 !important;
+  }
+}
+

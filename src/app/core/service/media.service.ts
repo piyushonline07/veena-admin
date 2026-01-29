@@ -125,12 +125,12 @@ export class MediaService {
         return this.http.get<any[]>(`${this.apiUrl}/drafts`);
     }
 
-    // Get media by album ID
+    // Get media by album ID (admin sees all media)
     getMediaByAlbum(albumId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/album/${albumId}`);
     }
 
-    // Get media by artist ID
+    // Get media by artist ID (admin sees all media)
     getMediaByArtist(artistId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/artist/${artistId}`);
     }

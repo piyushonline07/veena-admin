@@ -1,7 +1,8 @@
 .album-container {
   padding: 1rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .album-header {
@@ -30,6 +31,7 @@
   grid-template-columns: 320px 1fr;
   gap: 1.5rem;
   min-height: calc(100vh - 200px);
+  overflow: hidden;
 }
 
 .albums-panel {
@@ -354,12 +356,56 @@
       }
     }
 
+    .song-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      button {
+        width: 28px !important;
+        height: 28px !important;
+        padding: 0 !important;
+      }
+    }
+
     .song-duration {
       font-size: 0.8rem;
       color: var(--text-secondary);
       min-width: 40px;
       text-align: right;
     }
+  }
+}
+
+// Song row cursor for clickable
+.songs-section .song-row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+}
+
+// Preview dialog styles
+.media-preview-dialog {
+  ::ng-deep .p-dialog-content {
+    padding: 1rem;
+  }
+
+  .preview-content {
+    max-width: 100%;
+  }
+
+  .video-preview,
+  .audio-preview {
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface-ground);
+  }
+
+  .media-info-section {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
   }
 }
 
@@ -663,8 +709,13 @@
     grid-template-columns: 1fr;
   }
 
+  // Albums list on top, details below on mobile
+  .albums-panel {
+    order: 1;
+  }
+
   .details-panel {
-    order: -1;
+    order: 2;
   }
 
   .albums-list {
@@ -675,6 +726,7 @@
 @media (max-width: 768px) {
   .album-container {
     padding: 0.5rem;
+    overflow-x: hidden;
   }
 
   .album-header {
