@@ -1,13 +1,14 @@
 .dashboard-container {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0;
 }
 
 // Stats Grid
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
@@ -105,8 +106,8 @@
 // Charts Grid
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
 }
 
 .chart-card {
@@ -201,29 +202,78 @@
   }
 }
 
-// Responsive adjustments
+// Pipeline Status Section
+.pipeline-section {
+  .chart-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .pipeline-card {
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .stages-container {
+    overflow-x: auto;
+    padding: 0.25rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stage-indicator {
+    white-space: nowrap;
+    font-weight: 500;
+  }
+}
+
+// Responsive Styles
+@media (max-width: 992px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    padding: 1rem;
+
+    .chart-container {
+      height: 250px;
+    }
+  }
+
+  .pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 0.5rem;
+    padding: 0;
   }
 
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
-    margin-bottom: 1rem;
   }
 
   .stat-card {
-    padding: 0.75rem;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 12px;
 
     .stat-icon {
       width: 40px;
       height: 40px;
-      border-radius: 10px;
       font-size: 1.1rem;
     }
 
@@ -240,32 +290,38 @@
     }
   }
 
-  .charts-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .chart-card {
+    border-radius: 12px;
     padding: 0.75rem;
 
     .chart-header {
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.25rem;
+    }
 
-      h3 {
+    .chart-title {
+      font-size: 1rem;
+
+      i {
         font-size: 1rem;
       }
     }
-  }
 
-  .chart-container {
-    height: 200px;
+    .chart-container {
+      height: 200px;
+    }
   }
 
   .trending-section {
+    .chart-card {
+      padding: 0.5rem;
+    }
+
     ::ng-deep .p-datatable {
+      font-size: 0.85rem;
+
       .p-datatable-thead > tr > th {
         padding: 0.5rem;
         font-size: 0.65rem;
@@ -273,15 +329,20 @@
 
       .p-datatable-tbody > tr > td {
         padding: 0.5rem;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
       }
     }
   }
 
-  .rank-badge {
-    width: 24px;
-    height: 24px;
-    font-size: 0.75rem;
+  .pipeline-section {
+    .pipeline-card {
+      padding: 0.75rem !important;
+    }
+
+    .stage-indicator {
+      font-size: 0.7rem !important;
+      padding: 0.25rem 0.5rem !important;
+    }
   }
 }
 
@@ -293,56 +354,46 @@
 
   .stat-card {
     flex-direction: row;
-    text-align: left;
+    align-items: center;
+    padding: 0.75rem 1rem;
 
     .stat-icon {
       width: 36px;
       height: 36px;
       font-size: 1rem;
+      border-radius: 10px;
+    }
+
+    .stat-content {
+      flex: 1;
     }
 
     .stat-value {
       font-size: 1.1rem;
     }
-  }
-
-  .chart-container {
-    height: 180px;
-  }
-}
-
-// Pipeline Status Section
-.pipeline-section {
-  .chart-header {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .pipeline-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1rem;
-  }
-
-  .pipeline-card {
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
 
     &:hover {
-      box-shadow: var(--shadow-sm);
+      transform: none;
     }
   }
 
-  .stages-container {
-    overflow-x: auto;
-    padding: 0.25rem 0;
+  .chart-container {
+    height: 180px !important;
   }
 
-  .stage-indicator {
-    white-space: nowrap;
-    font-weight: 500;
+  .rank-badge {
+    width: 22px;
+    height: 22px;
+    font-size: 0.7rem;
+  }
+
+  .trending-section {
+    ::ng-deep .p-datatable {
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.4rem;
+      }
+    }
   }
 }
 

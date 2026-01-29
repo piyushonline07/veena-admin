@@ -26,6 +26,20 @@
         border: 1px solid var(--surface-border);
     }
 
+    .upload-progress-container {
+        border: 1px solid var(--surface-border);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.85;
+        }
+    }
+
     ::ng-deep {
         .p-steps {
             .p-steps-item {
@@ -55,5 +69,145 @@
                 font-weight: 600;
             }
         }
+
+        .upload-progress-bar {
+            .p-progressbar-value {
+                background: linear-gradient(90deg, var(--primary-color), var(--primary-400));
+                transition: width 0.3s ease;
+            }
+        }
     }
 }
+
+// Responsive styles
+@media (max-width: 992px) {
+    .bulk-upload-container {
+        .step-content {
+            .grid {
+                .col-12.lg\:col-4,
+                .col-12.lg\:col-8 {
+                    width: 100% !important;
+                    flex: 0 0 100% !important;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .bulk-upload-container {
+        padding: 0.5rem;
+
+        .header-section {
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            p {
+                font-size: 0.85rem;
+            }
+        }
+
+        ::ng-deep {
+            .p-steps {
+                .p-steps-item {
+                    .p-menuitem-link {
+                        flex-direction: column;
+                        gap: 0.25rem;
+                    }
+
+                    .p-steps-title {
+                        font-size: 0.7rem;
+                    }
+                }
+            }
+
+            .p-card {
+                .p-card-body {
+                    padding: 0.75rem;
+                }
+            }
+        }
+
+        .upload-area {
+            padding: 1rem !important;
+
+            p {
+                font-size: 0.8rem;
+            }
+
+            code {
+                font-size: 0.75rem;
+            }
+        }
+
+        .grid.mb-3 {
+            .col-12.md\:col-4 {
+                margin-bottom: 0.5rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .bulk-upload-container {
+        padding: 0.25rem;
+
+        .header-section {
+            h1 {
+                font-size: 1.1rem;
+            }
+        }
+
+        ::ng-deep {
+            .p-steps {
+                .p-steps-item {
+                    .p-steps-number {
+                        width: 1.5rem;
+                        height: 1.5rem;
+                        font-size: 0.75rem;
+                    }
+
+                    .p-steps-title {
+                        display: none;
+                    }
+                }
+            }
+
+            .p-datatable {
+                font-size: 0.8rem;
+
+                .p-datatable-thead > tr > th,
+                .p-datatable-tbody > tr > td {
+                    padding: 0.5rem;
+                }
+            }
+
+            .p-button {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.75rem;
+
+                .p-button-icon {
+                    font-size: 0.85rem;
+                }
+            }
+        }
+
+        .upload-progress-container {
+            padding: 0.75rem !important;
+
+            .text-sm {
+                font-size: 0.7rem !important;
+            }
+        }
+
+        .stat-card {
+            padding: 0.75rem !important;
+
+            .text-3xl {
+                font-size: 1.25rem !important;
+            }
+        }
+    }
+}
+

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface BatchUpdateRequest {
@@ -9,6 +9,15 @@ export interface BatchUpdateRequest {
     albumId?: number;
     title?: string;
     description?: string;
+}
+
+export interface UploadProgress {
+    loaded: number;
+    total: number;
+    percent: number;
+    status: 'uploading' | 'completed' | 'error';
+    response?: any;
+    error?: any;
 }
 
 @Injectable({
@@ -39,7 +48,7 @@ export class MediaService {
         return this.http.delete(`${this.apiUrl}/${id}`);
     }
 
-    // Bulk upload multiple files
+    // Bulk upload multiple files with progress tracking
     bulkUploadMedia(mediaType: string, files: File[]): Observable<any[]> {
         const formData = new FormData();
         formData.append('mediaType', mediaType);
@@ -47,6 +56,58 @@ export class MediaService {
             formData.append('files', file);
         });
         return this.http.post<any[]>(`${this.apiUrl}/bulk-upload`, formData);
+    }
+
+    // Bulk upload with real-time progress reporting
+    bulkUploadMediaWithProgress(mediaType: string, files: File[]): Observable<UploadProgress> {
+        const formData = new FormData();
+        formData.append('mediaType', mediaType);
+        files.forEach(file => {
+            formData.append('files', file);
+        });
+
+        const progressSubject = new Subject<UploadProgress>();
+
+        const req = new HttpRequest('POST', `${this.apiUrl}/bulk-upload`, formData, {
+            reportProgress: true
+        });
+
+        this.http.request(req).subscribe({
+            next: (event) => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const total = event.total || 0;
+                    const loaded = event.loaded || 0;
+                    const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
+                    progressSubject.next({
+                        loaded,
+                        total,
+                        percent,
+                        status: 'uploading'
+                    });
+                } else if (event.type === HttpEventType.Response) {
+                    progressSubject.next({
+                        loaded: 100,
+                        total: 100,
+                        percent: 100,
+                        status: 'completed',
+                        response: event.body
+                    });
+                    progressSubject.complete();
+                }
+            },
+            error: (err) => {
+                progressSubject.next({
+                    loaded: 0,
+                    total: 0,
+                    percent: 0,
+                    status: 'error',
+                    error: err
+                });
+                progressSubject.complete();
+            }
+        });
+
+        return progressSubject.asObservable();
     }
 
     // Batch update metadata for multiple media items

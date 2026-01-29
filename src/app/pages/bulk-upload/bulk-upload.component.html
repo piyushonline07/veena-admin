@@ -99,6 +99,23 @@ upload the <div class="bulk-upload-container">
                 </p-table>
             </div>
 
+            <!-- Upload Progress Bar -->
+            <div *ngIf="uploading" class="upload-progress-container mb-3 p-3 border-round surface-ground">
+                <div class="flex justify-content-between align-items-center mb-2">
+                    <span class="font-medium">
+                        <i class="pi pi-spin pi-spinner mr-2"></i>
+                        {{ uploadStatus }}
+                    </span>
+                    <span class="text-primary font-bold">{{ uploadProgress }}%</span>
+                </div>
+                <p-progressBar [value]="uploadProgress" [showValue]="false"
+                    [style]="{'height': '12px'}" styleClass="upload-progress-bar"></p-progressBar>
+                <div class="flex justify-content-between mt-2 text-sm text-secondary">
+                    <span>{{ formatFileSize(uploadedBytes) }} uploaded</span>
+                    <span>Total: {{ formatFileSize(totalBytes) }}</span>
+                </div>
+            </div>
+
             <div class="flex justify-content-end gap-2">
                 <button pButton label="Upload All" icon="pi pi-cloud-upload"
                     [disabled]="mediaFileCount === 0 || uploading"

@@ -446,3 +446,85 @@ body.dark-theme ::-webkit-scrollbar-track {
   }
 }
 
+/* ========================================
+   ADDITIONAL RESPONSIVE UTILITIES
+======================================== */
+
+/* Responsive text utilities */
+@media (max-width: 768px) {
+  .text-responsive {
+    font-size: 0.9rem !important;
+  }
+
+  .title-responsive {
+    font-size: 1.25rem !important;
+  }
+
+  /* Hide on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Show only on mobile */
+  .show-mobile {
+    display: block !important;
+  }
+
+  /* Responsive grid */
+  .grid-responsive {
+    display: block !important;
+
+    > * {
+      width: 100% !important;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  /* Responsive flex */
+  .flex-col-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* Full width on mobile */
+  .w-full-mobile {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .text-responsive {
+    font-size: 0.8rem !important;
+  }
+
+  .title-responsive {
+    font-size: 1.1rem !important;
+  }
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollable container for horizontal scrolling */
+.scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-ground);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: 3px;
+  }
+}
+

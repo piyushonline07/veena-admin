@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MediaService, BatchUpdateRequest } from '../../core/service/media.service';
+import { MediaService, BatchUpdateRequest, UploadProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -41,6 +41,9 @@ export class BulkUploadComponent implements OnInit {
     filesToUpload: File[] = [];
     uploading: boolean = false;
     uploadProgress: number = 0;
+    uploadedBytes: number = 0;
+    totalBytes: number = 0;
+    uploadStatus: string = '';
 
     // Uploaded media
     uploadedMedia: UploadedMedia[] = [];
@@ -159,7 +162,7 @@ export class BulkUploadComponent implements OnInit {
     }
 
     // Upload
-    async uploadFiles(): Promise<void> {
+    uploadFiles(): void {
         if (this.mediaFileCount === 0) {
             this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select at least one media file (audio/video)' });
             return;
@@ -167,36 +170,55 @@ export class BulkUploadComponent implements OnInit {
 
         this.uploading = true;
         this.uploadProgress = 0;
+        this.uploadedBytes = 0;
+        this.totalBytes = this.filesToUpload.reduce((acc, f) => acc + f.size, 0);
+        this.uploadStatus = 'Uploading to S3...';
 
-        try {
-            const response = await this.mediaService.bulkUploadMedia(
-                this.mediaType.value,
-                this.filesToUpload
-            ).toPromise();
+        this.mediaService.bulkUploadMediaWithProgress(
+            this.mediaType.value,
+            this.filesToUpload
+        ).subscribe({
+            next: (progress) => {
+                this.uploadProgress = progress.percent;
+                this.uploadedBytes = progress.loaded;
+                this.totalBytes = progress.total || this.totalBytes;
 
-            this.uploadedMedia = (response || []).map(m => ({
-                ...m,
-                selected: true
-            }));
+                if (progress.status === 'uploading') {
+                    this.uploadStatus = `Uploading... ${this.formatFileSize(progress.loaded)} / ${this.formatFileSize(progress.total)}`;
+                } else if (progress.status === 'completed') {
+                    this.uploadStatus = 'Processing files...';
+                    this.uploadedMedia = (progress.response || []).map((m: any) => ({
+                        ...m,
+                        selected: true
+                    }));
 
-            const mediaCount = this.uploadedMedia.length;
-            const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
-            const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
+                    const mediaCount = this.uploadedMedia.length;
+                    const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
+                    const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
 
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Upload Complete!',
-                detail: `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`
-            });
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Upload Complete!',
+                        detail: `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`
+                    });
 
-            this.filesToUpload = [];
-            this.currentStep = 1; // Move to metadata step
-            this.loadDraftMedia(); // Refresh draft list
-        } catch (error) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
-        } finally {
-            this.uploading = false;
-        }
+                    this.filesToUpload = [];
+                    this.uploading = false;
+                    this.uploadStatus = '';
+                    this.currentStep = 1; // Move to metadata step
+                    this.loadDraftMedia(); // Refresh draft list
+                } else if (progress.status === 'error') {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
+                    this.uploading = false;
+                    this.uploadStatus = '';
+                }
+            },
+            error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
+                this.uploading = false;
+                this.uploadStatus = '';
+            }
+        });
     }
 
     // Selection
