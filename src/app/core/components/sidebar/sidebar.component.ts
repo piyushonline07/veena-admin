@@ -61,7 +61,8 @@ export class SidebarComponent implements OnInit {
             {
                 label: 'Operations',
                 items: [
-                    { label: 'System Health', icon: 'pi pi-shield', routerLink: ['/operations'] }
+                    { label: 'System Health', icon: 'pi pi-shield', routerLink: ['/operations'] },
+                    { label: 'AWS Billing', icon: 'pi pi-dollar', routerLink: ['/billing'] }
                 ]
             },
             {

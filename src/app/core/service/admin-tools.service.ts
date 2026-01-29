@@ -95,6 +95,23 @@ export interface AwsCost {
     unit: string;
 }
 
+export interface DailyCost {
+    date: string;
+    amount: number;
+    cumulativeTotal: number;
+}
+
+export interface DailyCostBreakdown {
+    dailyCosts: DailyCost[];
+    totalAmount: string;
+    unit: string;
+}
+
+export interface ServiceCost {
+    serviceName: string;
+    amount: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -118,6 +135,14 @@ export class AdminToolsService {
 
     getMonthlyCost(): Observable<AwsCost> {
         return this.http.get<AwsCost>(`${this.apiUrl}/cost`);
+    }
+
+    getDailyCostBreakdown(): Observable<DailyCostBreakdown> {
+        return this.http.get<DailyCostBreakdown>(`${this.apiUrl}/cost/daily`);
+    }
+
+    getCostByService(): Observable<ServiceCost[]> {
+        return this.http.get<ServiceCost[]>(`${this.apiUrl}/cost/by-service`);
     }
 
     getSystemHealth(): Observable<SystemHealth> {

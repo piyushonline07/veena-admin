@@ -14,6 +14,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
+import { BillingComponent } from './pages/billing/billing.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -28,6 +29,7 @@ const routes: Routes = [
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'media-link', component: MediaLinkComponent, canActivate: [AuthGuard] },
+  { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

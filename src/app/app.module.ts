@@ -57,6 +57,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
+import { BillingComponent } from './pages/billing/billing.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { AlbumComponent } from './pages/album/album.component';
     NotificationsComponent,
     SettingsComponent,
     MediaLinkComponent,
-    AlbumComponent
+    AlbumComponent,
+    BillingComponent
   ],
   imports: [
     InputTextareaModule,
