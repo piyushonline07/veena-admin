@@ -75,10 +75,16 @@
                 <div class="font-medium">{{selectedUser.email}}</div>
             </div>
             <div class="detail-item mb-3">
-                <label class="block text-secondary text-sm mb-1">Current Role</label>
-                <p-tag [value]="selectedUser.role"
-                    [severity]="selectedUser.role === 'ADMIN' ? 'danger' : 'info'"></p-tag>
-                <small class="block mt-1 text-secondary">Roles are managed via Cognito Lambda triggers.</small>
+                <label class="block text-secondary text-sm mb-1">Role</label>
+                <div class="flex align-items-center gap-2">
+                    <p-dropdown [options]="roleOptions" [(ngModel)]="selectedUser.role"
+                        (onChange)="confirmRoleChange($event.value)"
+                        [disabled]="updatingRole"
+                        styleClass="w-full md:w-10rem">
+                    </p-dropdown>
+                    <i *ngIf="updatingRole" class="pi pi-spin pi-spinner"></i>
+                </div>
+                <small class="block mt-1 text-secondary">Select a role to update. Changes apply to both database and Cognito.</small>
             </div>
             <div class="detail-item">
                 <label class="block text-secondary text-sm mb-1">Joined Date</label>
@@ -91,4 +97,5 @@
     </ng-template>
 </p-dialog>
 
+<p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>

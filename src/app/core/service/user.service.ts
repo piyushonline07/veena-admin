@@ -18,4 +18,8 @@ export class UserService {
         }
         return this.http.get(url);
     }
+
+    updateUserRole(userId: string, role: string): Observable<any> {
+        return this.http.put(`${this.apiUrl}/${userId}/role`, { role });
+    }
 }
