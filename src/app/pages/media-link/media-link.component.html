@@ -41,11 +41,11 @@
             <i *ngIf="!audio.thumbnailUrl" class="pi pi-music"></i>
           </div>
           <div class="media-info">
-            <div class="media-title">{{audio.title}}</div>
+            <div class="media-title" [pTooltip]="audio.title" tooltipPosition="top" [tooltipDisabled]="audio.title?.length < 20">{{audio.title}}</div>
             <div class="media-artist">{{audio.artist?.name || 'Unknown Artist'}}</div>
             <div class="link-status" *ngIf="audio.linkedMediaId">
               <i class="pi pi-link"></i>
-              <span>Linked to video</span>
+              <span>Linked</span>
             </div>
           </div>
           <div class="media-badge">
@@ -163,11 +163,11 @@
             <i *ngIf="!video.thumbnailUrl" class="pi pi-video"></i>
           </div>
           <div class="media-info">
-            <div class="media-title">{{video.title}}</div>
+            <div class="media-title" [pTooltip]="video.title" tooltipPosition="top" [tooltipDisabled]="video.title?.length < 20">{{video.title}}</div>
             <div class="media-artist">{{video.artist?.name || 'Unknown Artist'}}</div>
             <div class="link-status" *ngIf="getLinkedAudio(video)">
               <i class="pi pi-link"></i>
-              <span>Has linked audio</span>
+              <span>Linked</span>
             </div>
           </div>
           <div class="media-badge">
