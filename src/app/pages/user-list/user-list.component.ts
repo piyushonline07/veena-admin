@@ -125,13 +125,3 @@ export class UserListComponent implements OnInit {
         });
     }
 }
-                    summary: 'Error',
-                    detail: err.error?.message || 'Failed to update user role'
-                });
-                this.updatingRole = false;
-                // Reload to get correct state
-                this.loadUsers(0, this.rows);
-            }
-        });
-    }
-}
