@@ -1,0 +1,281 @@
+upload the <div class="bulk-upload-container">
+    <div class="header-section mb-4">
+        <h1>Bulk Upload</h1>
+        <p class="text-secondary">Upload multiple audio/video files, add metadata, and publish in one go.</p>
+    </div>
+
+    <!-- Steps -->
+    <p-steps [model]="steps" [(activeIndex)]="currentStep" [readonly]="false" class="mb-4"></p-steps>
+
+    <!-- Step 1: Upload Files -->
+    <div *ngIf="currentStep === 0" class="step-content">
+        <p-card header="Upload Files">
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="block mb-2 font-medium">Media Type</label>
+                    <p-dropdown [options]="mediaTypes" [(ngModel)]="mediaType" optionLabel="label"
+                        styleClass="w-full"></p-dropdown>
+                </div>
+            </div>
+
+            <div class="upload-area p-4 border-2 border-dashed border-round mb-3 text-center"
+                [class.border-primary]="filesToUpload.length > 0">
+                <p-fileUpload mode="basic" [multiple]="true"
+                    accept=".mp3,.mp4,.jpg,.jpeg,.png,.webp,.vtt"
+                    (onSelect)="onFilesSelected($event)"
+                    [auto]="false"
+                    chooseLabel="Select Files"
+                    chooseIcon="pi pi-upload"
+                    styleClass="p-button-outlined">
+                </p-fileUpload>
+                <p class="text-secondary mt-2 mb-1">
+                    <strong>Upload media files with their thumbnails and lyrics together.</strong>
+                </p>
+                <p class="text-secondary text-sm">
+                    <i class="pi pi-info-circle mr-1"></i>
+                    Files are matched by name. Example: <code>song1.mp3</code>, <code>song1.jpg</code>, <code>song1.vtt</code> will be linked together.
+                </p>
+            </div>
+
+            <!-- File format guide -->
+            <div class="grid mb-3">
+                <div class="col-12 md:col-4">
+                    <div class="p-2 border-round surface-ground">
+                        <span class="font-medium text-primary"><i class="pi pi-volume-up mr-1"></i> Audio/Video</span>
+                        <p class="text-sm text-secondary mt-1 mb-0">MP3 (audio), MP4 (video)</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="p-2 border-round surface-ground">
+                        <span class="font-medium text-orange-500"><i class="pi pi-image mr-1"></i> Thumbnails</span>
+                        <p class="text-sm text-secondary mt-1 mb-0">JPG, JPEG, PNG, WEBP</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="p-2 border-round surface-ground">
+                        <span class="font-medium text-green-500"><i class="pi pi-file mr-1"></i> Lyrics</span>
+                        <p class="text-sm text-secondary mt-1 mb-0">VTT (WebVTT format)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected files list -->
+            <div *ngIf="filesToUpload.length > 0" class="selected-files mb-3">
+                <div class="flex justify-content-between align-items-center mb-2">
+                    <span class="font-medium">Selected Files ({{ filesToUpload.length }})</span>
+                    <div class="flex gap-2 align-items-center">
+                        <span class="text-sm">
+                            <span class="text-primary">{{ mediaFileCount }} media</span> |
+                            <span class="text-orange-500">{{ thumbnailFileCount }} thumbnails</span> |
+                            <span class="text-green-500">{{ lyricsFileCount }} lyrics</span>
+                        </span>
+                        <button pButton label="Clear All" icon="pi pi-times" class="p-button-text p-button-danger"
+                            (click)="clearFiles()"></button>
+                    </div>
+                </div>
+                <p-table [value]="filesToUpload" styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="200px">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>File Name</th>
+                            <th style="width: 100px;">Type</th>
+                            <th style="width: 100px;">Size</th>
+                            <th style="width: 60px;"></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-file let-i="rowIndex">
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>
+                                <p-tag [value]="getFileType(file.name)"
+                                    [severity]="getFileTypeSeverity(file.name)"></p-tag>
+                            </td>
+                            <td>{{ formatFileSize(file.size) }}</td>
+                            <td>
+                                <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                                    (click)="removeFile(i)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <div class="flex justify-content-end gap-2">
+                <button pButton label="Upload All" icon="pi pi-cloud-upload"
+                    [disabled]="mediaFileCount === 0 || uploading"
+                    [loading]="uploading"
+                    (click)="uploadFiles()"></button>
+            </div>
+        </p-card>
+
+        <!-- Existing Drafts -->
+        <p-card header="Existing Drafts" class="mt-3" *ngIf="draftMedia.length > 0">
+            <p class="text-secondary mb-3">You have {{ draftMedia.length }} unpublished media items. You can continue editing them.</p>
+            <button pButton label="Edit Drafts" icon="pi pi-pencil" class="p-button-outlined"
+                (click)="currentStep = 1"></button>
+        </p-card>
+    </div>
+
+    <!-- Step 2: Edit Metadata -->
+    <div *ngIf="currentStep === 1" class="step-content">
+        <div class="grid">
+            <!-- Batch Edit Panel -->
+            <div class="col-12 lg:col-4">
+                <p-card header="Batch Edit">
+                    <p class="text-secondary text-sm mb-3">Apply to {{ selectedMedia.length }} selected items</p>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Artist</label>
+                        <p-dropdown [options]="artists" [(ngModel)]="selectedArtist" optionLabel="name"
+                            [showClear]="true" placeholder="Select Artist" styleClass="w-full"></p-dropdown>
+                    </div>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Album</label>
+                        <p-dropdown [options]="albums" [(ngModel)]="selectedAlbum" optionLabel="title"
+                            [showClear]="true" placeholder="Select Album" styleClass="w-full"></p-dropdown>
+                    </div>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Title Prefix</label>
+                        <input pInputText [(ngModel)]="batchTitle" placeholder="e.g., 'Track'" class="w-full" />
+                        <small class="text-secondary">Will append numbers for multiple items (e.g., Track 1, Track 2)</small>
+                    </div>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Description</label>
+                        <textarea pInputTextarea [(ngModel)]="batchDescription" rows="3" class="w-full"
+                            placeholder="Description for all selected items"></textarea>
+                    </div>
+
+                    <button pButton label="Apply to Selected" icon="pi pi-check" class="w-full"
+                        [disabled]="selectedMedia.length === 0 || updating"
+                        [loading]="updating"
+                        (click)="applyBatchUpdate()"></button>
+                </p-card>
+            </div>
+
+            <!-- Media List -->
+            <div class="col-12 lg:col-8">
+                <p-card header="Media Items">
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <p-checkbox [(ngModel)]="allSelected" [binary]="true" label="Select All"></p-checkbox>
+                        <button pButton label="Next: Review & Publish" icon="pi pi-arrow-right" iconPos="right"
+                            [disabled]="selectedMedia.length === 0"
+                            (click)="goToPublish()"></button>
+                    </div>
+
+                    <p-table [value]="allMedia" styleClass="p-datatable-sm"
+                        [scrollable]="true" scrollHeight="400px">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Artist</th>
+                                <th>Album</th>
+                                <th style="width: 80px;">Thumb</th>
+                                <th style="width: 80px;">Lyrics</th>
+                                <th>Status</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-media>
+                            <tr>
+                                <td>
+                                    <p-checkbox [(ngModel)]="media.selected" [binary]="true"></p-checkbox>
+                                </td>
+                                <td>{{ media.title }}</td>
+                                <td>
+                                    <p-tag [value]="media.mediaType"
+                                        [severity]="media.mediaType === 'VIDEO' ? 'info' : 'warning'"></p-tag>
+                                </td>
+                                <td>{{ media.artist?.name || '-' }}</td>
+                                <td>{{ media.album?.title || '-' }}</td>
+                                <td class="text-center">
+                                    <i [class]="media.thumbnailUrl ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-gray-400'"></i>
+                                </td>
+                                <td class="text-center">
+                                    <i [class]="media.lyricsUrl ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-gray-400'"></i>
+                                </td>
+                                <td>
+                                    <p-tag [value]="media.status" [severity]="getStatusSeverity(media.status)"></p-tag>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="6" class="text-center text-secondary">No media items. Upload some files first.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+            </div>
+        </div>
+
+        <div class="flex justify-content-between mt-3">
+            <button pButton label="Back" icon="pi pi-arrow-left" class="p-button-text" (click)="prevStep()"></button>
+        </div>
+    </div>
+
+    <!-- Step 3: Review & Publish -->
+    <div *ngIf="currentStep === 2" class="step-content">
+        <p-card header="Review & Publish">
+            <div class="grid mb-4">
+                <div class="col-12 md:col-4">
+                    <div class="stat-card p-3 border-round bg-green-50">
+                        <div class="text-green-700 font-medium mb-1">Ready to Publish</div>
+                        <div class="text-3xl font-bold text-green-700">{{ readyToPublish.length }}</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="stat-card p-3 border-round bg-yellow-50">
+                        <div class="text-yellow-700 font-medium mb-1">Still Processing</div>
+                        <div class="text-3xl font-bold text-yellow-700">{{ notReadyToPublish.length }}</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="stat-card p-3 border-round bg-blue-50">
+                        <div class="text-blue-700 font-medium mb-1">Total Selected</div>
+                        <div class="text-3xl font-bold text-blue-700">{{ selectedMedia.length }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <p-table [value]="selectedMedia" styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="300px">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Artist</th>
+                        <th>Album</th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-media>
+                    <tr>
+                        <td>{{ media.title }}</td>
+                        <td><p-tag [value]="media.mediaType"></p-tag></td>
+                        <td>{{ media.artist?.name || '-' }}</td>
+                        <td>{{ media.album?.title || '-' }}</td>
+                        <td><p-tag [value]="media.status" [severity]="getStatusSeverity(media.status)"></p-tag></td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-message *ngIf="notReadyToPublish.length > 0" severity="warn" class="mt-3 block"
+                text="Some items are still processing and won't be published. They will remain as drafts.">
+            </p-message>
+        </p-card>
+
+        <div class="flex justify-content-between mt-3">
+            <button pButton label="Back to Edit" icon="pi pi-arrow-left" class="p-button-text"
+                (click)="prevStep()"></button>
+            <button pButton label="Publish {{ readyToPublish.length }} Items" icon="pi pi-globe"
+                [disabled]="readyToPublish.length === 0 || publishing"
+                [loading]="publishing"
+                (click)="publishSelected()"></button>
+        </div>
+    </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

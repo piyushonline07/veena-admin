@@ -1,0 +1,59 @@
+.bulk-upload-container {
+    padding: 1rem;
+
+    .header-section {
+        h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+    }
+
+    .upload-area {
+        background-color: var(--surface-ground);
+        transition: all 0.2s;
+
+        &:hover {
+            background-color: var(--surface-hover);
+        }
+
+        &.border-primary {
+            background-color: var(--primary-50, #f0f9ff);
+        }
+    }
+
+    .stat-card {
+        border: 1px solid var(--surface-border);
+    }
+
+    ::ng-deep {
+        .p-steps {
+            .p-steps-item {
+                &.p-highlight {
+                    .p-steps-number {
+                        background: var(--primary-color);
+                        color: var(--primary-color-text);
+                    }
+                }
+            }
+        }
+
+        .p-card {
+            .p-card-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .p-fileupload-buttonbar {
+            display: none;
+        }
+
+        .p-datatable {
+            .p-datatable-thead > tr > th {
+                background: var(--surface-ground);
+                font-weight: 600;
+            }
+        }
+    }
+}

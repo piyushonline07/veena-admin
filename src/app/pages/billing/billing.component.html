@@ -108,11 +108,12 @@
         <!-- Service Cost Table -->
         <div class="col-12 lg:col-6 mb-3">
             <p-card header="Service Cost Details">
-                <p-table [value]="serviceCosts" [loading]="loading" styleClass="p-datatable-sm">
+                <p-table [value]="serviceCosts" [loading]="loading" styleClass="p-datatable-sm"
+                    [scrollable]="true" scrollHeight="220px">
                     <ng-template pTemplate="header">
                         <tr>
-                            <th>Service</th>
-                            <th class="text-right">Cost (USD)</th>
+                            <th style="min-width: 200px;">Service</th>
+                            <th class="text-right" style="min-width: 100px;">Cost (USD)</th>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="body" let-service>

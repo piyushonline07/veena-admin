@@ -15,6 +15,9 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToolbarModule } from 'primeng/toolbar';
+import { StepsModule } from 'primeng/steps';
+import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
 
 import { BrowserAnimationsModule, NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -58,6 +61,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { BillingComponent } from './pages/billing/billing.component';
+import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +83,8 @@ import { BillingComponent } from './pages/billing/billing.component';
     SettingsComponent,
     MediaLinkComponent,
     AlbumComponent,
-    BillingComponent
+    BillingComponent,
+    BulkUploadComponent
   ],
   imports: [
     InputTextareaModule,
@@ -112,7 +117,10 @@ import { BillingComponent } from './pages/billing/billing.component';
     CalendarModule,
     DividerModule,
     CheckboxModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    StepsModule,
+    MessagesModule,
+    MessageModule
   ],
   providers: [
     MessageService,

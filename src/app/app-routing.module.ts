@@ -15,10 +15,12 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { BillingComponent } from './pages/billing/billing.component';
+import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'upload', component: UploadMediaComponent, canActivate: [AuthGuard] },
+  { path: 'bulk-upload', component: BulkUploadComponent, canActivate: [AuthGuard] },
   { path: 'media-list', component: MediaListComponent, canActivate: [AuthGuard] },
   { path: 'artists', component: ArtistListComponent, canActivate: [AuthGuard] },
   { path: 'albums', component: AlbumComponent, canActivate: [AuthGuard] },
