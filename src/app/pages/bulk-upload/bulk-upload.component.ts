@@ -265,7 +265,7 @@ export class BulkUploadComponent implements OnInit {
             request.artistId = this.selectedArtist.id;
         }
         if (this.selectedSubArtists && this.selectedSubArtists.length > 0) {
-            request.subArtistIds = this.selectedSubArtists.map(a => a.id);
+            request.subArtistIds = this.selectedSubArtists.map(a => a.id).filter((id): id is number => id !== undefined);
         }
         if (this.selectedAlbum) {
             request.albumId = this.selectedAlbum.id;
