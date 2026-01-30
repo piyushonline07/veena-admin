@@ -134,6 +134,36 @@ export interface ActionStatus {
     errorMessage?: string;
 }
 
+// API Metrics Interfaces
+export interface DailyApiMetrics {
+    date: string;
+    totalRequests: number;
+    successCount: number;
+    errorCount: number;
+    errorRate: number;
+}
+
+export interface EndpointMetrics {
+    endpoint: string;
+    method: string;
+    requestCount: number;
+}
+
+export interface EndpointErrorMetrics {
+    endpoint: string;
+    method: string;
+    errorCount: number;
+    totalCount: number;
+    errorRate: number;
+}
+
+export interface ApiSummary {
+    date: string;
+    totalRequests: number;
+    successCount: number;
+    errorCount: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -186,6 +216,23 @@ export class AdminToolsService {
 
     getRdsHealth(): Observable<RdsStatus> {
         return this.http.get<RdsStatus>(`${this.healthUrl}/aws/rds`);
+    }
+
+    // API Metrics Methods
+    getDailyApiMetrics(days: number = 30): Observable<DailyApiMetrics[]> {
+        return this.http.get<DailyApiMetrics[]>(`${this.healthUrl}/api-metrics/daily?days=${days}`);
+    }
+
+    getTopEndpoints(days: number = 7, limit: number = 10): Observable<EndpointMetrics[]> {
+        return this.http.get<EndpointMetrics[]>(`${this.healthUrl}/api-metrics/top-endpoints?days=${days}&limit=${limit}`);
+    }
+
+    getEndpointsWithErrors(days: number = 7): Observable<EndpointErrorMetrics[]> {
+        return this.http.get<EndpointErrorMetrics[]>(`${this.healthUrl}/api-metrics/errors?days=${days}`);
+    }
+
+    getTodayApiSummary(): Observable<ApiSummary> {
+        return this.http.get<ApiSummary>(`${this.healthUrl}/api-metrics/today`);
     }
 
     // Pipeline Status Methods

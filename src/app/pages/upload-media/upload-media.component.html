@@ -81,17 +81,7 @@
                             <span class="text-secondary"><i class="pi pi-pencil mr-2"></i>Credits (Optional)</span>
                         </p-divider>
                     </div>
-                    <div class="col-12 md:col-4 field">
-                        <label for="writer">Writer</label>
-                        <p-dropdown [options]="writers" [(ngModel)]="selectedWriter" optionLabel="name"
-                            placeholder="Select Writer" [showClear]="true" [filter]="true" filterBy="name"
-                            [style]="{'width': '100%'}" id="writer">
-                        </p-dropdown>
-                        <small class="text-secondary mt-1 block">
-                            <a routerLink="/credits" class="text-primary">Manage Writers</a>
-                        </small>
-                    </div>
-                    <div class="col-12 md:col-4 field">
+                    <div class="col-12 md:col-6 field">
                         <label for="composer">Composer</label>
                         <p-dropdown [options]="composers" [(ngModel)]="selectedComposer" optionLabel="name"
                             placeholder="Select Composer" [showClear]="true" [filter]="true" filterBy="name"
@@ -101,7 +91,7 @@
                             <a routerLink="/credits" class="text-primary">Manage Composers</a>
                         </small>
                     </div>
-                    <div class="col-12 md:col-4 field">
+                    <div class="col-12 md:col-6 field">
                         <label for="lyricist">Lyricist</label>
                         <p-dropdown [options]="lyricists" [(ngModel)]="selectedLyricist" optionLabel="name"
                             placeholder="Select Lyricist" [showClear]="true" [filter]="true" filterBy="name"

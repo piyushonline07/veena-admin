@@ -8,7 +8,6 @@ export interface BatchUpdateRequest {
     artistId?: number;
     albumId?: number;
     subArtistIds?: number[];
-    writerName?: string;
     composerName?: string;
     lyricistName?: string;
     title?: string;

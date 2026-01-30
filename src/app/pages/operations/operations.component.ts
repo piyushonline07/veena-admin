@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AdminToolsService, TranscodingJob, SystemHealth, DetailedStats, AwsHealthStatus } from '../../core/service/admin-tools.service';
+import { AdminToolsService, TranscodingJob, SystemHealth, DetailedStats, AwsHealthStatus, DailyApiMetrics, EndpointMetrics, ApiSummary } from '../../core/service/admin-tools.service';
 import { MessageService } from 'primeng/api';
 import { interval, Subscription } from 'rxjs';
 
@@ -30,6 +30,14 @@ export class OperationsComponent implements OnInit, OnDestroy {
     // CloudFront info
     cloudfrontInfo: any = {};
 
+    // API Metrics data
+    dailyApiMetrics: DailyApiMetrics[] = [];
+    topEndpoints: EndpointMetrics[] = [];
+    todaySummary: ApiSummary | null = null;
+    loadingApiMetrics: boolean = false;
+    apiMetricsChartData: any;
+    apiMetricsChartOptions: any;
+
     constructor(
         private adminToolsService: AdminToolsService,
         private messageService: MessageService
@@ -38,14 +46,17 @@ export class OperationsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.loadDistributions();
         this.loadJobs();
+        this.initApiMetricsChart();
         this.loadSystemHealth();
         this.loadAwsHealth();
+        this.loadApiMetrics();
 
         // Auto-refresh every 30 seconds
         this.refreshSub = interval(30000).subscribe(() => {
             this.loadJobs();
             this.loadSystemHealth();
             this.loadAwsHealth();
+            this.loadApiMetrics();
         });
     }
 
@@ -212,5 +223,128 @@ export class OperationsComponent implements OnInit, OnDestroy {
                 this.invalidating = false;
             }
         });
+    }
+
+    // ==================== API METRICS ====================
+
+    initApiMetricsChart() {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color') || '#495057';
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary') || '#6c757d';
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border') || '#dee2e6';
+
+        this.apiMetricsChartOptions = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.6,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    },
+                    beginAtZero: true
+                }
+            }
+        };
+    }
+
+    loadApiMetrics() {
+        this.loadingApiMetrics = true;
+
+        // Load daily metrics for chart
+        this.adminToolsService.getDailyApiMetrics(14).subscribe({
+            next: (data) => {
+                this.dailyApiMetrics = data;
+                this.updateApiMetricsChart();
+                this.loadingApiMetrics = false;
+            },
+            error: () => {
+                this.loadingApiMetrics = false;
+            }
+        });
+
+        // Load top endpoints
+        this.adminToolsService.getTopEndpoints(7, 10).subscribe({
+            next: (data) => {
+                this.topEndpoints = data;
+            },
+            error: () => { }
+        });
+
+        // Load today's summary
+        this.adminToolsService.getTodayApiSummary().subscribe({
+            next: (data) => {
+                this.todaySummary = data;
+            },
+            error: () => { }
+        });
+    }
+
+    updateApiMetricsChart() {
+        const documentStyle = getComputedStyle(document.documentElement);
+
+        this.apiMetricsChartData = {
+            labels: this.dailyApiMetrics.map(m => {
+                const date = new Date(m.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Total Requests',
+                    data: this.dailyApiMetrics.map(m => m.totalRequests),
+                    fill: true,
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: documentStyle.getPropertyValue('--blue-500') || '#3b82f6',
+                    tension: 0.4
+                },
+                {
+                    label: 'Successful',
+                    data: this.dailyApiMetrics.map(m => m.successCount),
+                    fill: false,
+                    borderColor: documentStyle.getPropertyValue('--green-500') || '#22c55e',
+                    tension: 0.4
+                },
+                {
+                    label: 'Errors',
+                    data: this.dailyApiMetrics.map(m => m.errorCount),
+                    fill: false,
+                    borderColor: documentStyle.getPropertyValue('--red-500') || '#ef4444',
+                    tension: 0.4
+                }
+            ]
+        };
+    }
+
+    getMethodClass(method: string): string {
+        switch (method) {
+            case 'GET': return 'bg-blue-100 text-blue-700';
+            case 'POST': return 'bg-green-100 text-green-700';
+            case 'PUT': return 'bg-yellow-100 text-yellow-700';
+            case 'DELETE': return 'bg-red-100 text-red-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
     }
 }

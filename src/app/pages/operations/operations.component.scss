@@ -489,3 +489,99 @@
         margin-top: 1rem;
     }
 }
+
+// API Metrics Styles
+.api-metrics-header {
+    .api-summary-cards {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--surface-100);
+            border-radius: 8px;
+            min-width: 140px;
+
+            i {
+                font-size: 1.5rem;
+            }
+
+            .summary-info {
+                display: flex;
+                flex-direction: column;
+
+                .summary-value {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: var(--text-color);
+                }
+
+                .summary-label {
+                    font-size: 0.75rem;
+                    color: var(--text-color-secondary);
+                }
+            }
+        }
+    }
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 250px;
+
+    ::ng-deep canvas {
+        max-width: 100%;
+    }
+}
+
+.endpoint-path {
+    font-family: monospace;
+    font-size: 0.85rem;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.method-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .api-summary-cards {
+        .summary-card {
+            flex: 1;
+            min-width: 100px !important;
+            padding: 0.5rem !important;
+
+            i {
+                font-size: 1.25rem !important;
+            }
+
+            .summary-info {
+                .summary-value {
+                    font-size: 1rem !important;
+                }
+
+                .summary-label {
+                    font-size: 0.65rem !important;
+                }
+            }
+        }
+    }
+
+    .endpoint-path {
+        max-width: 150px;
+    }
+}
+

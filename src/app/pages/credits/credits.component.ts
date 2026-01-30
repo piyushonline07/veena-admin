@@ -9,16 +9,14 @@ import { MessageService, ConfirmationService } from 'primeng/api';
   providers: [MessageService, ConfirmationService]
 })
 export class CreditsComponent implements OnInit {
-  // Tab index: 0 = Writers, 1 = Composers, 2 = Lyricists
+  // Tab index: 0 = Composers, 1 = Lyricists
   activeTab: number = 0;
 
   // Data
-  writers: Credit[] = [];
   composers: Credit[] = [];
   lyricists: Credit[] = [];
 
   // Loading states
-  loadingWriters = false;
   loadingComposers = false;
   loadingLyricists = false;
 
@@ -32,13 +30,12 @@ export class CreditsComponent implements OnInit {
     name: '',
     bio: '',
     imageUrl: '',
-    creditType: 'WRITER'
+    creditType: 'COMPOSER'
   };
 
   saving = false;
 
   creditTypes = [
-    { label: 'Writer', value: 'WRITER' },
     { label: 'Composer', value: 'COMPOSER' },
     { label: 'Lyricist', value: 'LYRICIST' }
   ];
@@ -54,23 +51,8 @@ export class CreditsComponent implements OnInit {
   }
 
   loadAllCredits(): void {
-    this.loadWriters();
     this.loadComposers();
     this.loadLyricists();
-  }
-
-  loadWriters(): void {
-    this.loadingWriters = true;
-    this.creditService.getAllWriters().subscribe({
-      next: (data) => {
-        this.writers = data;
-        this.loadingWriters = false;
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load writers' });
-        this.loadingWriters = false;
-      }
-    });
   }
 
   loadComposers(): void {
@@ -104,16 +86,14 @@ export class CreditsComponent implements OnInit {
   // Get current type based on active tab
   getCurrentType(): CreditType {
     switch (this.activeTab) {
-      case 0: return 'WRITER';
-      case 1: return 'COMPOSER';
-      case 2: return 'LYRICIST';
-      default: return 'WRITER';
+      case 0: return 'COMPOSER';
+      case 1: return 'LYRICIST';
+      default: return 'COMPOSER';
     }
   }
 
   getTypeLabel(type: CreditType): string {
     switch (type) {
-      case 'WRITER': return 'Writer';
       case 'COMPOSER': return 'Composer';
       case 'LYRICIST': return 'Lyricist';
       default: return type;

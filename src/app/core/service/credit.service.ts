@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type CreditType = 'WRITER' | 'COMPOSER' | 'LYRICIST';
+export type CreditType = 'COMPOSER' | 'LYRICIST';
 
 export interface Credit {
   id: number;
@@ -58,10 +58,6 @@ export class CreditService {
     return this.http.get<PageResponse<Credit>>(url);
   }
 
-  // Get all active writers
-  getAllWriters(): Observable<Credit[]> {
-    return this.http.get<Credit[]>(`${this.apiUrl}/writers`);
-  }
 
   // Get all active composers
   getAllComposers(): Observable<Credit[]> {
@@ -83,10 +79,6 @@ export class CreditService {
     return this.http.post<Credit>(this.apiUrl, request);
   }
 
-  // Create a writer
-  createWriter(name: string, bio?: string, imageUrl?: string): Observable<Credit> {
-    return this.http.post<Credit>(`${this.apiUrl}/writers`, { name, bio, imageUrl });
-  }
 
   // Create a composer
   createComposer(name: string, bio?: string, imageUrl?: string): Observable<Credit> {

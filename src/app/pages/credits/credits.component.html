@@ -3,7 +3,7 @@
     <div class="page-header">
         <div class="header-content">
             <h1><i class="pi pi-users"></i> Credits Management</h1>
-            <p class="subtitle">Manage Writers, Composers, and Lyricists</p>
+            <p class="subtitle">Manage Composers and Lyricists</p>
         </div>
         <div class="header-actions">
             <p-button label="Add New" icon="pi pi-plus"
@@ -13,13 +13,6 @@
 
     <!-- Stats -->
     <div class="stats-row">
-        <div class="stat-card">
-            <i class="pi pi-pencil"></i>
-            <div class="stat-info">
-                <span class="stat-value">{{writers.length}}</span>
-                <span class="stat-label">Writers</span>
-            </div>
-        </div>
         <div class="stat-card">
             <i class="pi pi-volume-up"></i>
             <div class="stat-info">
@@ -38,38 +31,6 @@
 
     <!-- Tabs -->
     <p-tabView [(activeIndex)]="activeTab">
-        <!-- Writers Tab -->
-        <p-tabPanel header="Writers" leftIcon="pi pi-pencil">
-            <div class="credits-grid" *ngIf="!loadingWriters && writers.length > 0">
-                <div class="credit-card" *ngFor="let credit of writers">
-                    <div class="card-avatar">
-                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
-                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
-                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
-                        <p-tag value="Writer" severity="info" styleClass="mt-2"></p-tag>
-                    </div>
-                    <div class="card-actions">
-                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
-                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
-                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
-                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
-                    </div>
-                </div>
-            </div>
-            <div class="loading-state" *ngIf="loadingWriters">
-                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-                <p>Loading writers...</p>
-            </div>
-            <div class="empty-state" *ngIf="!loadingWriters && writers.length === 0">
-                <i class="pi pi-inbox"></i>
-                <h3>No Writers</h3>
-                <p>Add your first writer to get started</p>
-                <p-button label="Add Writer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
-            </div>
-        </p-tabPanel>
 
         <!-- Composers Tab -->
         <p-tabPanel header="Composers" leftIcon="pi pi-volume-up">

@@ -27,16 +27,13 @@ export class UploadMediaComponent implements OnInit {
     // Sub-artists (featuring artists)
     selectedSubArtists: Artist[] = [];
 
-    // Writer/Composer/Lyricist credits (text fields - legacy)
-    writerName: string = '';
+    // Composer/Lyricist credits (text fields - legacy)
     composerName: string = '';
     lyricistName: string = '';
 
     // Credit entity selections (dropdown)
-    writers: Credit[] = [];
     composers: Credit[] = [];
     lyricists: Credit[] = [];
-    selectedWriter: Credit | null = null;
     selectedComposer: Credit | null = null;
     selectedLyricist: Credit | null = null;
 
@@ -87,10 +84,6 @@ export class UploadMediaComponent implements OnInit {
     }
 
     loadCredits(): void {
-        this.creditService.getAllWriters().subscribe({
-            next: (data) => this.writers = data,
-            error: (err) => console.error('Failed to load writers', err)
-        });
         this.creditService.getAllComposers().subscribe({
             next: (data) => this.composers = data,
             error: (err) => console.error('Failed to load composers', err)
@@ -140,10 +133,7 @@ export class UploadMediaComponent implements OnInit {
             });
         }
 
-        // Writer/Composer/Lyricist credits (text fields - legacy)
-        if (this.writerName) {
-            formData.append('writerName', this.writerName);
-        }
+        // Composer/Lyricist credits (text fields - legacy)
         if (this.composerName) {
             formData.append('composerName', this.composerName);
         }
@@ -152,9 +142,6 @@ export class UploadMediaComponent implements OnInit {
         }
 
         // Credit entity IDs (dropdown selections)
-        if (this.selectedWriter?.id) {
-            formData.append('writerId', this.selectedWriter.id.toString());
-        }
         if (this.selectedComposer?.id) {
             formData.append('composerId', this.selectedComposer.id.toString());
         }
@@ -196,10 +183,8 @@ export class UploadMediaComponent implements OnInit {
         this.mediaType = null;
         this.selectedArtist = null;
         this.selectedSubArtists = [];
-        this.writerName = '';
         this.composerName = '';
         this.lyricistName = '';
-        this.selectedWriter = null;
         this.selectedComposer = null;
         this.selectedLyricist = null;
         this.selectedAlbum = null;

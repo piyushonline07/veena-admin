@@ -57,7 +57,6 @@ export class BulkUploadComponent implements OnInit {
     selectedAlbum: Album | null = null;
     batchTitle: string = '';
     batchDescription: string = '';
-    batchWriterName: string = '';
     batchComposerName: string = '';
     batchLyricistName: string = '';
     updating: boolean = false;
@@ -276,9 +275,6 @@ export class BulkUploadComponent implements OnInit {
         if (this.batchDescription) {
             request.description = this.batchDescription;
         }
-        if (this.batchWriterName) {
-            request.writerName = this.batchWriterName;
-        }
         if (this.batchComposerName) {
             request.composerName = this.batchComposerName;
         }
@@ -313,7 +309,6 @@ export class BulkUploadComponent implements OnInit {
                 this.selectedAlbum = null;
                 this.batchTitle = '';
                 this.batchDescription = '';
-                this.batchWriterName = '';
                 this.batchComposerName = '';
                 this.batchLyricistName = '';
                 this.updating = false;
