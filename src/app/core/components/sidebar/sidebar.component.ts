@@ -41,16 +41,27 @@ export class SidebarComponent implements OnInit {
 
         this.items = [
             {
-                label: 'Navigation',
+                label: 'Dashboard',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
+                    { label: 'Overview', icon: 'pi pi-home', routerLink: ['/'] }
+                ]
+            },
+            {
+                label: 'Media',
+                items: [
                     { label: 'Manage Media', icon: 'pi pi-list', routerLink: ['/media-list'] },
-                    { label: 'Albums', icon: 'pi pi-book', routerLink: ['/albums'] },
-                    { label: 'Playlists', icon: 'pi pi-play', routerLink: ['/playlists'] },
-                    { label: 'Link Audio/Video', icon: 'pi pi-link', routerLink: ['/media-link'] },
-                    { label: 'Artists', icon: 'pi pi-star', routerLink: ['/artists'] },
                     { label: 'Upload Media', icon: 'pi pi-upload', routerLink: ['/upload'] },
-                    { label: 'Bulk Upload', icon: 'pi pi-cloud-upload', routerLink: ['/bulk-upload'] }
+                    { label: 'Bulk Upload', icon: 'pi pi-cloud-upload', routerLink: ['/bulk-upload'] },
+                    { label: 'Link Audio/Video', icon: 'pi pi-link', routerLink: ['/media-link'] },
+                    { label: 'Playlists', icon: 'pi pi-play', routerLink: ['/playlists'] }
+                ]
+            },
+            {
+                label: 'Master Data',
+                items: [
+                    { label: 'Artists', icon: 'pi pi-star', routerLink: ['/artists'] },
+                    { label: 'Albums', icon: 'pi pi-book', routerLink: ['/albums'] },
+                    { label: 'Credits', icon: 'pi pi-id-card', routerLink: ['/credits'] }
                 ]
             },
             {

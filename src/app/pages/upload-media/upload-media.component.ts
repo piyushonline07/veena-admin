@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
+import { CreditService, Credit } from '../../core/service/credit.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -23,6 +24,22 @@ export class UploadMediaComponent implements OnInit {
     artists: Artist[] = [];
     selectedArtist: Artist | null = null;
 
+    // Sub-artists (featuring artists)
+    selectedSubArtists: Artist[] = [];
+
+    // Writer/Composer/Lyricist credits (text fields - legacy)
+    writerName: string = '';
+    composerName: string = '';
+    lyricistName: string = '';
+
+    // Credit entity selections (dropdown)
+    writers: Credit[] = [];
+    composers: Credit[] = [];
+    lyricists: Credit[] = [];
+    selectedWriter: Credit | null = null;
+    selectedComposer: Credit | null = null;
+    selectedLyricist: Credit | null = null;
+
     // Album selection
     albums: Album[] = [];
     selectedAlbum: Album | null = null;
@@ -37,12 +54,14 @@ export class UploadMediaComponent implements OnInit {
         private mediaService: MediaService,
         private artistService: ArtistService,
         private albumService: AlbumService,
+        private creditService: CreditService,
         private messageService: MessageService
     ) { }
 
     ngOnInit(): void {
         this.loadArtists();
         this.loadAlbums();
+        this.loadCredits();
     }
 
     loadArtists() {
@@ -64,6 +83,21 @@ export class UploadMediaComponent implements OnInit {
             error: (err) => {
                 console.error('Failed to load albums', err);
             }
+        });
+    }
+
+    loadCredits(): void {
+        this.creditService.getAllWriters().subscribe({
+            next: (data) => this.writers = data,
+            error: (err) => console.error('Failed to load writers', err)
+        });
+        this.creditService.getAllComposers().subscribe({
+            next: (data) => this.composers = data,
+            error: (err) => console.error('Failed to load composers', err)
+        });
+        this.creditService.getAllLyricists().subscribe({
+            next: (data) => this.lyricists = data,
+            error: (err) => console.error('Failed to load lyricists', err)
         });
     }
 
@@ -96,6 +130,38 @@ export class UploadMediaComponent implements OnInit {
         if (this.selectedAlbum?.id) {
             formData.append('albumId', this.selectedAlbum.id.toString());
         }
+
+        // Sub-artists (featuring artists)
+        if (this.selectedSubArtists && this.selectedSubArtists.length > 0) {
+            this.selectedSubArtists.forEach(artist => {
+                if (artist.id) {
+                    formData.append('subArtistIds', artist.id.toString());
+                }
+            });
+        }
+
+        // Writer/Composer/Lyricist credits (text fields - legacy)
+        if (this.writerName) {
+            formData.append('writerName', this.writerName);
+        }
+        if (this.composerName) {
+            formData.append('composerName', this.composerName);
+        }
+        if (this.lyricistName) {
+            formData.append('lyricistName', this.lyricistName);
+        }
+
+        // Credit entity IDs (dropdown selections)
+        if (this.selectedWriter?.id) {
+            formData.append('writerId', this.selectedWriter.id.toString());
+        }
+        if (this.selectedComposer?.id) {
+            formData.append('composerId', this.selectedComposer.id.toString());
+        }
+        if (this.selectedLyricist?.id) {
+            formData.append('lyricistId', this.selectedLyricist.id.toString());
+        }
+
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -129,6 +195,13 @@ export class UploadMediaComponent implements OnInit {
         this.description = '';
         this.mediaType = null;
         this.selectedArtist = null;
+        this.selectedSubArtists = [];
+        this.writerName = '';
+        this.composerName = '';
+        this.lyricistName = '';
+        this.selectedWriter = null;
+        this.selectedComposer = null;
+        this.selectedLyricist = null;
         this.selectedAlbum = null;
         this.file = null;
         this.thumbnail = null;

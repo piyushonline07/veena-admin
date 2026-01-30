@@ -58,6 +58,65 @@
                             Want to create an album? <a routerLink="/albums" class="text-primary">Go to Albums page</a>
                         </small>
                     </div>
+
+                    <!-- Sub-Artists (Featuring) -->
+                    <div class="col-12 field">
+                        <label for="subArtists">Featuring Artists (Optional)</label>
+                        <p-multiSelect [options]="artists" [(ngModel)]="selectedSubArtists" optionLabel="name"
+                            placeholder="Select featuring artists" [filter]="true" filterBy="name"
+                            display="chip" [style]="{'width': '100%'}">
+                            <ng-template let-artist pTemplate="item">
+                                <div class="flex align-items-center gap-2">
+                                    <span>{{artist.name}}</span>
+                                    <i *ngIf="artist.verified" class="pi pi-verified text-primary text-sm"></i>
+                                </div>
+                            </ng-template>
+                        </p-multiSelect>
+                        <small class="text-secondary mt-1 block">Select artists featured in this song</small>
+                    </div>
+
+                    <!-- Credits Section -->
+                    <div class="col-12">
+                        <p-divider align="left">
+                            <span class="text-secondary"><i class="pi pi-pencil mr-2"></i>Credits (Optional)</span>
+                        </p-divider>
+                    </div>
+                    <div class="col-12 md:col-4 field">
+                        <label for="writer">Writer</label>
+                        <p-dropdown [options]="writers" [(ngModel)]="selectedWriter" optionLabel="name"
+                            placeholder="Select Writer" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}" id="writer">
+                        </p-dropdown>
+                        <small class="text-secondary mt-1 block">
+                            <a routerLink="/credits" class="text-primary">Manage Writers</a>
+                        </small>
+                    </div>
+                    <div class="col-12 md:col-4 field">
+                        <label for="composer">Composer</label>
+                        <p-dropdown [options]="composers" [(ngModel)]="selectedComposer" optionLabel="name"
+                            placeholder="Select Composer" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}" id="composer">
+                        </p-dropdown>
+                        <small class="text-secondary mt-1 block">
+                            <a routerLink="/credits" class="text-primary">Manage Composers</a>
+                        </small>
+                    </div>
+                    <div class="col-12 md:col-4 field">
+                        <label for="lyricist">Lyricist</label>
+                        <p-dropdown [options]="lyricists" [(ngModel)]="selectedLyricist" optionLabel="name"
+                            placeholder="Select Lyricist" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}" id="lyricist">
+                        </p-dropdown>
+                        <small class="text-secondary mt-1 block">
+                            <a routerLink="/credits" class="text-primary">Manage Lyricists</a>
+                        </small>
+                    </div>
+
+                    <div class="col-12">
+                        <p-divider align="left">
+                            <span class="text-secondary"><i class="pi pi-file mr-2"></i>Media Files</span>
+                        </p-divider>
+                    </div>
                     <div class="col-12 field">
                         <label for="description">Description</label>
                         <textarea id="description" rows="3" pInputTextarea [(ngModel)]="description"

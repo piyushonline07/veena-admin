@@ -7,6 +7,10 @@ export interface BatchUpdateRequest {
     mediaIds: string[];
     artistId?: number;
     albumId?: number;
+    subArtistIds?: number[];
+    writerName?: string;
+    composerName?: string;
+    lyricistName?: string;
     title?: string;
     description?: string;
 }

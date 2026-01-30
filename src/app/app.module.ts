@@ -65,6 +65,7 @@ import { AlbumComponent } from './pages/album/album.component';
 import { BillingComponent } from './pages/billing/billing.component';
 import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
+import { CreditsComponent } from './pages/credits/credits.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,8 @@ import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.co
     AlbumComponent,
     BillingComponent,
     BulkUploadComponent,
-    AdminPlaylistComponent
+    AdminPlaylistComponent,
+    CreditsComponent
   ],
   imports: [
     InputTextareaModule,

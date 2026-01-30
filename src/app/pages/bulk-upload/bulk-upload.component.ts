@@ -53,9 +53,13 @@ export class BulkUploadComponent implements OnInit {
     artists: Artist[] = [];
     albums: Album[] = [];
     selectedArtist: Artist | null = null;
+    selectedSubArtists: Artist[] = [];
     selectedAlbum: Album | null = null;
     batchTitle: string = '';
     batchDescription: string = '';
+    batchWriterName: string = '';
+    batchComposerName: string = '';
+    batchLyricistName: string = '';
     updating: boolean = false;
 
     // Publish
@@ -260,6 +264,9 @@ export class BulkUploadComponent implements OnInit {
         if (this.selectedArtist) {
             request.artistId = this.selectedArtist.id;
         }
+        if (this.selectedSubArtists && this.selectedSubArtists.length > 0) {
+            request.subArtistIds = this.selectedSubArtists.map(a => a.id);
+        }
         if (this.selectedAlbum) {
             request.albumId = this.selectedAlbum.id;
         }
@@ -268,6 +275,15 @@ export class BulkUploadComponent implements OnInit {
         }
         if (this.batchDescription) {
             request.description = this.batchDescription;
+        }
+        if (this.batchWriterName) {
+            request.writerName = this.batchWriterName;
+        }
+        if (this.batchComposerName) {
+            request.composerName = this.batchComposerName;
+        }
+        if (this.batchLyricistName) {
+            request.lyricistName = this.batchLyricistName;
         }
 
         this.updating = true;
@@ -293,9 +309,13 @@ export class BulkUploadComponent implements OnInit {
 
                 // Clear batch fields
                 this.selectedArtist = null;
+                this.selectedSubArtists = [];
                 this.selectedAlbum = null;
                 this.batchTitle = '';
                 this.batchDescription = '';
+                this.batchWriterName = '';
+                this.batchComposerName = '';
+                this.batchLyricistName = '';
                 this.updating = false;
             },
             error: () => {

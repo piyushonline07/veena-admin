@@ -1,0 +1,177 @@
+<div class="credits-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="pi pi-users"></i> Credits Management</h1>
+            <p class="subtitle">Manage Writers, Composers, and Lyricists</p>
+        </div>
+        <div class="header-actions">
+            <p-button label="Add New" icon="pi pi-plus"
+                      (onClick)="openCreateDialog()" styleClass="p-button-primary"></p-button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <i class="pi pi-pencil"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{writers.length}}</span>
+                <span class="stat-label">Writers</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="pi pi-volume-up"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{composers.length}}</span>
+                <span class="stat-label">Composers</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="pi pi-file-edit"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{lyricists.length}}</span>
+                <span class="stat-label">Lyricists</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabView [(activeIndex)]="activeTab">
+        <!-- Writers Tab -->
+        <p-tabPanel header="Writers" leftIcon="pi pi-pencil">
+            <div class="credits-grid" *ngIf="!loadingWriters && writers.length > 0">
+                <div class="credit-card" *ngFor="let credit of writers">
+                    <div class="card-avatar">
+                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
+                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
+                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
+                        <p-tag value="Writer" severity="info" styleClass="mt-2"></p-tag>
+                    </div>
+                    <div class="card-actions">
+                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
+                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
+                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-state" *ngIf="loadingWriters">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p>Loading writers...</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingWriters && writers.length === 0">
+                <i class="pi pi-inbox"></i>
+                <h3>No Writers</h3>
+                <p>Add your first writer to get started</p>
+                <p-button label="Add Writer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+        </p-tabPanel>
+
+        <!-- Composers Tab -->
+        <p-tabPanel header="Composers" leftIcon="pi pi-volume-up">
+            <div class="credits-grid" *ngIf="!loadingComposers && composers.length > 0">
+                <div class="credit-card" *ngFor="let credit of composers">
+                    <div class="card-avatar">
+                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
+                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
+                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
+                        <p-tag value="Composer" severity="warning" styleClass="mt-2"></p-tag>
+                    </div>
+                    <div class="card-actions">
+                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
+                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
+                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-state" *ngIf="loadingComposers">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p>Loading composers...</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingComposers && composers.length === 0">
+                <i class="pi pi-inbox"></i>
+                <h3>No Composers</h3>
+                <p>Add your first composer to get started</p>
+                <p-button label="Add Composer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+        </p-tabPanel>
+
+        <!-- Lyricists Tab -->
+        <p-tabPanel header="Lyricists" leftIcon="pi pi-file-edit">
+            <div class="credits-grid" *ngIf="!loadingLyricists && lyricists.length > 0">
+                <div class="credit-card" *ngFor="let credit of lyricists">
+                    <div class="card-avatar">
+                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
+                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
+                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
+                        <p-tag value="Lyricist" severity="success" styleClass="mt-2"></p-tag>
+                    </div>
+                    <div class="card-actions">
+                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
+                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
+                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-state" *ngIf="loadingLyricists">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p>Loading lyricists...</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingLyricists && lyricists.length === 0">
+                <i class="pi pi-inbox"></i>
+                <h3>No Lyricists</h3>
+                <p>Add your first lyricist to get started</p>
+                <p-button label="Add Lyricist" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<!-- Create/Edit Dialog -->
+<p-dialog [(visible)]="showDialog"
+          [header]="isEditing ? 'Edit ' + getTypeLabel(creditForm.creditType) : 'Add ' + getTypeLabel(creditForm.creditType)"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [responsive]="true">
+    <div class="dialog-form">
+        <div class="form-field" *ngIf="!isEditing">
+            <label for="creditType">Type *</label>
+            <p-dropdown [options]="creditTypes" [(ngModel)]="creditForm.creditType"
+                        optionLabel="label" optionValue="value" class="w-full" id="creditType"></p-dropdown>
+        </div>
+        <div class="form-field">
+            <label for="name">Name *</label>
+            <input pInputText id="name" [(ngModel)]="creditForm.name"
+                   placeholder="Enter name" class="w-full" />
+        </div>
+        <div class="form-field">
+            <label for="bio">Bio</label>
+            <textarea pInputTextarea id="bio" [(ngModel)]="creditForm.bio"
+                      rows="3" placeholder="Enter bio (optional)" class="w-full"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="imageUrl">Image URL</label>
+            <input pInputText id="imageUrl" [(ngModel)]="creditForm.imageUrl"
+                   placeholder="https://..." class="w-full" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (onClick)="showDialog = false"
+                  styleClass="p-button-text"></p-button>
+        <p-button [label]="isEditing ? 'Update' : 'Create'" icon="pi pi-check" (onClick)="saveCredit()"
+                  [loading]="saving" styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
