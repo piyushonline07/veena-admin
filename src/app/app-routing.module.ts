@@ -16,6 +16,7 @@ import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { BillingComponent } from './pages/billing/billing.component';
 import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
+import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'media-list', component: MediaListComponent, canActivate: [AuthGuard] },
   { path: 'artists', component: ArtistListComponent, canActivate: [AuthGuard] },
   { path: 'albums', component: AlbumComponent, canActivate: [AuthGuard] },
+  { path: 'playlists', component: AdminPlaylistComponent, canActivate: [AuthGuard] },
   { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
   { path: 'operations', component: OperationsComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserListComponent, canActivate: [AuthGuard] },

@@ -212,15 +212,24 @@
 
             <!-- Relationships Section -->
             <div class="form-section">
-                <h4 class="section-title"><i class="pi pi-users"></i> Relationships</h4>
+                <h4 class="section-title"><i class="pi pi-users"></i> Artists & Relationships</h4>
                 <div class="field mb-3">
-                    <label for="artist" class="block font-bold mb-2">Artist</label>
+                    <label for="artist" class="block font-bold mb-2">Main Artist</label>
                     <p-dropdown [options]="artistsList" [(ngModel)]="selectedMedia.artistId"
                         optionLabel="name" optionValue="id"
-                        placeholder="Select Artist" [showClear]="true" [filter]="true"
+                        placeholder="Select Main Artist" [showClear]="true" [filter]="true"
                         class="w-full" id="artist">
                     </p-dropdown>
                     <small class="text-secondary">Current: {{selectedMedia.artist?.name || 'None'}}</small>
+                </div>
+                <div class="field mb-3">
+                    <label for="subArtists" class="block font-bold mb-2">Featuring Artists (Sub-Artists)</label>
+                    <p-multiSelect [options]="artistsList" [(ngModel)]="selectedMedia.subArtistIds"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Featuring Artists" [filter]="true"
+                        display="chip" class="w-full" id="subArtists">
+                    </p-multiSelect>
+                    <small class="text-secondary">Artists featured in this song</small>
                 </div>
                 <div class="field mb-3">
                     <label for="album" class="block font-bold mb-2">Album</label>
@@ -230,6 +239,26 @@
                         class="w-full" id="album">
                     </p-dropdown>
                     <small class="text-secondary">Current: {{selectedMedia.album?.name || 'None'}}</small>
+                </div>
+            </div>
+
+            <!-- Credits Section -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="pi pi-pencil"></i> Credits</h4>
+                <div class="field mb-3">
+                    <label for="writerName" class="block font-bold mb-2">Writer</label>
+                    <input type="text" pInputText id="writerName" [(ngModel)]="selectedMedia.writerName"
+                           placeholder="Song writer name" class="w-full" />
+                </div>
+                <div class="field mb-3">
+                    <label for="composerName" class="block font-bold mb-2">Composer</label>
+                    <input type="text" pInputText id="composerName" [(ngModel)]="selectedMedia.composerName"
+                           placeholder="Music composer name" class="w-full" />
+                </div>
+                <div class="field mb-3">
+                    <label for="lyricistName" class="block font-bold mb-2">Lyricist</label>
+                    <input type="text" pInputText id="lyricistName" [(ngModel)]="selectedMedia.lyricistName"
+                           placeholder="Lyrics writer name" class="w-full" />
                 </div>
             </div>
 

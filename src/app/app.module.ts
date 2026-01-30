@@ -54,6 +54,8 @@ import { CalendarModule } from 'primeng/calendar';
 import { DividerModule } from "primeng/divider";
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { SyncLyricsComponent } from './core/components/sync-lyrics/sync-lyrics.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
@@ -62,6 +64,7 @@ import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { BillingComponent } from './pages/billing/billing.component';
 import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
+import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +87,8 @@ import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
     MediaLinkComponent,
     AlbumComponent,
     BillingComponent,
-    BulkUploadComponent
+    BulkUploadComponent,
+    AdminPlaylistComponent
   ],
   imports: [
     InputTextareaModule,
@@ -120,7 +124,9 @@ import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
     ConfirmDialogModule,
     StepsModule,
     MessagesModule,
-    MessageModule
+    MessageModule,
+    InputSwitchModule,
+    MultiSelectModule
   ],
   providers: [
     MessageService,

@@ -1,0 +1,241 @@
+<div class="admin-playlist-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="pi pi-list"></i> Admin Playlists</h1>
+            <p class="subtitle">Create and manage curated playlists for users</p>
+        </div>
+        <div class="header-actions">
+            <p-button label="Create Playlist" icon="pi pi-plus"
+                      (onClick)="openCreateDialog()" styleClass="p-button-primary"></p-button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <i class="pi pi-list"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{playlists.length}}</span>
+                <span class="stat-label">Total Playlists</span>
+            </div>
+        </div>
+        <div class="stat-card visible">
+            <i class="pi pi-eye"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{getVisibleCount()}}</span>
+                <span class="stat-label">Visible to Users</span>
+            </div>
+        </div>
+        <div class="stat-card hidden">
+            <i class="pi pi-eye-slash"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{getHiddenCount()}}</span>
+                <span class="stat-label">Hidden</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlists Grid -->
+    <div class="playlists-grid" *ngIf="!isLoading && playlists.length > 0">
+        <div class="playlist-card" *ngFor="let playlist of playlists">
+            <div class="card-header">
+                <div class="playlist-cover">
+                    <img *ngIf="playlist.coverUrl" [src]="playlist.coverUrl" alt="Cover" />
+                    <i *ngIf="!playlist.coverUrl" class="pi pi-music"></i>
+                </div>
+                <div class="visibility-badge" [class.visible]="playlist.visibleToUsers">
+                    <i class="pi" [ngClass]="playlist.visibleToUsers ? 'pi-eye' : 'pi-eye-slash'"></i>
+                    <span>{{playlist.visibleToUsers ? 'Visible' : 'Hidden'}}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h3 class="playlist-name" [pTooltip]="playlist.name" tooltipPosition="top">
+                    {{playlist.name}}
+                </h3>
+                <p class="playlist-description">{{playlist.description || 'No description'}}</p>
+                <div class="playlist-meta">
+                    <span><i class="pi pi-music"></i> {{playlist.trackCount}} tracks</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <p-button icon="pi pi-list" pTooltip="Manage Tracks"
+                          (onClick)="openTracksDialog(playlist)"
+                          styleClass="p-button-sm p-button-text"></p-button>
+                <p-button [icon]="playlist.visibleToUsers ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                          [pTooltip]="playlist.visibleToUsers ? 'Hide from Users' : 'Show to Users'"
+                          (onClick)="toggleVisibility(playlist)"
+                          styleClass="p-button-sm p-button-text"
+                          [class]="playlist.visibleToUsers ? 'p-button-warning' : 'p-button-success'"></p-button>
+                <p-button icon="pi pi-pencil" pTooltip="Edit"
+                          (onClick)="openEditDialog(playlist)"
+                          styleClass="p-button-sm p-button-text"></p-button>
+                <p-button icon="pi pi-trash" pTooltip="Delete"
+                          (onClick)="confirmDelete(playlist)"
+                          styleClass="p-button-sm p-button-text p-button-danger"></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        <p>Loading playlists...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && playlists.length === 0">
+        <i class="pi pi-inbox"></i>
+        <h3>No Playlists</h3>
+        <p>Create your first admin playlist to get started</p>
+        <p-button label="Create Playlist" icon="pi pi-plus"
+                  (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+    </div>
+</div>
+
+<!-- Create Dialog -->
+<p-dialog [(visible)]="showCreateDialog" header="Create Playlist"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [responsive]="true">
+    <div class="dialog-form">
+        <div class="form-field">
+            <label for="name">Name *</label>
+            <input pInputText id="name" [(ngModel)]="newPlaylist.name"
+                   placeholder="Enter playlist name" class="w-full" />
+        </div>
+        <div class="form-field">
+            <label for="description">Description</label>
+            <textarea pInputTextarea id="description" [(ngModel)]="newPlaylist.description"
+                      rows="3" placeholder="Enter description" class="w-full"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="coverUrl">Cover Image URL</label>
+            <input pInputText id="coverUrl" [(ngModel)]="newPlaylist.coverUrl"
+                   placeholder="https://..." class="w-full" />
+        </div>
+        <div class="form-field visibility-toggle">
+            <p-inputSwitch [(ngModel)]="newPlaylist.visibleToUsers"></p-inputSwitch>
+            <label>Visible to Users</label>
+            <small>When enabled, this playlist will be shown to all users</small>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (onClick)="showCreateDialog = false"
+                  styleClass="p-button-text"></p-button>
+        <p-button label="Create" icon="pi pi-check" (onClick)="createPlaylist()"
+                  styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Edit Dialog -->
+<p-dialog [(visible)]="showEditDialog" header="Edit Playlist"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [responsive]="true">
+    <div class="dialog-form" *ngIf="selectedPlaylist">
+        <div class="form-field">
+            <label for="editName">Name *</label>
+            <input pInputText id="editName" [(ngModel)]="selectedPlaylist.name"
+                   placeholder="Enter playlist name" class="w-full" />
+        </div>
+        <div class="form-field">
+            <label for="editDescription">Description</label>
+            <textarea pInputTextarea id="editDescription" [(ngModel)]="selectedPlaylist.description"
+                      rows="3" placeholder="Enter description" class="w-full"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="editCoverUrl">Cover Image URL</label>
+            <input pInputText id="editCoverUrl" [(ngModel)]="selectedPlaylist.coverUrl"
+                   placeholder="https://..." class="w-full" />
+        </div>
+        <div class="form-field visibility-toggle">
+            <p-inputSwitch [(ngModel)]="selectedPlaylist.visibleToUsers"></p-inputSwitch>
+            <label>Visible to Users</label>
+            <small>When enabled, this playlist will be shown to all users</small>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (onClick)="showEditDialog = false"
+                  styleClass="p-button-text"></p-button>
+        <p-button label="Save" icon="pi pi-check" (onClick)="updatePlaylist()"
+                  styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Tracks Dialog -->
+<p-dialog [(visible)]="showTracksDialog" [header]="'Tracks - ' + (selectedPlaylist?.name || '')"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '700px'}" [responsive]="true">
+    <div class="tracks-dialog">
+        <div class="tracks-header">
+            <p-button label="Add Track" icon="pi pi-plus"
+                      (onClick)="openAddTrackDialog()" styleClass="p-button-sm"></p-button>
+        </div>
+
+        <div class="tracks-list" *ngIf="!isLoadingTracks && playlistTracks.length > 0">
+            <div class="track-item" *ngFor="let track of playlistTracks">
+                <div class="track-thumb">
+                    <img *ngIf="track.thumbnailUrl" [src]="track.thumbnailUrl" alt="Thumb" />
+                    <i *ngIf="!track.thumbnailUrl" class="pi pi-music"></i>
+                </div>
+                <div class="track-info">
+                    <span class="track-title">{{track.title}}</span>
+                    <span class="track-artist">{{track.artist?.name || 'Unknown Artist'}}</span>
+                </div>
+                <p-button icon="pi pi-trash" (onClick)="removeTrack(track)"
+                          styleClass="p-button-sm p-button-text p-button-danger"
+                          pTooltip="Remove"></p-button>
+            </div>
+        </div>
+
+        <div class="loading-state" *ngIf="isLoadingTracks">
+            <p-progressSpinner strokeWidth="4" [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
+            <p>Loading tracks...</p>
+        </div>
+
+        <div class="empty-state small" *ngIf="!isLoadingTracks && playlistTracks.length === 0">
+            <i class="pi pi-music"></i>
+            <p>No tracks in this playlist</p>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Add Track Dialog -->
+<p-dialog [(visible)]="showAddTrackDialog" header="Add Track"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [responsive]="true">
+    <div class="add-track-dialog">
+        <div class="form-field">
+            <label>Search Media</label>
+            <div class="search-row">
+                <span class="p-input-icon-left flex-grow-1">
+                    <i class="pi pi-search"></i>
+                    <input pInputText [(ngModel)]="mediaSearchQuery"
+                           (input)="searchMedia()" placeholder="Search by title..." class="w-full" />
+                </span>
+                <p-progressSpinner *ngIf="isSearchingMedia" strokeWidth="4"
+                    [style]="{width: '24px', height: '24px'}"></p-progressSpinner>
+            </div>
+        </div>
+
+        <div class="media-results" *ngIf="mediaResults.length > 0">
+            <div class="media-item" *ngFor="let media of mediaResults"
+                 [class.selected]="selectedMedia?.id === media.id"
+                 (click)="selectedMedia = media">
+                <div class="media-thumb">
+                    <img *ngIf="media.thumbnailUrl" [src]="media.thumbnailUrl" alt="Thumb" />
+                    <i *ngIf="!media.thumbnailUrl" class="pi pi-music"></i>
+                </div>
+                <div class="media-info">
+                    <span class="media-title">{{media.title}}</span>
+                    <span class="media-artist">{{media.artist?.name || 'Unknown Artist'}}</span>
+                </div>
+                <i *ngIf="selectedMedia?.id === media.id" class="pi pi-check selected-icon"></i>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (onClick)="showAddTrackDialog = false"
+                  styleClass="p-button-text"></p-button>
+        <p-button label="Add Track" icon="pi pi-plus" (onClick)="addTrackToPlaylist()"
+                  [disabled]="!selectedMedia" styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

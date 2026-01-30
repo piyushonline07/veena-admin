@@ -115,7 +115,11 @@ export class MediaListComponent implements OnInit {
         this.selectedMedia = {
             ...media,
             artistId: media.artist?.id || null,
-            albumId: media.album?.id || null
+            albumId: media.album?.id || null,
+            subArtistIds: media.subArtists?.map((a: any) => a.id) || [],
+            writerName: media.writerName || '',
+            composerName: media.composerName || '',
+            lyricistName: media.lyricistName || ''
         };
         this.newThumbnailFile = null;
         this.newLyricsFile = null;
@@ -177,8 +181,12 @@ export class MediaListComponent implements OnInit {
         // Check if we need to upload files
         const hasFiles = this.newThumbnailFile || this.newLyricsFile;
         const hasRelationshipChanges = this.selectedMedia.artistId !== undefined || this.selectedMedia.albumId !== undefined;
+        const hasCreditsChanges = this.selectedMedia.writerName !== undefined ||
+                                  this.selectedMedia.composerName !== undefined ||
+                                  this.selectedMedia.lyricistName !== undefined;
+        const hasSubArtists = this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0;
 
-        if (hasFiles || hasRelationshipChanges) {
+        if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists) {
             // Use the new multipart endpoint
             const formData = new FormData();
             formData.append('title', this.selectedMedia.title);
@@ -191,6 +199,25 @@ export class MediaListComponent implements OnInit {
             if (this.selectedMedia.albumId !== undefined) {
                 formData.append('albumId', this.selectedMedia.albumId?.toString() || '0');
             }
+
+            // Sub-artists (featuring artists)
+            if (this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0) {
+                this.selectedMedia.subArtistIds.forEach((id: number) => {
+                    formData.append('subArtistIds', id.toString());
+                });
+            }
+
+            // Writer/Composer/Lyricist credits
+            if (this.selectedMedia.writerName !== undefined) {
+                formData.append('writerName', this.selectedMedia.writerName || '');
+            }
+            if (this.selectedMedia.composerName !== undefined) {
+                formData.append('composerName', this.selectedMedia.composerName || '');
+            }
+            if (this.selectedMedia.lyricistName !== undefined) {
+                formData.append('lyricistName', this.selectedMedia.lyricistName || '');
+            }
+
             if (this.newThumbnailFile) {
                 formData.append('thumbnail', this.newThumbnailFile);
             }

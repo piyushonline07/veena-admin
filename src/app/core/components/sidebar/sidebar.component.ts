@@ -46,6 +46,7 @@ export class SidebarComponent implements OnInit {
                     { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
                     { label: 'Manage Media', icon: 'pi pi-list', routerLink: ['/media-list'] },
                     { label: 'Albums', icon: 'pi pi-book', routerLink: ['/albums'] },
+                    { label: 'Playlists', icon: 'pi pi-play', routerLink: ['/playlists'] },
                     { label: 'Link Audio/Video', icon: 'pi pi-link', routerLink: ['/media-link'] },
                     { label: 'Artists', icon: 'pi pi-star', routerLink: ['/artists'] },
                     { label: 'Upload Media', icon: 'pi pi-upload', routerLink: ['/upload'] },
