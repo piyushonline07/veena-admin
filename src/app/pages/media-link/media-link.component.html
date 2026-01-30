@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1><i class="pi pi-link"></i> Link Audio & Video</h1>
-      <p class="subtitle">Connect audio tracks with their corresponding video versions</p>
+      <h1><i class="pi pi-arrows-h"></i> Link Audio & Video</h1>
+      <p class="subtitle">Connect audio tracks with their corresponding video versions (bidirectional linking)</p>
     </div>
     <div class="header-stats">
       <div class="stat-badge">
@@ -22,7 +22,7 @@
     <!-- Left Panel - Audio List -->
     <div class="media-panel audio-panel">
       <div class="panel-header">
-        <h3><i class="pi pi-volume-up"></i> Audio Tracks</h3>
+        <h3><i class="pi pi-headphones"></i> Audio Tracks</h3>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
           <input pInputText [(ngModel)]="audioSearchQuery" (ngModelChange)="onAudioSearch()"
@@ -38,7 +38,7 @@
              (click)="selectAudio(audio)">
           <div class="media-thumb">
             <img *ngIf="audio.thumbnailUrl" [src]="audio.thumbnailUrl" alt="Audio thumbnail" />
-            <i *ngIf="!audio.thumbnailUrl" class="pi pi-music"></i>
+            <i *ngIf="!audio.thumbnailUrl" class="pi pi-headphones"></i>
           </div>
           <div class="media-info">
             <div class="media-title" [pTooltip]="audio.title" tooltipPosition="top" [tooltipDisabled]="audio.title?.length < 20">{{audio.title}}</div>
@@ -73,7 +73,7 @@
         <div class="selected-media-card audio-card">
           <div class="card-thumb">
             <img *ngIf="selectedAudio.thumbnailUrl" [src]="selectedAudio.thumbnailUrl" alt="Audio" />
-            <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-music"></i>
+            <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-headphones"></i>
           </div>
           <div class="card-info">
             <p-tag value="AUDIO" severity="info" class="mb-2"></p-tag>
@@ -88,7 +88,7 @@
             <path d="M0,20 C30,20 70,20 100,20" class="line-path"></path>
           </svg>
           <div class="connection-icon">
-            <i class="pi" [ngClass]="selectedAudio.linkedMediaId ? 'pi-link' : 'pi-question-circle'"></i>
+            <i class="pi" [ngClass]="selectedAudio.linkedMediaId ? 'pi-arrows-h' : 'pi-question-circle'"></i>
           </div>
         </div>
 
@@ -97,7 +97,7 @@
           <div class="card-thumb">
             <img *ngIf="(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl"
                  [src]="(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl" alt="Video" />
-            <i *ngIf="!(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl" class="pi pi-video"></i>
+            <i *ngIf="!(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl" class="pi pi-play-circle"></i>
           </div>
           <div class="card-info">
             <p-tag value="VIDEO" severity="warning" class="mb-2"></p-tag>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="empty-video-card" *ngIf="!selectedAudio.linkedMediaId">
-          <i class="pi pi-video"></i>
+          <i class="pi pi-play-circle"></i>
           <p>No video linked</p>
         </div>
 
@@ -115,20 +115,20 @@
         <div class="connection-actions">
           <p-button *ngIf="!selectedAudio.linkedMediaId"
                     label="Link to Video"
-                    icon="pi pi-link"
+                    icon="pi pi-arrows-h"
                     (onClick)="openLinkDialog()"
                     styleClass="p-button-success">
           </p-button>
           <p-button *ngIf="selectedAudio.linkedMediaId"
                     label="Unlink"
-                    icon="pi pi-unlink"
+                    icon="pi pi-times-circle"
                     (onClick)="unlinkAudio(selectedAudio)"
                     [loading]="isLinking"
                     styleClass="p-button-danger p-button-outlined">
           </p-button>
           <p-button *ngIf="selectedAudio.linkedMediaId"
                     label="Change Link"
-                    icon="pi pi-refresh"
+                    icon="pi pi-sync"
                     (onClick)="openLinkDialog()"
                     styleClass="p-button-outlined">
           </p-button>
@@ -144,7 +144,7 @@
     <!-- Right Panel - Video List -->
     <div class="media-panel video-panel">
       <div class="panel-header">
-        <h3><i class="pi pi-video"></i> Video Tracks</h3>
+        <h3><i class="pi pi-play-circle"></i> Video Tracks</h3>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
           <input pInputText [(ngModel)]="videoSearchQuery" (ngModelChange)="onVideoSearch()"
@@ -160,7 +160,7 @@
              (click)="selectVideo(video)">
           <div class="media-thumb">
             <img *ngIf="video.thumbnailUrl" [src]="video.thumbnailUrl" alt="Video thumbnail" />
-            <i *ngIf="!video.thumbnailUrl" class="pi pi-video"></i>
+            <i *ngIf="!video.thumbnailUrl" class="pi pi-play-circle"></i>
           </div>
           <div class="media-info">
             <div class="media-title" [pTooltip]="video.title" tooltipPosition="top" [tooltipDisabled]="video.title?.length < 20">{{video.title}}</div>
@@ -197,7 +197,7 @@
       <p class="mb-2">Linking audio:</p>
       <div class="mini-card">
         <img *ngIf="selectedAudio.thumbnailUrl" [src]="selectedAudio.thumbnailUrl" alt="Audio" class="mini-thumb" />
-        <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-music mini-icon"></i>
+        <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-headphones mini-icon"></i>
         <div class="mini-info">
           <strong>{{selectedAudio.title}}</strong>
           <span>{{selectedAudio.artist?.name || 'Unknown Artist'}}</span>
@@ -220,7 +220,7 @@
         <ng-template let-video pTemplate="item">
           <div class="dropdown-item">
             <img *ngIf="video.thumbnailUrl" [src]="video.thumbnailUrl" alt="thumb" class="dropdown-thumb" />
-            <i *ngIf="!video.thumbnailUrl" class="pi pi-video dropdown-icon"></i>
+            <i *ngIf="!video.thumbnailUrl" class="pi pi-play-circle dropdown-icon"></i>
             <div class="dropdown-info">
               <div class="dropdown-title">{{video.title}}</div>
               <div class="dropdown-artist">{{video.artist?.name || 'Unknown Artist'}}</div>
@@ -234,7 +234,7 @@
       <p class="mt-3 mb-2">Will link to:</p>
       <div class="mini-card video">
         <img *ngIf="selectedVideo.thumbnailUrl" [src]="selectedVideo.thumbnailUrl" alt="Video" class="mini-thumb" />
-        <i *ngIf="!selectedVideo.thumbnailUrl" class="pi pi-video mini-icon"></i>
+        <i *ngIf="!selectedVideo.thumbnailUrl" class="pi pi-play-circle mini-icon"></i>
         <div class="mini-info">
           <strong>{{selectedVideo.title}}</strong>
           <span>{{selectedVideo.artist?.name || 'Unknown Artist'}}</span>
@@ -245,7 +245,7 @@
 
   <ng-template pTemplate="footer">
     <p-button label="Cancel" icon="pi pi-times" (onClick)="closeLinkDialog()" styleClass="p-button-text"></p-button>
-    <p-button label="Link" icon="pi pi-link" (onClick)="linkMedia()" [disabled]="!selectedVideo" [loading]="isLinking" styleClass="p-button-success"></p-button>
+    <p-button label="Link" icon="pi pi-arrows-h" (onClick)="linkMedia()" [disabled]="!selectedVideo" [loading]="isLinking" styleClass="p-button-success"></p-button>
   </ng-template>
 </p-dialog>
 

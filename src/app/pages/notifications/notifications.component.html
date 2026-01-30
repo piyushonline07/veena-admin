@@ -1,62 +1,127 @@
 <div class="notifications-container">
-  <h1>Notifications</h1>
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="pi pi-bell"></i> Notification History</h1>
+            <p class="subtitle">View all sent notifications and their delivery status</p>
+        </div>
+        <div class="header-actions">
+            <p-button label="Create New" icon="pi pi-plus"
+                      routerLink="/admin/marketing" styleClass="p-button-primary"></p-button>
+        </div>
+    </div>
 
-  <p-card header="Push Notifications">
-    <ng-container *ngIf="notificationsEnabled; else notifDisabled">
-      <div class="p-fluid">
-        <div class="field">
-          <label for="title">Title</label>
-          <input pInputText id="title" [(ngModel)]="newNotif.title" placeholder="Notification title" />
-        </div>
-        <div class="field">
-          <label for="body">Body</label>
-          <textarea pInputTextarea id="body" [(ngModel)]="newNotif.body" rows="3" placeholder="Notification message"></textarea>
-        </div>
-        <div class="field">
-          <label for="imageUrl">Image URL (optional)</label>
-          <input pInputText id="imageUrl" [(ngModel)]="newNotif.imageUrl" placeholder="https://..." />
-        </div>
-        <div class="field">
-          <label for="targetGroup">Target Audience</label>
-          <p-dropdown id="targetGroup" [options]="targetGroups" [(ngModel)]="newNotif.targetGroup" optionLabel="label" optionValue="value"></p-dropdown>
-        </div>
-        <p-button label="Save Draft" icon="pi pi-save" (onClick)="onSaveNotif()" styleClass="p-button-success"></p-button>
-      </div>
-
-      <p-divider></p-divider>
-
-      <h4>Saved Notifications</h4>
-      <p-table [value]="notifications" [paginator]="true" [rows]="5" *ngIf="notifications.length > 0">
+    <!-- Notification History -->
+    <p-card>
         <ng-template pTemplate="header">
-          <tr>
-            <th>Title</th>
-            <th>Target</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
+            <div class="card-header">
+                <h3><i class="pi pi-history"></i> Sent Notifications</h3>
+                <div class="filter-group">
+                    <p-dropdown [options]="statusFilters" [(ngModel)]="selectedStatus"
+                                optionLabel="label" optionValue="value"
+                                placeholder="Filter by status" (onChange)="filterNotifications()"
+                                [showClear]="true" class="filter-dropdown"></p-dropdown>
+                </div>
+            </div>
         </ng-template>
-        <ng-template pTemplate="body" let-notif>
-          <tr>
-            <td>{{ notif.title }}</td>
-            <td>{{ notif.targetGroup }}</td>
-            <td>
-              <p-tag [value]="notif.status" [severity]="notif.status === 'SENT' ? 'success' : 'info'"></p-tag>
-            </td>
-            <td>
-              <p-button *ngIf="notif.status !== 'SENT'" icon="pi pi-send" label="Send" (onClick)="onSendNotif(notif.id)" styleClass="p-button-sm p-button-outlined"></p-button>
-              <span *ngIf="notif.status === 'SENT'" class="text-green-500">
-                <i class="pi pi-check-circle"></i> Sent {{ notif.sentAt | date:'short' }}
-              </span>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      <p *ngIf="notifications.length === 0" class="text-gray-500">No notifications yet.</p>
-    </ng-container>
-    <ng-template #notifDisabled>
-      <p class="text-gray-500">Push notifications are disabled in this environment.</p>
-    </ng-template>
-  </p-card>
+
+        <div class="table-responsive">
+            <p-table [value]="filteredNotifications" [paginator]="true" [rows]="10"
+                     [responsive]="true" responsiveLayout="stack"
+                     [rowsPerPageOptions]="[5, 10, 25]"
+                     *ngIf="filteredNotifications.length > 0">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+                        <th pSortableColumn="targetGroup">Audience <p-sortIcon field="targetGroup"></p-sortIcon></th>
+                        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="sentAt">Sent At <p-sortIcon field="sentAt"></p-sortIcon></th>
+                        <th>Details</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-notif>
+                    <tr>
+                        <td>
+                            <span class="p-column-title">Title</span>
+                            <div class="notif-title">
+                                <strong>{{ notif.title }}</strong>
+                                <small>{{ notif.body | slice:0:50 }}{{ notif.body?.length > 50 ? '...' : '' }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="p-column-title">Audience</span>
+                            <p-tag [value]="getAudienceLabel(notif.targetGroup)"
+                                   [severity]="getAudienceSeverity(notif.targetGroup)"></p-tag>
+                        </td>
+                        <td>
+                            <span class="p-column-title">Status</span>
+                            <p-tag [value]="notif.status"
+                                   [severity]="getStatusSeverity(notif.status)"></p-tag>
+                        </td>
+                        <td>
+                            <span class="p-column-title">Sent At</span>
+                            <span *ngIf="notif.sentAt">{{ notif.sentAt | date:'medium' }}</span>
+                            <span *ngIf="!notif.sentAt" class="text-muted">Not sent</span>
+                        </td>
+                        <td>
+                            <span class="p-column-title">Details</span>
+                            <p-button icon="pi pi-eye" (onClick)="showDetails(notif)"
+                                      styleClass="p-button-sm p-button-text"
+                                      pTooltip="View Details"></p-button>
+                            <p-button *ngIf="notif.status !== 'SENT'" icon="pi pi-send"
+                                      (onClick)="onSendNotif(notif.id)"
+                                      styleClass="p-button-sm p-button-text p-button-success"
+                                      pTooltip="Send Now"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div class="empty-state" *ngIf="filteredNotifications.length === 0">
+            <i class="pi pi-inbox"></i>
+            <h3>No Notifications</h3>
+            <p>No notifications match your filter criteria.</p>
+            <p-button label="Create Notification" icon="pi pi-plus"
+                      routerLink="/admin/marketing" styleClass="mt-3"></p-button>
+        </div>
+    </p-card>
 </div>
+
+<!-- Details Dialog -->
+<p-dialog [(visible)]="showDetailsDialog" header="Notification Details"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [responsive]="true">
+    <div class="detail-content" *ngIf="selectedNotification">
+        <div class="detail-row">
+            <label>Title</label>
+            <p>{{ selectedNotification.title }}</p>
+        </div>
+        <div class="detail-row">
+            <label>Message</label>
+            <p>{{ selectedNotification.body }}</p>
+        </div>
+        <div class="detail-row" *ngIf="selectedNotification.imageUrl">
+            <label>Image</label>
+            <img [src]="selectedNotification.imageUrl" alt="Notification image" class="detail-image" />
+        </div>
+        <div class="detail-row">
+            <label>Target Audience</label>
+            <p-tag [value]="getAudienceLabel(selectedNotification.targetGroup)"></p-tag>
+        </div>
+        <div class="detail-row">
+            <label>Status</label>
+            <p-tag [value]="selectedNotification.status"
+                   [severity]="getStatusSeverity(selectedNotification.status)"></p-tag>
+        </div>
+        <div class="detail-row" *ngIf="selectedNotification.sentAt">
+            <label>Sent At</label>
+            <p>{{ selectedNotification.sentAt | date:'full' }}</p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Close" icon="pi pi-times" (onClick)="showDetailsDialog = false"
+                  styleClass="p-button-text"></p-button>
+    </ng-template>
+</p-dialog>
 
 <p-toast></p-toast>

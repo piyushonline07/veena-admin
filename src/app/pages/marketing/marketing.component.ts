@@ -14,6 +14,9 @@ export class MarketingComponent implements OnInit {
     // Feature flags
     notificationsEnabled = environment.enableNotifications;
 
+    // Responsive
+    isMobile = false;
+
     // Notifications
     notifications: any[] = [];
     targetGroups = [
@@ -56,7 +59,13 @@ export class MarketingComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        this.checkMobile();
+        window.addEventListener('resize', () => this.checkMobile());
         this.refreshAll();
+    }
+
+    checkMobile(): void {
+        this.isMobile = window.innerWidth < 768;
     }
 
     refreshAll() {

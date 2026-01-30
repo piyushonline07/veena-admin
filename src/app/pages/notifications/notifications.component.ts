@@ -13,17 +13,20 @@ export class NotificationsComponent implements OnInit {
   notificationsEnabled = environment.enableNotifications;
 
   notifications: any[] = [];
-  targetGroups = [
-    { label: 'All Users', value: 'ALL' },
-    { label: 'Regular Users', value: 'USER' },
-    { label: 'Administrators', value: 'ADMIN' }
+  filteredNotifications: any[] = [];
+
+  // Filters
+  statusFilters = [
+    { label: 'All', value: null },
+    { label: 'Draft', value: 'DRAFT' },
+    { label: 'Sent', value: 'SENT' },
+    { label: 'Failed', value: 'FAILED' }
   ];
-  newNotif = {
-    title: '',
-    body: '',
-    imageUrl: '',
-    targetGroup: 'ALL'
-  };
+  selectedStatus: string | null = null;
+
+  // Details dialog
+  showDetailsDialog = false;
+  selectedNotification: any = null;
 
   constructor(
     private marketingService: MarketingService,
@@ -38,7 +41,10 @@ export class NotificationsComponent implements OnInit {
 
   loadNotifications() {
     this.marketingService.getNotifications().subscribe({
-      next: (data) => (this.notifications = data),
+      next: (data) => {
+        this.notifications = data;
+        this.filterNotifications();
+      },
       error: () => {
         this.messageService.add({
           severity: 'info',
@@ -49,13 +55,46 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
-  onSaveNotif() {
-    if (!this.notificationsEnabled) return;
-    this.marketingService.draftNotification(this.newNotif).subscribe(() => {
-      this.messageService.add({ severity: 'success', summary: 'Draft Saved' });
-      this.loadNotifications();
-      this.newNotif = { title: '', body: '', imageUrl: '', targetGroup: 'ALL' };
-    });
+  filterNotifications() {
+    if (!this.selectedStatus) {
+      this.filteredNotifications = [...this.notifications];
+    } else {
+      this.filteredNotifications = this.notifications.filter(
+        n => n.status === this.selectedStatus
+      );
+    }
+  }
+
+  getAudienceLabel(targetGroup: string): string {
+    switch (targetGroup) {
+      case 'ALL': return 'All Users';
+      case 'USER': return 'Regular Users';
+      case 'ADMIN': return 'Administrators';
+      default: return targetGroup;
+    }
+  }
+
+  getAudienceSeverity(targetGroup: string): string {
+    switch (targetGroup) {
+      case 'ALL': return 'info';
+      case 'USER': return 'success';
+      case 'ADMIN': return 'warning';
+      default: return 'info';
+    }
+  }
+
+  getStatusSeverity(status: string): string {
+    switch (status) {
+      case 'SENT': return 'success';
+      case 'DRAFT': return 'info';
+      case 'FAILED': return 'danger';
+      default: return 'info';
+    }
+  }
+
+  showDetails(notif: any) {
+    this.selectedNotification = notif;
+    this.showDetailsDialog = true;
   }
 
   onSendNotif(id: string) {
