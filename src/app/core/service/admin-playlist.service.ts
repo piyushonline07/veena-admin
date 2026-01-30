@@ -32,7 +32,7 @@ export interface UpdatePlaylistRequest {
   providedIn: 'root'
 })
 export class AdminPlaylistService {
-  private apiUrl = `${environment.apiUrl}/admin/playlists`;
+  private apiUrl = `${environment.apiBaseUrl}/admin/playlists`;
 
   constructor(private http: HttpClient) {}
 
