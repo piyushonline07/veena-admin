@@ -33,7 +33,7 @@ export interface PlayRequest {
 })
 export class MediaService {
     private apiUrl = `${environment.apiBaseUrl}/api/admin/media`;
-    private userApiUrl = `${environment.apiBaseUrl}/api/user/media`;
+    private userApiUrl = `${environment.apiBaseUrl}/api/media`;
 
     constructor(private http: HttpClient) { }
 

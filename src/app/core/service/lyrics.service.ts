@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 export interface LyricLine {
@@ -18,6 +18,7 @@ export class LyricsService {
 
     /**
      * Fetch and parse SRT or VTT lyrics file
+     * Uses fetch API directly to avoid auth interceptor adding headers
      */
     loadLyrics(url: string): Observable<LyricLine[]> {
         if (!url) {
@@ -26,7 +27,24 @@ export class LyricsService {
 
         console.log('[LyricsService] Fetching lyrics from:', url);
 
-        return this.http.get(url, { responseType: 'text' }).pipe(
+        // Use fetch API directly to bypass Angular interceptors
+        // This prevents Authorization header from being added which causes CORS preflight
+        return from(
+            fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit',
+                headers: {
+                    'Accept': 'text/vtt, text/plain, */*'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+        ).pipe(
             map((content: string) => this.parseLyrics(content, url)),
             catchError(err => {
                 console.error('Failed to load lyrics:', err);
