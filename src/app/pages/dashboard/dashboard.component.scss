@@ -208,6 +208,62 @@
     overflow: hidden;
   }
 
+  // Trending Period Tabs
+  .trending-tabs {
+    padding: 0 1rem 1rem 1rem;
+
+    .p-selectbutton-wrapper {
+      display: flex;
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      ::ng-deep .p-selectbutton {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        background: transparent;
+        border: none;
+
+        .p-button {
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 0.5rem 1rem;
+          font-size: 0.875rem;
+          color: var(--text-secondary);
+          transition: all 0.2s ease;
+          white-space: nowrap;
+
+          &:hover {
+            background: var(--bg-hover);
+            border-color: var(--primary-color);
+          }
+
+          &.p-highlight {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #ffffff;
+
+            &:hover {
+              background: var(--primary-color-dark, #5558e8);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .trending-tab-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
   .table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;

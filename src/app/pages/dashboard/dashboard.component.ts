@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AnalyticsService } from '../../core/service/analytics.service';
+import { AnalyticsService, TrendingMediaItem, AllTrendingResponse } from '../../core/service/analytics.service';
 import { AdminToolsService, PipelineStatus } from '../../core/service/admin-tools.service';
 
 
@@ -24,10 +24,21 @@ export class DashboardComponent implements OnInit {
   mauGrowth: number = 0;
   retentionRate: number = 0;
   avgSessionMinutes: number = 0;
-  trendingMedia: any[] = [];
   serverCost: string = '0.00';
   costUnit: string = 'USD';
   currentMonth: string = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  // Trending Media - Multi-period support
+  trendingPeriods = [
+    { key: '1_DAY', label: 'Today', icon: 'pi pi-clock' },
+    { key: '7_DAYS', label: 'This Week', icon: 'pi pi-calendar' },
+    { key: '30_DAYS', label: 'This Month', icon: 'pi pi-calendar-plus' },
+    { key: '1_YEAR', label: 'This Year', icon: 'pi pi-history' }
+  ];
+  selectedTrendingPeriod: string = '7_DAYS';
+  allTrendingMedia: AllTrendingResponse | null = null;
+  trendingMedia: TrendingMediaItem[] = [];
+  trendingLoading: boolean = false;
 
   // Pipeline Status
   pipelines: PipelineStatus[] = [];
@@ -43,6 +54,7 @@ export class DashboardComponent implements OnInit {
     this.loadChartData();
     this.loadServerCost();
     this.loadPipelineStatuses();
+    this.loadAllTrendingMedia();
   }
 
   loadServerCost() {
@@ -127,16 +139,37 @@ export class DashboardComponent implements OnInit {
         this.initializeMAUChart(labels, values);
       }
     });
+  }
 
-    // Load Trending Media
-    this.analyticsService.getTrendingMedia().subscribe({
-      next: (data: any[]) => {
-        this.trendingMedia = data;
+  loadAllTrendingMedia() {
+    this.trendingLoading = true;
+    this.analyticsService.getAllTrendingMedia().subscribe({
+      next: (data: AllTrendingResponse) => {
+        this.allTrendingMedia = data;
+        this.updateTrendingDisplay();
+        this.trendingLoading = false;
       },
       error: (err: any) => {
         console.error('Failed to load trending media', err);
+        this.trendingLoading = false;
       }
     });
+  }
+
+  onTrendingPeriodChange(period: string) {
+    this.selectedTrendingPeriod = period;
+    this.updateTrendingDisplay();
+  }
+
+  updateTrendingDisplay() {
+    if (this.allTrendingMedia) {
+      this.trendingMedia = this.allTrendingMedia[this.selectedTrendingPeriod as keyof AllTrendingResponse] || [];
+    }
+  }
+
+  getPeriodLabel(period: string): string {
+    const found = this.trendingPeriods.find(p => p.key === period);
+    return found ? found.label : period;
   }
 
   initializeDAUChart(labels: string[], data: number[]) {

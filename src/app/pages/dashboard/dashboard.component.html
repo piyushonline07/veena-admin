@@ -111,16 +111,41 @@
           <i class="pi pi-bolt"></i>
           <span>Top Performing Media</span>
         </div>
-        <span class="chart-subtitle hide-mobile">Real-time trending based on play counts</span>
+        <span class="chart-subtitle hide-mobile">Trending based on play counts</span>
+        <button pButton icon="pi pi-refresh" class="p-button-text p-button-sm ml-auto"
+          (click)="loadAllTrendingMedia()" [loading]="trendingLoading"
+          pTooltip="Refresh trending data"></button>
       </div>
-      <div class="table-wrapper">
+
+      <!-- Period Tabs -->
+      <div class="trending-tabs">
+        <div class="p-selectbutton-wrapper">
+          <p-selectButton [options]="trendingPeriods" [(ngModel)]="selectedTrendingPeriod"
+            (onChange)="onTrendingPeriodChange($event.value)" optionLabel="label" optionValue="key">
+            <ng-template let-item pTemplate="item">
+              <div class="trending-tab-item">
+                <i [class]="item.icon"></i>
+                <span>{{item.label}}</span>
+              </div>
+            </ng-template>
+          </p-selectButton>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="trendingLoading" class="flex justify-content-center p-4">
+        <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+      </div>
+
+      <!-- Trending Table -->
+      <div class="table-wrapper" *ngIf="!trendingLoading">
         <p-table [value]="trendingMedia" styleClass="p-datatable-sm" [responsive]="true" [scrollable]="true">
           <ng-template pTemplate="header">
             <tr>
               <th style="width: 60px; min-width: 60px;">Rank</th>
               <th style="min-width: 150px;">Media Title</th>
               <th style="width: 80px; min-width: 80px;">Type</th>
-              <th style="width: 100px; min-width: 100px;" class="hide-mobile">Total Plays</th>
+              <th style="width: 100px; min-width: 100px;" class="hide-mobile">Plays</th>
               <th style="width: 150px; min-width: 150px;" class="hide-mobile">Last Updated</th>
             </tr>
           </ng-template>
@@ -150,7 +175,9 @@
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="5" class="text-center p-4">No trending data available yet.</td>
+              <td colspan="5" class="text-center p-4">
+                No trending data available for {{ getPeriodLabel(selectedTrendingPeriod) }}.
+              </td>
             </tr>
           </ng-template>
         </p-table>
