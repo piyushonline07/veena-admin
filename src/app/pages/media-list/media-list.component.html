@@ -338,7 +338,9 @@
         <!-- Video Preview -->
         <div *ngIf="selectedMediaForPreview.mediaType === 'VIDEO'" class="video-preview">
             <app-hls-player [url]="selectedMediaForPreview.hlsUrl"
-                [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''" [mediaType]="selectedMediaForPreview.mediaType"
+                [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''"
+                [mediaType]="selectedMediaForPreview.mediaType"
+                [mediaId]="selectedMediaForPreview.id"
                 maxHeight="500px">
             </app-hls-player>
         </div>
@@ -348,7 +350,8 @@
             <app-hls-audio-player
                 [url]="selectedMediaForPreview.hlsUrl"
                 [posterUrl]="selectedMediaForPreview.thumbnailUrl || ''"
-                [lyricsUrl]="selectedMediaForPreview.lyricsUrl || ''">
+                [lyricsUrl]="selectedMediaForPreview.lyricsUrl || ''"
+                [mediaId]="selectedMediaForPreview.id">
             </app-hls-audio-player>
         </div>
 

@@ -11,6 +11,7 @@ import {
   EventEmitter
 } from '@angular/core';
 import Hls from 'hls.js';
+import { MediaService } from '../../service/media.service';
 
 @Component({
   selector: 'app-hls-audio-player',
@@ -274,6 +275,7 @@ export class HlsAudioPlayerComponent
   @Input() url: string = '';
   @Input() posterUrl: string = '';
   @Input() lyricsUrl: string = '';
+  @Input() mediaId: string = '';
 
   @Output() timeUpdate = new EventEmitter<number>();
 
@@ -284,6 +286,9 @@ export class HlsAudioPlayerComponent
   duration: number = 0;
   isPlaying: boolean = false;
   private hls?: Hls;
+  private playRecorded: boolean = false;
+
+  constructor(private mediaService: MediaService) {}
 
   ngAfterViewInit() {
     console.log('[HlsAudioPlayer] Initialized with lyricsUrl:', this.lyricsUrl);
@@ -294,7 +299,11 @@ export class HlsAudioPlayerComponent
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['url'] && !changes['url'].firstChange) {
+      this.playRecorded = false; // Reset for new media
       this.initPlayer();
+    }
+    if (changes['mediaId']) {
+      this.playRecorded = false; // Reset for new media
     }
   }
 
@@ -311,6 +320,14 @@ export class HlsAudioPlayerComponent
 
   onPlay(): void {
     this.isPlaying = true;
+    // Record play event when audio starts playing
+    if (!this.playRecorded && this.mediaId) {
+      this.playRecorded = true;
+      this.mediaService.recordPlay(this.mediaId, 0).subscribe({
+        next: () => console.log('Play recorded for audio:', this.mediaId),
+        error: (err) => console.warn('Failed to record play:', err)
+      });
+    }
   }
 
   onPause(): void {
@@ -353,6 +370,7 @@ export class HlsAudioPlayerComponent
     if (!this.url) return;
 
     this.cleanUp();
+    this.playRecorded = false;
 
     const audio = this.audioPlayer.nativeElement;
 

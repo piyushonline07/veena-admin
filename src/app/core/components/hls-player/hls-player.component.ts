@@ -9,6 +9,7 @@ import {
   AfterViewInit
 } from '@angular/core';
 import Hls from 'hls.js';
+import { MediaService } from '../../service/media.service';
 
 @Component({
   selector: 'app-hls-player',
@@ -21,7 +22,8 @@ import Hls from 'hls.js';
         playsinline
         crossorigin="anonymous"
         class="w-full h-full block"
-        [style.max-height]="maxHeight">
+        [style.max-height]="maxHeight"
+        (play)="onPlay()">
       </video>
     </div>
   `,
@@ -44,11 +46,15 @@ export class HlsPlayerComponent
   @Input() posterUrl: string = '';
   @Input() mediaType: 'VIDEO' | 'AUDIO' = 'VIDEO';
   @Input() maxHeight: string = '500px';
+  @Input() mediaId: string = '';
 
   @ViewChild('mediaPlayer', { static: true })
   mediaPlayer!: ElementRef<HTMLVideoElement>;
 
   private hls?: Hls;
+  private playRecorded: boolean = false;
+
+  constructor(private mediaService: MediaService) {}
 
   ngAfterViewInit() {
     if (this.url) {
@@ -58,7 +64,25 @@ export class HlsPlayerComponent
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['url'] && !changes['url'].firstChange) {
+      this.playRecorded = false; // Reset for new media
       this.initPlayer();
+    }
+    if (changes['mediaId']) {
+      this.playRecorded = false; // Reset for new media
+    }
+  }
+
+  /**
+   * Called when video starts playing.
+   * Records the play event to the backend API.
+   */
+  onPlay(): void {
+    if (!this.playRecorded && this.mediaId) {
+      this.playRecorded = true;
+      this.mediaService.recordPlay(this.mediaId, 0).subscribe({
+        next: () => console.log('Play recorded for video:', this.mediaId),
+        error: (err) => console.warn('Failed to record play:', err)
+      });
     }
   }
 
@@ -66,6 +90,7 @@ export class HlsPlayerComponent
     if (!this.url) return;
 
     this.cleanUp();
+    this.playRecorded = false;
 
     const video = this.mediaPlayer.nativeElement;
 

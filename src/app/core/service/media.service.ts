@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface BatchUpdateRequest {
@@ -23,13 +24,44 @@ export interface UploadProgress {
     error?: any;
 }
 
+export interface PlayRequest {
+    position?: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class MediaService {
     private apiUrl = `${environment.apiBaseUrl}/api/admin/media`;
+    private userApiUrl = `${environment.apiBaseUrl}/api/user/media`;
 
     constructor(private http: HttpClient) { }
+
+    /**
+     * Record a play event for a media item.
+     * This updates play counts and user history for trending calculations.
+     * @param mediaId The UUID of the media being played
+     * @param position Optional playback position in seconds
+     */
+    recordPlay(mediaId: string, position?: number): Observable<void> {
+        if (!mediaId) {
+            console.warn('recordPlay called without mediaId');
+            return of(undefined);
+        }
+
+        const body: PlayRequest = {};
+        if (position !== undefined) {
+            body.position = position;
+        }
+
+        return this.http.post<void>(`${this.userApiUrl}/${mediaId}/play`, body).pipe(
+            catchError((error) => {
+                // Log but don't throw - play tracking should not block playback
+                console.error('Failed to record play:', error);
+                return of(undefined);
+            })
+        );
+    }
 
     uploadMedia(formData: FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/upload`, formData);
