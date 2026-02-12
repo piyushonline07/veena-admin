@@ -359,7 +359,7 @@
 
 <!-- Followers Dialog -->
 <p-dialog header="Artist Followers" [(visible)]="followersDialog" [modal]="true"
-    [style]="{width: '700px', maxHeight: '80vh'}" [draggable]="false" [resizable]="false"
+    [style]="{width: '950px', maxHeight: '80vh'}" [draggable]="false" [resizable]="false"
     styleClass="followers-dialog" (onHide)="closeFollowersDialog()">
 
     <div *ngIf="selectedArtistForFollowers" class="followers-content">
@@ -403,6 +403,8 @@
                             <th style="width: 50px"></th>
                             <th>User</th>
                             <th>Email</th>
+                            <th>Birthday</th>
+                            <th>Location</th>
                             <th>Followed On</th>
                         </tr>
                     </ng-template>
@@ -420,6 +422,20 @@
                             </td>
                             <td>
                                 <span class="follower-email">{{ follower.userEmail || '-' }}</span>
+                            </td>
+                            <td>
+                                <span class="follower-birthday" *ngIf="follower.birthDate">{{ follower.birthDate | date:'mediumDate' }}</span>
+                                <span class="text-secondary" *ngIf="!follower.birthDate">-</span>
+                            </td>
+                            <td>
+                                <div *ngIf="follower.latitude && follower.longitude" class="follower-location">
+                                    <a [href]="'https://www.google.com/maps?q=' + follower.latitude + ',' + follower.longitude"
+                                       target="_blank" class="location-link" pTooltip="View on Google Maps">
+                                        <i class="pi pi-map-marker"></i>
+                                        <span>{{ follower.latitude | number:'1.2-2' }}, {{ follower.longitude | number:'1.2-2' }}</span>
+                                    </a>
+                                </div>
+                                <span class="text-secondary" *ngIf="!follower.latitude || !follower.longitude">-</span>
                             </td>
                             <td>
                                 <span class="follower-date">{{ formatDate(follower.followedAt) }}</span>

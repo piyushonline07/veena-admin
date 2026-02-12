@@ -28,6 +28,9 @@ export interface ArtistFollower {
     userName: string;
     userEmail: string;
     userPhotoUrl?: string;
+    birthDate?: string;
+    latitude?: number;
+    longitude?: number;
     followedAt: string;
 }
 

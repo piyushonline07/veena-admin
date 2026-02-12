@@ -75,25 +75,62 @@
     </div>
 </div>
 
-<p-dialog [(visible)]="userDialog" [style]="{width: '500px'}" header="User Details" [modal]="true" class="p-fluid">
+<p-dialog [(visible)]="userDialog" [style]="{width: '550px'}" header="User Details" [modal]="true" class="p-fluid">
     <ng-template pTemplate="content">
         <div class="user-details-grid">
+            <!-- User Photo -->
+            <div class="detail-item mb-3 text-center" *ngIf="selectedUser.photoUrl">
+                <img [src]="selectedUser.photoUrl" alt="User Photo" class="user-photo-large" />
+            </div>
+
             <div class="detail-item mb-3">
                 <label class="block text-secondary text-sm mb-1">User ID</label>
-                <div class="font-medium p-2 bg-gray-100 border-round">{{selectedUser.id}}</div>
+                <div class="font-medium p-2 bg-gray-100 border-round text-sm">{{selectedUser.id}}</div>
             </div>
             <div class="detail-item mb-3">
                 <label class="block text-secondary text-sm mb-1">Cognito ID</label>
-                <div class="font-medium p-2 bg-gray-100 border-round">{{selectedUser.cognitoUserId}}</div>
+                <div class="font-medium p-2 bg-gray-100 border-round text-sm">{{selectedUser.cognitoUserId}}</div>
             </div>
             <div class="detail-item mb-3">
                 <label class="block text-secondary text-sm mb-1">Full Name</label>
-                <div class="font-medium text-lg">{{selectedUser.name}}</div>
+                <div class="font-medium text-lg">{{selectedUser.name || '-'}}</div>
             </div>
             <div class="detail-item mb-3">
                 <label class="block text-secondary text-sm mb-1">Email Address</label>
-                <div class="font-medium">{{selectedUser.email}}</div>
+                <div class="font-medium">{{selectedUser.email || '-'}}</div>
             </div>
+
+            <!-- Birthday -->
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">
+                    <i class="pi pi-calendar mr-1"></i> Birthday
+                </label>
+                <div class="font-medium">
+                    <span *ngIf="selectedUser.birthDate">{{selectedUser.birthDate | date:'mediumDate'}}</span>
+                    <span *ngIf="!selectedUser.birthDate" class="text-secondary">Not provided</span>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">
+                    <i class="pi pi-map-marker mr-1"></i> Location
+                </label>
+                <div class="font-medium">
+                    <div *ngIf="selectedUser.latitude && selectedUser.longitude" class="location-info">
+                        <span class="location-coords">
+                            Lat: {{selectedUser.latitude | number:'1.4-4'}},
+                            Lng: {{selectedUser.longitude | number:'1.4-4'}}
+                        </span>
+                        <a [href]="'https://www.google.com/maps?q=' + selectedUser.latitude + ',' + selectedUser.longitude"
+                           target="_blank" class="map-link ml-2" pTooltip="View on Google Maps">
+                            <i class="pi pi-external-link"></i>
+                        </a>
+                    </div>
+                    <span *ngIf="!selectedUser.latitude || !selectedUser.longitude" class="text-secondary">Not provided</span>
+                </div>
+            </div>
+
             <div class="detail-item mb-3">
                 <label class="block text-secondary text-sm mb-1">Role</label>
                 <div class="flex align-items-center gap-2">
