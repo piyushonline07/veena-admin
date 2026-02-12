@@ -102,6 +102,17 @@
               <div class="stat-value">{{ formatNumber(selectedArtist.monthlyListeners) }}</div>
               <div class="stat-label">Monthly Listeners</div>
             </div>
+            <div class="stat-card clickable" (click)="openFollowersDialog(selectedArtist)">
+              <i class="pi pi-heart"></i>
+              <div class="stat-value">{{ formatNumber(selectedArtist.followerCount) }}</div>
+              <div class="stat-label">Followers</div>
+              <small class="view-link">Click to view</small>
+            </div>
+            <div class="stat-card">
+              <i class="pi pi-play"></i>
+              <div class="stat-value">{{ formatNumber(selectedArtist.totalPlays) }}</div>
+              <div class="stat-label">Total Plays</div>
+            </div>
           </div>
 
           <!-- Bio -->
@@ -341,6 +352,91 @@
                        [value]="selectedSongForPreview.album.name"
                        severity="secondary">
                 </p-tag>
+            </div>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Followers Dialog -->
+<p-dialog header="Artist Followers" [(visible)]="followersDialog" [modal]="true"
+    [style]="{width: '700px', maxHeight: '80vh'}" [draggable]="false" [resizable]="false"
+    styleClass="followers-dialog" (onHide)="closeFollowersDialog()">
+
+    <div *ngIf="selectedArtistForFollowers" class="followers-content">
+        <!-- Artist Header -->
+        <div class="followers-artist-header">
+            <div class="artist-avatar-small">
+                <img *ngIf="selectedArtistForFollowers.imageUrl" [src]="selectedArtistForFollowers.imageUrl"
+                     [alt]="selectedArtistForFollowers.name" />
+                <i *ngIf="!selectedArtistForFollowers.imageUrl" class="pi pi-user"></i>
+            </div>
+            <div class="artist-header-info">
+                <h3>{{ selectedArtistForFollowers.name }}</h3>
+                <div class="follower-count-badge">
+                    <i class="pi pi-heart-fill"></i>
+                    <span>{{ followersTotalRecords }} Followers</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Followers List -->
+        <div class="followers-list-container">
+            <!-- Loading State -->
+            <div *ngIf="followersLoading" class="followers-loading">
+                <p-progressSpinner strokeWidth="4" [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+                <p>Loading followers...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!followersLoading && followers.length === 0" class="followers-empty">
+                <i class="pi pi-users"></i>
+                <p>No followers yet</p>
+                <small>Users who follow this artist will appear here</small>
+            </div>
+
+            <!-- Followers Table -->
+            <div *ngIf="!followersLoading && followers.length > 0" class="followers-table-wrapper">
+                <p-table [value]="followers" [tableStyle]="{'min-width': '100%'}"
+                         styleClass="p-datatable-sm followers-table">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 50px"></th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Followed On</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-follower>
+                        <tr>
+                            <td>
+                                <div class="follower-avatar">
+                                    <img *ngIf="follower.userPhotoUrl" [src]="follower.userPhotoUrl"
+                                         [alt]="follower.userName" />
+                                    <i *ngIf="!follower.userPhotoUrl" class="pi pi-user"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="follower-name">{{ follower.userName || 'Unknown User' }}</span>
+                            </td>
+                            <td>
+                                <span class="follower-email">{{ follower.userEmail || '-' }}</span>
+                            </td>
+                            <td>
+                                <span class="follower-date">{{ formatDate(follower.followedAt) }}</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- Pagination -->
+                <p-paginator *ngIf="followersTotalRecords > followersRows"
+                    [rows]="followersRows"
+                    [totalRecords]="followersTotalRecords"
+                    [first]="followersFirst"
+                    (onPageChange)="onFollowersPageChange($event)"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} followers">
+                </p-paginator>
             </div>
         </div>
     </div>

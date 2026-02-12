@@ -246,19 +246,22 @@
             <div class="form-section">
                 <h4 class="section-title"><i class="pi pi-pencil"></i> Credits</h4>
                 <div class="field mb-3">
-                    <label for="writerName" class="block font-bold mb-2">Writer</label>
-                    <input type="text" pInputText id="writerName" [(ngModel)]="selectedMedia.writerName"
-                           placeholder="Song writer name" class="w-full" />
+                    <label for="composerId" class="block font-bold mb-2">Composer</label>
+                    <p-dropdown [options]="composersList" [(ngModel)]="selectedMedia.composerId"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Composer" [showClear]="true" [filter]="true"
+                        class="w-full" id="composerId">
+                    </p-dropdown>
+                    <small class="text-secondary">Music composer</small>
                 </div>
                 <div class="field mb-3">
-                    <label for="composerName" class="block font-bold mb-2">Composer</label>
-                    <input type="text" pInputText id="composerName" [(ngModel)]="selectedMedia.composerName"
-                           placeholder="Music composer name" class="w-full" />
-                </div>
-                <div class="field mb-3">
-                    <label for="lyricistName" class="block font-bold mb-2">Lyricist</label>
-                    <input type="text" pInputText id="lyricistName" [(ngModel)]="selectedMedia.lyricistName"
-                           placeholder="Lyrics writer name" class="w-full" />
+                    <label for="lyricistId" class="block font-bold mb-2">Lyricist</label>
+                    <p-dropdown [options]="lyricistsList" [(ngModel)]="selectedMedia.lyricistId"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Lyricist" [showClear]="true" [filter]="true"
+                        class="w-full" id="lyricistId">
+                    </p-dropdown>
+                    <small class="text-secondary">Lyrics writer</small>
                 </div>
             </div>
 

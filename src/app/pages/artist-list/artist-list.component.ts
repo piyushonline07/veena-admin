@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ArtistService, Artist } from '../../core/service/artist.service';
+import { ArtistService, Artist, ArtistFollower } from '../../core/service/artist.service';
 import { MediaService } from '../../core/service/media.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
@@ -38,6 +38,15 @@ export class ArtistListComponent implements OnInit {
     // Media preview dialog
     previewDialog: boolean = false;
     selectedSongForPreview: any = null;
+
+    // Followers dialog state
+    followersDialog: boolean = false;
+    selectedArtistForFollowers: Artist | null = null;
+    followers: ArtistFollower[] = [];
+    followersTotalRecords: number = 0;
+    followersLoading: boolean = false;
+    followersRows: number = 10;
+    followersFirst: number = 0;
 
     constructor(
         private artistService: ArtistService,
@@ -279,5 +288,58 @@ export class ArtistListComponent implements OnInit {
     closePreview(): void {
         this.previewDialog = false;
         this.selectedSongForPreview = null;
+    }
+
+    // ==================== Followers Dialog Methods ====================
+
+    openFollowersDialog(artist: Artist): void {
+        this.selectedArtistForFollowers = artist;
+        this.followers = [];
+        this.followersTotalRecords = 0;
+        this.followersFirst = 0;
+        this.followersDialog = true;
+        this.loadFollowers(0, this.followersRows);
+    }
+
+    closeFollowersDialog(): void {
+        this.followersDialog = false;
+        this.selectedArtistForFollowers = null;
+        this.followers = [];
+    }
+
+    loadFollowers(page: number, size: number): void {
+        if (!this.selectedArtistForFollowers?.id) return;
+
+        this.followersLoading = true;
+        this.artistService.getArtistFollowers(this.selectedArtistForFollowers.id, page, size).subscribe({
+            next: (data) => {
+                this.followers = data.content;
+                this.followersTotalRecords = data.totalElements;
+                this.followersLoading = false;
+            },
+            error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load followers' });
+                this.followersLoading = false;
+                console.error(err);
+            }
+        });
+    }
+
+    onFollowersPageChange(event: any): void {
+        const page = event.page !== undefined ? event.page : Math.floor(event.first / event.rows);
+        this.followersFirst = event.first;
+        this.loadFollowers(page, event.rows);
+    }
+
+    formatDate(dateString: string): string {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 }

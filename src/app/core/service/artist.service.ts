@@ -16,10 +16,27 @@ export interface Artist {
     websiteUrl?: string;
     monthlyListeners?: number;
     totalPlays?: number;
+    followerCount?: number;
     verified?: boolean;
     active?: boolean;
     createdAt?: string;
     updatedAt?: string;
+}
+
+export interface ArtistFollower {
+    userId: string;
+    userName: string;
+    userEmail: string;
+    userPhotoUrl?: string;
+    followedAt: string;
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
 }
 
 @Injectable({
@@ -77,5 +94,21 @@ export class ArtistService {
         formData.append('name', artistName);
         formData.append('image', image);
         return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/image`, formData);
+    }
+
+    /**
+     * Get followers of an artist (paginated)
+     */
+    getArtistFollowers(artistId: number, page: number, size: number): Observable<PageResponse<ArtistFollower>> {
+        return this.http.get<PageResponse<ArtistFollower>>(
+            `${this.apiUrl}/${artistId}/followers?page=${page}&size=${size}`
+        );
+    }
+
+    /**
+     * Get follower count for an artist
+     */
+    getFollowerCount(artistId: number): Observable<{ count: number }> {
+        return this.http.get<{ count: number }>(`${this.apiUrl}/${artistId}/followers/count`);
     }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
 import { ArtistService } from '../../core/service/artist.service';
 import { AlbumService } from '../../core/service/album.service';
+import { CreditService, Credit } from '../../core/service/credit.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
@@ -29,6 +30,10 @@ export class MediaListComponent implements OnInit {
     artistsList: any[] = [];
     albumsList: any[] = [];
 
+    // Credits for dropdowns
+    composersList: Credit[] = [];
+    lyricistsList: Credit[] = [];
+
     // File upload state
     newThumbnailFile: File | null = null;
     newLyricsFile: File | null = null;
@@ -43,6 +48,7 @@ export class MediaListComponent implements OnInit {
         private mediaService: MediaService,
         private artistService: ArtistService,
         private albumService: AlbumService,
+        private creditService: CreditService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) { }
@@ -50,6 +56,29 @@ export class MediaListComponent implements OnInit {
     ngOnInit(): void {
         this.loadMedia(0, this.rows);
         this.loadArtistsAndAlbums();
+        this.loadCredits();
+    }
+
+    loadCredits(): void {
+        // Load composers
+        this.creditService.getAllComposers().subscribe({
+            next: (data) => {
+                this.composersList = data || [];
+            },
+            error: () => {
+                console.error('Failed to load composers');
+            }
+        });
+
+        // Load lyricists
+        this.creditService.getAllLyricists().subscribe({
+            next: (data) => {
+                this.lyricistsList = data || [];
+            },
+            error: () => {
+                console.error('Failed to load lyricists');
+            }
+        });
     }
 
     loadArtistsAndAlbums(): void {
@@ -117,9 +146,8 @@ export class MediaListComponent implements OnInit {
             artistId: media.artist?.id || null,
             albumId: media.album?.id || null,
             subArtistIds: media.subArtists?.map((a: any) => a.id) || [],
-            writerName: media.writerName || '',
-            composerName: media.composerName || '',
-            lyricistName: media.lyricistName || ''
+            composerId: media.composer?.id || null,
+            lyricistId: media.lyricist?.id || null
         };
         this.newThumbnailFile = null;
         this.newLyricsFile = null;
@@ -181,9 +209,8 @@ export class MediaListComponent implements OnInit {
         // Check if we need to upload files
         const hasFiles = this.newThumbnailFile || this.newLyricsFile;
         const hasRelationshipChanges = this.selectedMedia.artistId !== undefined || this.selectedMedia.albumId !== undefined;
-        const hasCreditsChanges = this.selectedMedia.writerName !== undefined ||
-                                  this.selectedMedia.composerName !== undefined ||
-                                  this.selectedMedia.lyricistName !== undefined;
+        const hasCreditsChanges = this.selectedMedia.composerId !== undefined ||
+                                  this.selectedMedia.lyricistId !== undefined;
         const hasSubArtists = this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0;
 
         if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists) {
@@ -207,15 +234,12 @@ export class MediaListComponent implements OnInit {
                 });
             }
 
-            // Writer/Composer/Lyricist credits
-            if (this.selectedMedia.writerName !== undefined) {
-                formData.append('writerName', this.selectedMedia.writerName || '');
+            // Composer/Lyricist credits (as artist IDs)
+            if (this.selectedMedia.composerId !== undefined) {
+                formData.append('composerId', this.selectedMedia.composerId?.toString() || '0');
             }
-            if (this.selectedMedia.composerName !== undefined) {
-                formData.append('composerName', this.selectedMedia.composerName || '');
-            }
-            if (this.selectedMedia.lyricistName !== undefined) {
-                formData.append('lyricistName', this.selectedMedia.lyricistName || '');
+            if (this.selectedMedia.lyricistId !== undefined) {
+                formData.append('lyricistId', this.selectedMedia.lyricistId?.toString() || '0');
             }
 
             if (this.newThumbnailFile) {
