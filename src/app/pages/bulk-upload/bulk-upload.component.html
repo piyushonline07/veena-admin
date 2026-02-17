@@ -21,7 +21,7 @@
             <div class="upload-area p-4 border-2 border-dashed border-round mb-3 text-center"
                 [class.border-primary]="filesToUpload.length > 0">
                 <p-fileUpload mode="basic" [multiple]="true"
-                    accept=".mp3,.mp4,.jpg,.jpeg,.png,.webp,.vtt"
+                    accept=".mp3,.wav,.mp4,.jpg,.jpeg,.png,.webp,.vtt"
                     (onSelect)="onFilesSelected($event)"
                     [auto]="false"
                     chooseLabel="Select Files"
@@ -42,7 +42,7 @@
                 <div class="col-12 md:col-4">
                     <div class="p-2 border-round surface-ground">
                         <span class="font-medium text-primary"><i class="pi pi-volume-up mr-1"></i> Audio/Video</span>
-                        <p class="text-sm text-secondary mt-1 mb-0">MP3 (audio), MP4 (video)</p>
+                        <p class="text-sm text-secondary mt-1 mb-0">MP3, WAV (audio), MP4 (video)</p>
                     </div>
                 </div>
                 <div class="col-12 md:col-4">
