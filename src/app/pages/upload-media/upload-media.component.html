@@ -101,6 +101,16 @@
                             <a routerLink="/credits" class="text-primary">Manage Lyricists</a>
                         </small>
                     </div>
+                    <div class="col-12 md:col-6 field">
+                        <label for="producer">Producer</label>
+                        <p-dropdown [options]="producers" [(ngModel)]="selectedProducer" optionLabel="name"
+                            placeholder="Select Producer" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}" id="producer">
+                        </p-dropdown>
+                        <small class="text-secondary mt-1 block">
+                            <a routerLink="/credits" class="text-primary">Manage Producers</a>
+                        </small>
+                    </div>
 
                     <div class="col-12">
                         <p-divider align="left">

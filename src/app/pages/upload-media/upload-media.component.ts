@@ -34,8 +34,10 @@ export class UploadMediaComponent implements OnInit {
     // Credit entity selections (dropdown)
     composers: Credit[] = [];
     lyricists: Credit[] = [];
+    producers: Credit[] = [];
     selectedComposer: Credit | null = null;
     selectedLyricist: Credit | null = null;
+    selectedProducer: Credit | null = null;
 
     // Album selection
     albums: Album[] = [];
@@ -91,6 +93,10 @@ export class UploadMediaComponent implements OnInit {
         this.creditService.getAllLyricists().subscribe({
             next: (data) => this.lyricists = data,
             error: (err) => console.error('Failed to load lyricists', err)
+        });
+        this.creditService.getAllProducers().subscribe({
+            next: (data) => this.producers = data,
+            error: (err) => console.error('Failed to load producers', err)
         });
     }
 
@@ -148,6 +154,9 @@ export class UploadMediaComponent implements OnInit {
         if (this.selectedLyricist?.id) {
             formData.append('lyricistId', this.selectedLyricist.id.toString());
         }
+        if (this.selectedProducer?.id) {
+            formData.append('producerId', this.selectedProducer.id.toString());
+        }
 
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
@@ -187,6 +196,7 @@ export class UploadMediaComponent implements OnInit {
         this.lyricistName = '';
         this.selectedComposer = null;
         this.selectedLyricist = null;
+        this.selectedProducer = null;
         this.selectedAlbum = null;
         this.file = null;
         this.thumbnail = null;

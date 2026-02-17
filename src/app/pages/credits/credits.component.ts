@@ -9,16 +9,18 @@ import { MessageService, ConfirmationService } from 'primeng/api';
   providers: [MessageService, ConfirmationService]
 })
 export class CreditsComponent implements OnInit {
-  // Tab index: 0 = Composers, 1 = Lyricists
+  // Tab index: 0 = Composers, 1 = Lyricists, 2 = Producers
   activeTab: number = 0;
 
   // Data
   composers: Credit[] = [];
   lyricists: Credit[] = [];
+  producers: Credit[] = [];
 
   // Loading states
   loadingComposers = false;
   loadingLyricists = false;
+  loadingProducers = false;
 
   // Dialog state
   showDialog = false;
@@ -37,7 +39,8 @@ export class CreditsComponent implements OnInit {
 
   creditTypes = [
     { label: 'Composer', value: 'COMPOSER' },
-    { label: 'Lyricist', value: 'LYRICIST' }
+    { label: 'Lyricist', value: 'LYRICIST' },
+    { label: 'Producer', value: 'PRODUCER' }
   ];
 
   constructor(
@@ -53,6 +56,7 @@ export class CreditsComponent implements OnInit {
   loadAllCredits(): void {
     this.loadComposers();
     this.loadLyricists();
+    this.loadProducers();
   }
 
   loadComposers(): void {
@@ -83,11 +87,26 @@ export class CreditsComponent implements OnInit {
     });
   }
 
+  loadProducers(): void {
+    this.loadingProducers = true;
+    this.creditService.getAllProducers().subscribe({
+      next: (data) => {
+        this.producers = data;
+        this.loadingProducers = false;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load producers' });
+        this.loadingProducers = false;
+      }
+    });
+  }
+
   // Get current type based on active tab
   getCurrentType(): CreditType {
     switch (this.activeTab) {
       case 0: return 'COMPOSER';
       case 1: return 'LYRICIST';
+      case 2: return 'PRODUCER';
       default: return 'COMPOSER';
     }
   }
@@ -96,6 +115,7 @@ export class CreditsComponent implements OnInit {
     switch (type) {
       case 'COMPOSER': return 'Composer';
       case 'LYRICIST': return 'Lyricist';
+      case 'PRODUCER': return 'Producer';
       default: return type;
     }
   }

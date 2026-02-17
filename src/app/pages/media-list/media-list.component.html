@@ -263,6 +263,15 @@
                     </p-dropdown>
                     <small class="text-secondary">Lyrics writer</small>
                 </div>
+                <div class="field mb-3">
+                    <label for="producerId" class="block font-bold mb-2">Producer</label>
+                    <p-dropdown [options]="producersList" [(ngModel)]="selectedMedia.producerId"
+                        optionLabel="name" optionValue="id"
+                        placeholder="Select Producer" [showClear]="true" [filter]="true"
+                        class="w-full" id="producerId">
+                    </p-dropdown>
+                    <small class="text-secondary">Music producer</small>
+                </div>
             </div>
 
             <!-- Media Files Section -->

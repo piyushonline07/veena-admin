@@ -33,6 +33,7 @@ export class MediaListComponent implements OnInit {
     // Credits for dropdowns
     composersList: Credit[] = [];
     lyricistsList: Credit[] = [];
+    producersList: Credit[] = [];
 
     // File upload state
     newThumbnailFile: File | null = null;
@@ -77,6 +78,16 @@ export class MediaListComponent implements OnInit {
             },
             error: () => {
                 console.error('Failed to load lyricists');
+            }
+        });
+
+        // Load producers
+        this.creditService.getAllProducers().subscribe({
+            next: (data) => {
+                this.producersList = data || [];
+            },
+            error: () => {
+                console.error('Failed to load producers');
             }
         });
     }
@@ -147,7 +158,8 @@ export class MediaListComponent implements OnInit {
             albumId: media.album?.id || null,
             subArtistIds: media.subArtists?.map((a: any) => a.id) || [],
             composerId: media.composer?.id || null,
-            lyricistId: media.lyricist?.id || null
+            lyricistId: media.lyricist?.id || null,
+            producerId: media.producer?.id || null
         };
         this.newThumbnailFile = null;
         this.newLyricsFile = null;
@@ -210,7 +222,8 @@ export class MediaListComponent implements OnInit {
         const hasFiles = this.newThumbnailFile || this.newLyricsFile;
         const hasRelationshipChanges = this.selectedMedia.artistId !== undefined || this.selectedMedia.albumId !== undefined;
         const hasCreditsChanges = this.selectedMedia.composerId !== undefined ||
-                                  this.selectedMedia.lyricistId !== undefined;
+                                  this.selectedMedia.lyricistId !== undefined ||
+                                  this.selectedMedia.producerId !== undefined;
         const hasSubArtists = this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0;
 
         if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists) {
@@ -234,12 +247,15 @@ export class MediaListComponent implements OnInit {
                 });
             }
 
-            // Composer/Lyricist credits (as artist IDs)
+            // Composer/Lyricist/Producer credits (as credit IDs)
             if (this.selectedMedia.composerId !== undefined) {
                 formData.append('composerId', this.selectedMedia.composerId?.toString() || '0');
             }
             if (this.selectedMedia.lyricistId !== undefined) {
                 formData.append('lyricistId', this.selectedMedia.lyricistId?.toString() || '0');
+            }
+            if (this.selectedMedia.producerId !== undefined) {
+                formData.append('producerId', this.selectedMedia.producerId?.toString() || '0');
             }
 
             if (this.newThumbnailFile) {

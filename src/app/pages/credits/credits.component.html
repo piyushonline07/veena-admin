@@ -27,6 +27,13 @@
                 <span class="stat-label">Lyricists</span>
             </div>
         </div>
+        <div class="stat-card">
+            <i class="pi pi-microphone"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{producers.length}}</span>
+                <span class="stat-label">Producers</span>
+            </div>
+        </div>
     </div>
 
     <!-- Tabs -->
@@ -95,6 +102,39 @@
                 <h3>No Lyricists</h3>
                 <p>Add your first lyricist to get started</p>
                 <p-button label="Add Lyricist" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+        </p-tabPanel>
+
+        <!-- Producers Tab -->
+        <p-tabPanel header="Producers" leftIcon="pi pi-microphone">
+            <div class="credits-grid" *ngIf="!loadingProducers && producers.length > 0">
+                <div class="credit-card" *ngFor="let credit of producers">
+                    <div class="card-avatar">
+                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
+                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
+                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
+                        <p-tag value="Producer" severity="info" styleClass="mt-2"></p-tag>
+                    </div>
+                    <div class="card-actions">
+                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
+                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
+                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-state" *ngIf="loadingProducers">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p>Loading producers...</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingProducers && producers.length === 0">
+                <i class="pi pi-inbox"></i>
+                <h3>No Producers</h3>
+                <p>Add your first producer to get started</p>
+                <p-button label="Add Producer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
             </div>
         </p-tabPanel>
     </p-tabView>
