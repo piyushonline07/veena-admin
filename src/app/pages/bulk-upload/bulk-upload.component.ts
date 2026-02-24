@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MediaService, BatchUpdateRequest, UploadProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
+import { CreditService, Credit } from '../../core/service/credit.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 interface UploadedMedia {
@@ -52,13 +53,19 @@ export class BulkUploadComponent implements OnInit {
     // Batch edit
     artists: Artist[] = [];
     albums: Album[] = [];
+    composers: Credit[] = [];
+    lyricists: Credit[] = [];
+    producers: Credit[] = [];
+    directors: Credit[] = [];
     selectedArtist: Artist | null = null;
     selectedSubArtists: Artist[] = [];
     selectedAlbum: Album | null = null;
+    selectedComposer: Credit | null = null;
+    selectedLyricist: Credit | null = null;
+    selectedProducer: Credit | null = null;
+    selectedDirector: Credit | null = null;
     batchTitle: string = '';
     batchDescription: string = '';
-    batchComposerName: string = '';
-    batchLyricistName: string = '';
     updating: boolean = false;
 
     // Publish
@@ -68,6 +75,7 @@ export class BulkUploadComponent implements OnInit {
         private mediaService: MediaService,
         private artistService: ArtistService,
         private albumService: AlbumService,
+        private creditService: CreditService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) { }
@@ -75,6 +83,10 @@ export class BulkUploadComponent implements OnInit {
     ngOnInit(): void {
         this.loadArtists();
         this.loadAlbums();
+        this.loadComposers();
+        this.loadLyricists();
+        this.loadProducers();
+        this.loadDirectors();
         this.loadDraftMedia();
     }
 
@@ -89,6 +101,34 @@ export class BulkUploadComponent implements OnInit {
         this.albumService.getAllActiveAlbums().subscribe({
             next: (albums) => this.albums = albums,
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load albums' })
+        });
+    }
+
+    loadComposers(): void {
+        this.creditService.getAllComposers().subscribe({
+            next: (composers) => this.composers = composers,
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load composers' })
+        });
+    }
+
+    loadLyricists(): void {
+        this.creditService.getAllLyricists().subscribe({
+            next: (lyricists) => this.lyricists = lyricists,
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load lyricists' })
+        });
+    }
+
+    loadProducers(): void {
+        this.creditService.getAllProducers().subscribe({
+            next: (producers) => this.producers = producers,
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load producers' })
+        });
+    }
+
+    loadDirectors(): void {
+        this.creditService.getAllDirectors().subscribe({
+            next: (directors) => this.directors = directors,
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load directors' })
         });
     }
 
@@ -275,11 +315,17 @@ export class BulkUploadComponent implements OnInit {
         if (this.batchDescription) {
             request.description = this.batchDescription;
         }
-        if (this.batchComposerName) {
-            request.composerName = this.batchComposerName;
+        if (this.selectedComposer) {
+            request.composerName = this.selectedComposer.name;
         }
-        if (this.batchLyricistName) {
-            request.lyricistName = this.batchLyricistName;
+        if (this.selectedLyricist) {
+            request.lyricistName = this.selectedLyricist.name;
+        }
+        if (this.selectedProducer) {
+            request.producerName = this.selectedProducer.name;
+        }
+        if (this.selectedDirector) {
+            request.directorName = this.selectedDirector.name;
         }
 
         this.updating = true;
@@ -307,10 +353,12 @@ export class BulkUploadComponent implements OnInit {
                 this.selectedArtist = null;
                 this.selectedSubArtists = [];
                 this.selectedAlbum = null;
+                this.selectedComposer = null;
+                this.selectedLyricist = null;
+                this.selectedProducer = null;
+                this.selectedDirector = null;
                 this.batchTitle = '';
                 this.batchDescription = '';
-                this.batchComposerName = '';
-                this.batchLyricistName = '';
                 this.updating = false;
             },
             error: () => {

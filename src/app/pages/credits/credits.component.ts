@@ -9,18 +9,20 @@ import { MessageService, ConfirmationService } from 'primeng/api';
   providers: [MessageService, ConfirmationService]
 })
 export class CreditsComponent implements OnInit {
-  // Tab index: 0 = Composers, 1 = Lyricists, 2 = Producers
+  // Tab index: 0 = Composers, 1 = Lyricists, 2 = Producers, 3 = Directors
   activeTab: number = 0;
 
   // Data
   composers: Credit[] = [];
   lyricists: Credit[] = [];
   producers: Credit[] = [];
+  directors: Credit[] = [];
 
   // Loading states
   loadingComposers = false;
   loadingLyricists = false;
   loadingProducers = false;
+  loadingDirectors = false;
 
   // Dialog state
   showDialog = false;
@@ -40,7 +42,8 @@ export class CreditsComponent implements OnInit {
   creditTypes = [
     { label: 'Composer', value: 'COMPOSER' },
     { label: 'Lyricist', value: 'LYRICIST' },
-    { label: 'Producer', value: 'PRODUCER' }
+    { label: 'Producer', value: 'PRODUCER' },
+    { label: 'Director', value: 'DIRECTOR' }
   ];
 
   constructor(
@@ -57,6 +60,7 @@ export class CreditsComponent implements OnInit {
     this.loadComposers();
     this.loadLyricists();
     this.loadProducers();
+    this.loadDirectors();
   }
 
   loadComposers(): void {
@@ -101,12 +105,27 @@ export class CreditsComponent implements OnInit {
     });
   }
 
+  loadDirectors(): void {
+    this.loadingDirectors = true;
+    this.creditService.getAllDirectors().subscribe({
+      next: (data) => {
+        this.directors = data;
+        this.loadingDirectors = false;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load directors' });
+        this.loadingDirectors = false;
+      }
+    });
+  }
+
   // Get current type based on active tab
   getCurrentType(): CreditType {
     switch (this.activeTab) {
       case 0: return 'COMPOSER';
       case 1: return 'LYRICIST';
       case 2: return 'PRODUCER';
+      case 3: return 'DIRECTOR';
       default: return 'COMPOSER';
     }
   }
@@ -116,6 +135,7 @@ export class CreditsComponent implements OnInit {
       case 'COMPOSER': return 'Composer';
       case 'LYRICIST': return 'Lyricist';
       case 'PRODUCER': return 'Producer';
+      case 'DIRECTOR': return 'Director';
       default: return type;
     }
   }

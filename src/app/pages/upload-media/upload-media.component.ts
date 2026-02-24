@@ -35,9 +35,11 @@ export class UploadMediaComponent implements OnInit {
     composers: Credit[] = [];
     lyricists: Credit[] = [];
     producers: Credit[] = [];
+    directors: Credit[] = [];
     selectedComposer: Credit | null = null;
     selectedLyricist: Credit | null = null;
     selectedProducer: Credit | null = null;
+    selectedDirector: Credit | null = null;
 
     // Album selection
     albums: Album[] = [];
@@ -98,6 +100,10 @@ export class UploadMediaComponent implements OnInit {
             next: (data) => this.producers = data,
             error: (err) => console.error('Failed to load producers', err)
         });
+        this.creditService.getAllDirectors().subscribe({
+            next: (data) => this.directors = data,
+            error: (err) => console.error('Failed to load directors', err)
+        });
     }
 
     onFileSelect(event: any, type: string) {
@@ -157,6 +163,9 @@ export class UploadMediaComponent implements OnInit {
         if (this.selectedProducer?.id) {
             formData.append('producerId', this.selectedProducer.id.toString());
         }
+        if (this.selectedDirector?.id) {
+            formData.append('directorId', this.selectedDirector.id.toString());
+        }
 
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
@@ -197,6 +206,7 @@ export class UploadMediaComponent implements OnInit {
         this.selectedComposer = null;
         this.selectedLyricist = null;
         this.selectedProducer = null;
+        this.selectedDirector = null;
         this.selectedAlbum = null;
         this.file = null;
         this.thumbnail = null;

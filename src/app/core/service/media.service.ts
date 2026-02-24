@@ -11,6 +11,8 @@ export interface BatchUpdateRequest {
     subArtistIds?: number[];
     composerName?: string;
     lyricistName?: string;
+    producerName?: string;
+    directorName?: string;
     title?: string;
     description?: string;
 }

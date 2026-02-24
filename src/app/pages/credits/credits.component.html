@@ -3,7 +3,7 @@
     <div class="page-header">
         <div class="header-content">
             <h1><i class="pi pi-users"></i> Credits Management</h1>
-            <p class="subtitle">Manage Composers and Lyricists</p>
+            <p class="subtitle">Manage Composers, Lyricists, Producers and Directors</p>
         </div>
         <div class="header-actions">
             <p-button label="Add New" icon="pi pi-plus"
@@ -32,6 +32,13 @@
             <div class="stat-info">
                 <span class="stat-value">{{producers.length}}</span>
                 <span class="stat-label">Producers</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="pi pi-video"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{directors.length}}</span>
+                <span class="stat-label">Directors</span>
             </div>
         </div>
     </div>
@@ -135,6 +142,39 @@
                 <h3>No Producers</h3>
                 <p>Add your first producer to get started</p>
                 <p-button label="Add Producer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+        </p-tabPanel>
+
+        <!-- Directors Tab -->
+        <p-tabPanel header="Directors" leftIcon="pi pi-video">
+            <div class="credits-grid" *ngIf="!loadingDirectors && directors.length > 0">
+                <div class="credit-card" *ngFor="let credit of directors">
+                    <div class="card-avatar">
+                        <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
+                        <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="credit-name" [pTooltip]="credit.name" tooltipPosition="top">{{credit.name}}</h3>
+                        <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
+                        <p-tag value="Director" severity="danger" styleClass="mt-2"></p-tag>
+                    </div>
+                    <div class="card-actions">
+                        <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
+                                  styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
+                                  styleClass="p-button-sm p-button-text p-button-danger" pTooltip="Delete"></p-button>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-state" *ngIf="loadingDirectors">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p>Loading directors...</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingDirectors && directors.length === 0">
+                <i class="pi pi-inbox"></i>
+                <h3>No Directors</h3>
+                <p>Add your first director to get started</p>
+                <p-button label="Add Director" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
             </div>
         </p-tabPanel>
     </p-tabView>

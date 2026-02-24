@@ -111,6 +111,16 @@
                             <a routerLink="/credits" class="text-primary">Manage Producers</a>
                         </small>
                     </div>
+                    <div class="col-12 md:col-6 field">
+                        <label for="director">Director</label>
+                        <p-dropdown [options]="directors" [(ngModel)]="selectedDirector" optionLabel="name"
+                            placeholder="Select Director" [showClear]="true" [filter]="true" filterBy="name"
+                            [style]="{'width': '100%'}" id="director">
+                        </p-dropdown>
+                        <small class="text-secondary mt-1 block">
+                            <a routerLink="/credits" class="text-primary">Manage Directors</a>
+                        </small>
+                    </div>
 
                     <div class="col-12">
                         <p-divider align="left">
@@ -126,9 +136,9 @@
                     <div class="col-12 md:col-6 field">
                         <label>Source File (Video/Audio)</label>
                         <p-fileUpload mode="basic" name="file" (onSelect)="onFileSelect($event, 'file')"
-                            accept=".mp4,.mp3,.wav" [maxFileSize]="1000000000"
+                            accept=".mp4,.mp3,.wav" [maxFileSize]="5000000000"
                             chooseLabel="Choose Source"></p-fileUpload>
-                        <small class="text-secondary block mt-1">Supported: MP4 (video), MP3/WAV (audio). Max 1GB.</small>
+                        <small class="text-secondary block mt-1">Supported: MP4 (video), MP3/WAV (audio). Max 5GB.</small>
                         <div *ngIf="file" class="mt-2 text-sm text-gray-500">Selected: {{file.name}}</div>
                     </div>
 

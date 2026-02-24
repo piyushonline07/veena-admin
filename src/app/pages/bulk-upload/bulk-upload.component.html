@@ -155,7 +155,7 @@
 
                     <div class="field mb-3">
                         <label class="block mb-2">Album</label>
-                        <p-dropdown [options]="albums" [(ngModel)]="selectedAlbum" optionLabel="title"
+                        <p-dropdown [options]="albums" [(ngModel)]="selectedAlbum" optionLabel="name"
                             [showClear]="true" placeholder="Select Album" styleClass="w-full"></p-dropdown>
                     </div>
 
@@ -166,12 +166,30 @@
 
                     <div class="field mb-3">
                         <label class="block mb-2">Composer</label>
-                        <input pInputText [(ngModel)]="batchComposerName" placeholder="Music composer name" class="w-full" />
+                        <p-dropdown [options]="composers" [(ngModel)]="selectedComposer" optionLabel="name"
+                            [showClear]="true" [filter]="true" filterBy="name"
+                            placeholder="Select Composer" styleClass="w-full"></p-dropdown>
                     </div>
 
                     <div class="field mb-3">
                         <label class="block mb-2">Lyricist</label>
-                        <input pInputText [(ngModel)]="batchLyricistName" placeholder="Lyrics writer name" class="w-full" />
+                        <p-dropdown [options]="lyricists" [(ngModel)]="selectedLyricist" optionLabel="name"
+                            [showClear]="true" [filter]="true" filterBy="name"
+                            placeholder="Select Lyricist" styleClass="w-full"></p-dropdown>
+                    </div>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Producer</label>
+                        <p-dropdown [options]="producers" [(ngModel)]="selectedProducer" optionLabel="name"
+                            [showClear]="true" [filter]="true" filterBy="name"
+                            placeholder="Select Producer" styleClass="w-full"></p-dropdown>
+                    </div>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Director</label>
+                        <p-dropdown [options]="directors" [(ngModel)]="selectedDirector" optionLabel="name"
+                            [showClear]="true" [filter]="true" filterBy="name"
+                            placeholder="Select Director" styleClass="w-full"></p-dropdown>
                     </div>
 
                     <p-divider align="left">

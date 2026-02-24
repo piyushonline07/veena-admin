@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type CreditType = 'COMPOSER' | 'LYRICIST' | 'PRODUCER';
+export type CreditType = 'COMPOSER' | 'LYRICIST' | 'PRODUCER' | 'DIRECTOR';
 
 export interface Credit {
   id: number;
@@ -74,6 +74,11 @@ export class CreditService {
     return this.http.get<Credit[]>(`${this.apiUrl}/producers`);
   }
 
+  // Get all active directors
+  getAllDirectors(): Observable<Credit[]> {
+    return this.http.get<Credit[]>(`${this.apiUrl}/directors`);
+  }
+
   // Get credit by ID
   getById(id: number): Observable<Credit> {
     return this.http.get<Credit>(`${this.apiUrl}/${id}`);
@@ -98,6 +103,11 @@ export class CreditService {
   // Create a producer
   createProducer(name: string, bio?: string, imageUrl?: string): Observable<Credit> {
     return this.http.post<Credit>(`${this.apiUrl}/producers`, { name, bio, imageUrl });
+  }
+
+  // Create a director
+  createDirector(name: string, bio?: string, imageUrl?: string): Observable<Credit> {
+    return this.http.post<Credit>(`${this.apiUrl}/directors`, { name, bio, imageUrl });
   }
 
   // Update a credit
