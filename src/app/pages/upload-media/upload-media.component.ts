@@ -45,6 +45,9 @@ export class UploadMediaComponent implements OnInit {
     albums: Album[] = [];
     selectedAlbum: Album | null = null;
 
+    // Release date
+    releaseDate: Date | null = null;
+
     file: File | null = null;
     thumbnail: File | null = null;
     lyrics: File | null = null;
@@ -167,6 +170,12 @@ export class UploadMediaComponent implements OnInit {
             formData.append('directorId', this.selectedDirector.id.toString());
         }
 
+        // Release date (format as ISO date string YYYY-MM-DD)
+        if (this.releaseDate) {
+            const date = new Date(this.releaseDate);
+            formData.append('releaseDate', date.toISOString().split('T')[0]);
+        }
+
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -208,6 +217,7 @@ export class UploadMediaComponent implements OnInit {
         this.selectedProducer = null;
         this.selectedDirector = null;
         this.selectedAlbum = null;
+        this.releaseDate = null;
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;

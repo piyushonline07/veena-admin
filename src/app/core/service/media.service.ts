@@ -15,6 +15,7 @@ export interface BatchUpdateRequest {
     directorName?: string;
     title?: string;
     description?: string;
+    releaseDate?: string;
 }
 
 export interface UploadProgress {

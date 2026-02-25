@@ -66,6 +66,7 @@ export class BulkUploadComponent implements OnInit {
     selectedDirector: Credit | null = null;
     batchTitle: string = '';
     batchDescription: string = '';
+    batchReleaseDate: Date | null = null;
     updating: boolean = false;
 
     // Publish
@@ -327,6 +328,10 @@ export class BulkUploadComponent implements OnInit {
         if (this.selectedDirector) {
             request.directorName = this.selectedDirector.name;
         }
+        if (this.batchReleaseDate) {
+            const date = new Date(this.batchReleaseDate);
+            request.releaseDate = date.toISOString().split('T')[0];
+        }
 
         this.updating = true;
         this.mediaService.batchUpdateMedia(request).subscribe({
@@ -359,6 +364,7 @@ export class BulkUploadComponent implements OnInit {
                 this.selectedDirector = null;
                 this.batchTitle = '';
                 this.batchDescription = '';
+                this.batchReleaseDate = null;
                 this.updating = false;
             },
             error: () => {
