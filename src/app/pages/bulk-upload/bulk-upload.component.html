@@ -21,7 +21,7 @@
             <div class="upload-area p-4 border-2 border-dashed border-round mb-3 text-center"
                 [class.border-primary]="filesToUpload.length > 0">
                 <p-fileUpload mode="basic" [multiple]="true"
-                    accept=".mp3,.wav,.mp4,.jpg,.jpeg,.png,.webp,.vtt"
+                    accept=".mp3,.wav,.mp4,.mov,.jpg,.jpeg,.png,.webp,.vtt"
                     (onSelect)="onFilesSelected($event)"
                     [auto]="false"
                     chooseLabel="Select Files"

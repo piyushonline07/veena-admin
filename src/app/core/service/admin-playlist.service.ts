@@ -75,4 +75,11 @@ export class AdminPlaylistService {
   removeTrack(playlistId: string, mediaId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${playlistId}/tracks/${mediaId}`);
   }
+
+  // Upload playlist cover image (same pattern as album)
+  uploadPlaylistImage(id: string, image: File): Observable<Playlist> {
+    const formData = new FormData();
+    formData.append('image', image);
+    return this.http.post<Playlist>(`${this.apiUrl}/${id}/image`, formData);
+  }
 }

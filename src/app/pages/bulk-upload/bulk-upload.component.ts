@@ -162,7 +162,7 @@ export class BulkUploadComponent implements OnInit {
     }
 
     // File type detection (strict formats: mp3/wav for audio, mp4 for video, vtt for lyrics)
-    private mediaExtensions = ['mp3', 'wav', 'mp4'];
+    private mediaExtensions = ['mp3', 'wav', 'mp4', 'mov'];
     private thumbnailExtensions = ['jpg', 'jpeg', 'png', 'webp'];
     private lyricsExtensions = ['vtt'];
 

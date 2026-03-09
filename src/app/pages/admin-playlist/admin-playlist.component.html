@@ -108,9 +108,19 @@
                       rows="3" placeholder="Enter description" class="w-full"></textarea>
         </div>
         <div class="form-field">
-            <label for="coverUrl">Cover Image URL</label>
-            <input pInputText id="coverUrl" [(ngModel)]="newPlaylist.coverUrl"
-                   placeholder="https://..." class="w-full" />
+            <label>Cover Image</label>
+            <div class="image-upload-section">
+                <div class="image-preview" *ngIf="imagePreviewUrl">
+                    <img [src]="imagePreviewUrl" alt="Playlist cover preview" />
+                    <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                            (click)="clearImage()" pTooltip="Remove image"></button>
+                </div>
+                <div class="image-upload-controls" *ngIf="!imagePreviewUrl">
+                    <p-fileUpload mode="basic" name="image" (onSelect)="onImageSelect($event)"
+                        accept="image/*" chooseLabel="Choose Cover Image" [auto]="false"></p-fileUpload>
+                    <small class="text-secondary mt-2 block">Supported: JPG, PNG, GIF</small>
+                </div>
+            </div>
         </div>
         <div class="form-field visibility-toggle">
             <p-inputSwitch [(ngModel)]="newPlaylist.visibleToUsers"></p-inputSwitch>
@@ -120,9 +130,9 @@
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancel" icon="pi pi-times" (onClick)="showCreateDialog = false"
-                  styleClass="p-button-text"></p-button>
-        <p-button label="Create" icon="pi pi-check" (onClick)="createPlaylist()"
-                  styleClass="p-button-primary"></p-button>
+                  styleClass="p-button-text" [disabled]="uploadingImage"></p-button>
+        <p-button [label]="uploadingImage ? 'Uploading...' : 'Create'" icon="pi pi-check" (onClick)="createPlaylist()"
+                  styleClass="p-button-primary" [loading]="uploadingImage"></p-button>
     </ng-template>
 </p-dialog>
 
@@ -141,9 +151,19 @@
                       rows="3" placeholder="Enter description" class="w-full"></textarea>
         </div>
         <div class="form-field">
-            <label for="editCoverUrl">Cover Image URL</label>
-            <input pInputText id="editCoverUrl" [(ngModel)]="selectedPlaylist.coverUrl"
-                   placeholder="https://..." class="w-full" />
+            <label>Cover Image</label>
+            <div class="image-upload-section">
+                <div class="image-preview" *ngIf="imagePreviewUrl">
+                    <img [src]="imagePreviewUrl" alt="Playlist cover preview" />
+                    <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                            (click)="clearImage()" pTooltip="Remove image"></button>
+                </div>
+                <div class="image-upload-controls" *ngIf="!imagePreviewUrl">
+                    <p-fileUpload mode="basic" name="image" (onSelect)="onImageSelect($event)"
+                        accept="image/*" chooseLabel="Choose Cover Image" [auto]="false"></p-fileUpload>
+                    <small class="text-secondary mt-2 block">Supported: JPG, PNG, GIF</small>
+                </div>
+            </div>
         </div>
         <div class="form-field visibility-toggle">
             <p-inputSwitch [(ngModel)]="selectedPlaylist.visibleToUsers"></p-inputSwitch>
@@ -153,9 +173,9 @@
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancel" icon="pi pi-times" (onClick)="showEditDialog = false"
-                  styleClass="p-button-text"></p-button>
-        <p-button label="Save" icon="pi pi-check" (onClick)="updatePlaylist()"
-                  styleClass="p-button-primary"></p-button>
+                  styleClass="p-button-text" [disabled]="uploadingImage"></p-button>
+        <p-button [label]="uploadingImage ? 'Uploading...' : 'Save'" icon="pi pi-check" (onClick)="updatePlaylist()"
+                  styleClass="p-button-primary" [loading]="uploadingImage"></p-button>
     </ng-template>
 </p-dialog>
 

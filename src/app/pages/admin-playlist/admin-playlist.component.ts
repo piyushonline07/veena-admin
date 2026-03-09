@@ -31,6 +31,11 @@ export class AdminPlaylistComponent implements OnInit {
   playlistTracks: any[] = [];
   isLoadingTracks = false;
 
+  // Image upload state
+  selectedImageFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  uploadingImage = false;
+
   // Media search for adding tracks
   mediaSearchQuery = '';
   mediaResults: any[] = [];
@@ -85,7 +90,26 @@ export class AdminPlaylistComponent implements OnInit {
       coverUrl: '',
       visibleToUsers: false
     };
+    this.selectedImageFile = null;
+    this.imagePreviewUrl = null;
     this.showCreateDialog = true;
+  }
+
+  onImageSelect(event: any): void {
+    const file: File | undefined = event?.files?.[0];
+    if (!file) return;
+
+    this.selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.imagePreviewUrl = e.target?.result || null;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearImage(): void {
+    this.selectedImageFile = null;
+    this.imagePreviewUrl = null;
   }
 
   createPlaylist(): void {
@@ -100,13 +124,17 @@ export class AdminPlaylistComponent implements OnInit {
 
     this.playlistService.createPlaylist(this.newPlaylist).subscribe({
       next: (playlist) => {
-        this.playlists.unshift(playlist);
-        this.showCreateDialog = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Created',
-          detail: 'Playlist created successfully'
-        });
+        if (this.selectedImageFile) {
+          this.uploadImageForPlaylist(playlist.id, 'Playlist created successfully');
+        } else {
+          this.playlists.unshift(playlist);
+          this.showCreateDialog = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Created',
+            detail: 'Playlist created successfully'
+          });
+        }
       },
       error: (err) => {
         console.error('Error creating playlist', err);
@@ -123,6 +151,8 @@ export class AdminPlaylistComponent implements OnInit {
 
   openEditDialog(playlist: Playlist): void {
     this.selectedPlaylist = { ...playlist };
+    this.selectedImageFile = null;
+    this.imagePreviewUrl = playlist.coverUrl || null;
     this.showEditDialog = true;
   }
 
@@ -136,16 +166,20 @@ export class AdminPlaylistComponent implements OnInit {
       visibleToUsers: this.selectedPlaylist.visibleToUsers
     }).subscribe({
       next: (updated) => {
-        const index = this.playlists.findIndex(p => p.id === updated.id);
-        if (index >= 0) {
-          this.playlists[index] = updated;
+        if (this.selectedImageFile) {
+          this.uploadImageForPlaylist(updated.id, 'Playlist updated successfully');
+        } else {
+          const index = this.playlists.findIndex(p => p.id === updated.id);
+          if (index >= 0) {
+            this.playlists[index] = updated;
+          }
+          this.showEditDialog = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Updated',
+            detail: 'Playlist updated successfully'
+          });
         }
-        this.showEditDialog = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Updated',
-          detail: 'Playlist updated successfully'
-        });
       },
       error: (err) => {
         console.error('Error updating playlist', err);
@@ -154,6 +188,30 @@ export class AdminPlaylistComponent implements OnInit {
           summary: 'Error',
           detail: 'Failed to update playlist'
         });
+      }
+    });
+  }
+
+  private uploadImageForPlaylist(playlistId: string, successMessage: string): void {
+    if (!this.selectedImageFile) return;
+
+    this.uploadingImage = true;
+    this.playlistService.uploadPlaylistImage(playlistId, this.selectedImageFile).subscribe({
+      next: () => {
+        this.uploadingImage = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: successMessage });
+        this.showCreateDialog = false;
+        this.showEditDialog = false;
+        this.selectedImageFile = null;
+        this.imagePreviewUrl = null;
+        this.loadPlaylists();
+      },
+      error: () => {
+        this.uploadingImage = false;
+        this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Playlist saved but image upload failed' });
+        this.showCreateDialog = false;
+        this.showEditDialog = false;
+        this.loadPlaylists();
       }
     });
   }
