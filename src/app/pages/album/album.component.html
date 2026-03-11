@@ -32,7 +32,7 @@
           </div>
           <div class="album-info">
             <div class="album-name">{{ album.name }}</div>
-            <div class="album-meta" *ngIf="album.artist?.name">{{ album.artist.name }}</div>
+            <div class="album-meta" *ngIf="album.artist?.name">{{ album.artist?.name }}</div>
             <div class="album-meta" *ngIf="!album.artist?.name">{{ album.description || 'No description' }}</div>
             <div class="text-tooltip" *ngIf="album.description && album.description.length > 30">
               <div class="tooltip-title">{{ album.name }}</div>
@@ -73,7 +73,7 @@
             <div class="profile-info">
               <h2>{{ selectedAlbum.name }}</h2>
               <p class="description">{{ selectedAlbum.description || 'No description' }}</p>
-              <p *ngIf="selectedAlbum.artist?.name" class="artist-name"><i class="pi pi-user mr-1"></i>{{ selectedAlbum.artist.name }}</p>
+              <p *ngIf="selectedAlbum.artist?.name" class="artist-name"><i class="pi pi-user mr-1"></i>{{ selectedAlbum.artist?.name }}</p>
               <p-tag [value]="selectedAlbum.active ? 'Active' : 'Inactive'"
                      [severity]="selectedAlbum.active ? 'success' : 'danger'"></p-tag>
             </div>
@@ -88,7 +88,7 @@
           <div class="info-grid">
             <div class="info-item" *ngIf="selectedAlbum.artist?.name">
               <span class="label">Artist</span>
-              <span class="value">{{ selectedAlbum.artist.name }}</span>
+              <span class="value">{{ selectedAlbum.artist?.name }}</span>
             </div>
             <div class="info-item">
               <span class="label">Created</span>

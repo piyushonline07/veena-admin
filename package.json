@@ -2,9 +2,10 @@
   "name": "veena-admin",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
+    "ng": "NODE_OPTIONS=--openssl-legacy-provider ng",
     "start": "NODE_OPTIONS=--openssl-legacy-provider ng serve",
     "build": "NODE_OPTIONS=--openssl-legacy-provider ng build",
+    "build:prod": "NODE_OPTIONS=--openssl-legacy-provider ng build --base-href /admin/ --configuration production",
     "watch": "NODE_OPTIONS=--openssl-legacy-provider ng build --watch --configuration development",
     "test": "NODE_OPTIONS=--openssl-legacy-provider ng test"
   },
