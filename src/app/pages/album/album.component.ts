@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AlbumService, Album } from '../../core/service/album.service';
+import { ArtistService, Artist } from '../../core/service/artist.service';
 import { MediaService } from '../../core/service/media.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
@@ -42,8 +43,12 @@ export class AlbumComponent implements OnInit {
   previewDialog = false;
   selectedSongForPreview: any = null;
 
+  // Artists for dropdown
+  artists: Artist[] = [];
+
   constructor(
     private albumService: AlbumService,
+    private artistService: ArtistService,
     private mediaService: MediaService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
@@ -51,6 +56,7 @@ export class AlbumComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAlbums();
+    this.loadArtists();
   }
 
   loadAlbums(): void {
@@ -64,6 +70,17 @@ export class AlbumComponent implements OnInit {
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load albums' });
         this.loading = false;
+      }
+    });
+  }
+
+  loadArtists(): void {
+    this.artistService.getAllActiveArtists().subscribe({
+      next: (data) => {
+        this.artists = data;
+      },
+      error: () => {
+        this.artists = [];
       }
     });
   }
@@ -105,7 +122,7 @@ export class AlbumComponent implements OnInit {
   }
 
   openNewAlbumDialog(): void {
-    this.albumForm = { name: '', description: '' };
+    this.albumForm = { name: '', description: '', artist: undefined };
     this.isEditMode = false;
     this.selectedImageFile = null;
     this.imagePreviewUrl = null;
@@ -114,6 +131,10 @@ export class AlbumComponent implements OnInit {
 
   openEditAlbumDialog(album: Album): void {
     this.albumForm = { ...album };
+    // Ensure artist object matches a dropdown option by id
+    if (album.artist && album.artist.id) {
+      this.albumForm.artist = this.artists.find(a => a.id === album.artist!.id) as any || album.artist;
+    }
     this.isEditMode = true;
     this.selectedImageFile = null;
     this.imagePreviewUrl = album.coverImageUrl || null;

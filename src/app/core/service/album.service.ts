@@ -8,6 +8,7 @@ export interface Album {
     name: string;
     description?: string;
     coverImageUrl?: string;
+    artist?: { id: number; name?: string; genre?: string; imageUrl?: string; verified?: boolean };
     active?: boolean;
     createdAt?: string;
     updatedAt?: string;
