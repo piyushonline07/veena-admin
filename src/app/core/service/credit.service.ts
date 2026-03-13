@@ -84,9 +84,18 @@ export class CreditService {
     return this.http.get<Credit>(`${this.apiUrl}/${id}`);
   }
 
-  // Create a new credit
-  createCredit(request: CreateCreditRequest): Observable<Credit> {
-    return this.http.post<Credit>(this.apiUrl, request);
+  // Create a new credit (with optional image file upload)
+  createCredit(request: CreateCreditRequest, image?: File): Observable<Credit> {
+    const formData = new FormData();
+    formData.append('name', request.name);
+    formData.append('creditType', request.creditType);
+    if (request.bio) {
+      formData.append('bio', request.bio);
+    }
+    if (image) {
+      formData.append('image', image);
+    }
+    return this.http.post<Credit>(this.apiUrl, formData);
   }
 
 
@@ -110,13 +119,30 @@ export class CreditService {
     return this.http.post<Credit>(`${this.apiUrl}/directors`, { name, bio, imageUrl });
   }
 
-  // Update a credit
-  updateCredit(id: number, request: UpdateCreditRequest): Observable<Credit> {
-    return this.http.put<Credit>(`${this.apiUrl}/${id}`, request);
+  // Update a credit (with optional image file upload)
+  updateCredit(id: number, request: UpdateCreditRequest, image?: File): Observable<Credit> {
+    const formData = new FormData();
+    if (request.name) {
+      formData.append('name', request.name);
+    }
+    if (request.bio !== undefined) {
+      formData.append('bio', request.bio || '');
+    }
+    if (request.isActive !== undefined && request.isActive !== null) {
+      formData.append('isActive', String(request.isActive));
+    }
+    if (image) {
+      formData.append('image', image);
+    }
+    return this.http.put<Credit>(`${this.apiUrl}/${id}`, formData);
   }
 
   // Delete a credit (soft delete)
   deleteCredit(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  // Get media associated with a credit (as composer, lyricist, producer, or director)
+  getMediaByCreditId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/media`);
   }
 }

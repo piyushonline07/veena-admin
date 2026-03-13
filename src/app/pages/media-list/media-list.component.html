@@ -23,6 +23,59 @@
         </div>
     </div>
 
+    <!-- Filter Bar -->
+    <div class="filter-bar mb-3">
+        <div class="filter-row">
+            <div class="filter-item">
+                <label class="filter-label">Type</label>
+                <p-dropdown [options]="mediaTypeOptions" [(ngModel)]="selectedMediaType"
+                    optionLabel="label" optionValue="value" placeholder="All Types"
+                    [showClear]="true" (onChange)="onFilterChange()"
+                    styleClass="filter-dropdown">
+                </p-dropdown>
+            </div>
+            <div class="filter-item">
+                <label class="filter-label">Artist</label>
+                <p-dropdown [options]="artistsList" [(ngModel)]="selectedArtistId"
+                    optionLabel="name" optionValue="id" placeholder="All Artists"
+                    [showClear]="true" [filter]="true" filterPlaceholder="Search artists..."
+                    (onChange)="onFilterChange()"
+                    styleClass="filter-dropdown">
+                </p-dropdown>
+            </div>
+            <div class="filter-item">
+                <label class="filter-label">Album</label>
+                <p-dropdown [options]="albumsList" [(ngModel)]="selectedAlbumId"
+                    optionLabel="name" optionValue="id" placeholder="All Albums"
+                    [showClear]="true" [filter]="true" filterPlaceholder="Search albums..."
+                    (onChange)="onFilterChange()"
+                    styleClass="filter-dropdown">
+                </p-dropdown>
+            </div>
+            <div class="filter-item filter-actions">
+                <button pButton label="Clear Filters" icon="pi pi-filter-slash"
+                    class="p-button-outlined p-button-sm p-button-secondary"
+                    (click)="clearFilters()"
+                    [disabled]="!selectedMediaType && !selectedArtistId && !selectedAlbumId && !searchQuery">
+                </button>
+            </div>
+        </div>
+        <div class="active-filters" *ngIf="selectedMediaType || selectedArtistId || selectedAlbumId">
+            <span class="active-filter-label"><i class="pi pi-filter"></i> Active filters:</span>
+            <p-tag *ngIf="selectedMediaType" [value]="selectedMediaType" severity="info"
+                styleClass="filter-tag" [icon]="'pi pi-times'" (click)="selectedMediaType = null; onFilterChange()">
+            </p-tag>
+            <p-tag *ngIf="selectedArtistId" severity="success" styleClass="filter-tag"
+                (click)="selectedArtistId = null; onFilterChange()">
+                <span>Artist <i class="pi pi-times ml-1" style="font-size: 0.7rem;"></i></span>
+            </p-tag>
+            <p-tag *ngIf="selectedAlbumId" severity="warning" styleClass="filter-tag"
+                (click)="selectedAlbumId = null; onFilterChange()">
+                <span>Album <i class="pi pi-times ml-1" style="font-size: 0.7rem;"></i></span>
+            </p-tag>
+        </div>
+    </div>
+
     <div *ngIf="viewMode === 'list'" class="table-section">
         <p-card>
             <div class="table-wrapper">

@@ -389,3 +389,34 @@
     padding: 0.5rem 0;
   }
 }
+
+/* Notification Image Upload */
+.image-upload-area {
+  .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--surface-border, #dee2e6);
+    border-radius: 8px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    background: var(--surface-ground, #f8f9fa);
+
+    &:hover {
+      border-color: var(--primary-color);
+      background: var(--surface-hover, #f1f3f5);
+    }
+  }
+
+  .image-preview-wrapper {
+    position: relative;
+    display: inline-block;
+
+    img {
+      display: block;
+    }
+  }
+}
+

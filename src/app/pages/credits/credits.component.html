@@ -6,6 +6,17 @@
             <p class="subtitle">Manage Composers, Lyricists, Producers and Directors</p>
         </div>
         <div class="header-actions">
+            <div class="search-container">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Search credits..."
+                           [(ngModel)]="searchQuery" (input)="onSearch()"
+                           class="p-inputtext-sm search-input" />
+                </span>
+                <button *ngIf="searchQuery" pButton icon="pi pi-times"
+                        class="p-button-text p-button-sm p-button-secondary"
+                        (click)="clearSearch()" pTooltip="Clear search"></button>
+            </div>
             <p-button label="Add New" icon="pi pi-plus"
                       (onClick)="openCreateDialog()" styleClass="p-button-primary"></p-button>
         </div>
@@ -48,8 +59,8 @@
 
         <!-- Composers Tab -->
         <p-tabPanel header="Composers" leftIcon="pi pi-volume-up">
-            <div class="credits-grid" *ngIf="!loadingComposers && composers.length > 0">
-                <div class="credit-card" *ngFor="let credit of composers">
+            <div class="credits-grid" *ngIf="!loadingComposers && filteredComposers.length > 0">
+                <div class="credit-card clickable" *ngFor="let credit of filteredComposers" (click)="onCreditClick(credit)">
                     <div class="card-avatar">
                         <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
                         <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
@@ -59,7 +70,7 @@
                         <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
                         <p-tag value="Composer" severity="warning" styleClass="mt-2"></p-tag>
                     </div>
-                    <div class="card-actions">
+                    <div class="card-actions" (click)="$event.stopPropagation()">
                         <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
                                   styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
                         <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
@@ -71,18 +82,23 @@
                 <p-progressSpinner strokeWidth="4"></p-progressSpinner>
                 <p>Loading composers...</p>
             </div>
-            <div class="empty-state" *ngIf="!loadingComposers && composers.length === 0">
+            <div class="empty-state" *ngIf="!loadingComposers && filteredComposers.length === 0 && !searchQuery">
                 <i class="pi pi-inbox"></i>
                 <h3>No Composers</h3>
                 <p>Add your first composer to get started</p>
                 <p-button label="Add Composer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
             </div>
+            <div class="empty-state" *ngIf="!loadingComposers && filteredComposers.length === 0 && searchQuery">
+                <i class="pi pi-search"></i>
+                <h3>No Results</h3>
+                <p>No composers match "{{searchQuery}}"</p>
+            </div>
         </p-tabPanel>
 
         <!-- Lyricists Tab -->
         <p-tabPanel header="Lyricists" leftIcon="pi pi-file-edit">
-            <div class="credits-grid" *ngIf="!loadingLyricists && lyricists.length > 0">
-                <div class="credit-card" *ngFor="let credit of lyricists">
+            <div class="credits-grid" *ngIf="!loadingLyricists && filteredLyricists.length > 0">
+                <div class="credit-card clickable" *ngFor="let credit of filteredLyricists" (click)="onCreditClick(credit)">
                     <div class="card-avatar">
                         <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
                         <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
@@ -92,7 +108,7 @@
                         <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
                         <p-tag value="Lyricist" severity="success" styleClass="mt-2"></p-tag>
                     </div>
-                    <div class="card-actions">
+                    <div class="card-actions" (click)="$event.stopPropagation()">
                         <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
                                   styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
                         <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
@@ -104,18 +120,23 @@
                 <p-progressSpinner strokeWidth="4"></p-progressSpinner>
                 <p>Loading lyricists...</p>
             </div>
-            <div class="empty-state" *ngIf="!loadingLyricists && lyricists.length === 0">
+            <div class="empty-state" *ngIf="!loadingLyricists && filteredLyricists.length === 0 && !searchQuery">
                 <i class="pi pi-inbox"></i>
                 <h3>No Lyricists</h3>
                 <p>Add your first lyricist to get started</p>
                 <p-button label="Add Lyricist" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
             </div>
+            <div class="empty-state" *ngIf="!loadingLyricists && filteredLyricists.length === 0 && searchQuery">
+                <i class="pi pi-search"></i>
+                <h3>No Results</h3>
+                <p>No lyricists match "{{searchQuery}}"</p>
+            </div>
         </p-tabPanel>
 
         <!-- Producers Tab -->
         <p-tabPanel header="Producers" leftIcon="pi pi-microphone">
-            <div class="credits-grid" *ngIf="!loadingProducers && producers.length > 0">
-                <div class="credit-card" *ngFor="let credit of producers">
+            <div class="credits-grid" *ngIf="!loadingProducers && filteredProducers.length > 0">
+                <div class="credit-card clickable" *ngFor="let credit of filteredProducers" (click)="onCreditClick(credit)">
                     <div class="card-avatar">
                         <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
                         <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
@@ -125,7 +146,7 @@
                         <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
                         <p-tag value="Producer" severity="info" styleClass="mt-2"></p-tag>
                     </div>
-                    <div class="card-actions">
+                    <div class="card-actions" (click)="$event.stopPropagation()">
                         <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
                                   styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
                         <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
@@ -137,18 +158,23 @@
                 <p-progressSpinner strokeWidth="4"></p-progressSpinner>
                 <p>Loading producers...</p>
             </div>
-            <div class="empty-state" *ngIf="!loadingProducers && producers.length === 0">
+            <div class="empty-state" *ngIf="!loadingProducers && filteredProducers.length === 0 && !searchQuery">
                 <i class="pi pi-inbox"></i>
                 <h3>No Producers</h3>
                 <p>Add your first producer to get started</p>
                 <p-button label="Add Producer" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
             </div>
+            <div class="empty-state" *ngIf="!loadingProducers && filteredProducers.length === 0 && searchQuery">
+                <i class="pi pi-search"></i>
+                <h3>No Results</h3>
+                <p>No producers match "{{searchQuery}}"</p>
+            </div>
         </p-tabPanel>
 
         <!-- Directors Tab -->
         <p-tabPanel header="Directors" leftIcon="pi pi-video">
-            <div class="credits-grid" *ngIf="!loadingDirectors && directors.length > 0">
-                <div class="credit-card" *ngFor="let credit of directors">
+            <div class="credits-grid" *ngIf="!loadingDirectors && filteredDirectors.length > 0">
+                <div class="credit-card clickable" *ngFor="let credit of filteredDirectors" (click)="onCreditClick(credit)">
                     <div class="card-avatar">
                         <img *ngIf="credit.imageUrl" [src]="credit.imageUrl" [alt]="credit.name" />
                         <i *ngIf="!credit.imageUrl" class="pi pi-user"></i>
@@ -158,7 +184,7 @@
                         <p class="credit-bio">{{credit.bio || 'No bio available'}}</p>
                         <p-tag value="Director" severity="danger" styleClass="mt-2"></p-tag>
                     </div>
-                    <div class="card-actions">
+                    <div class="card-actions" (click)="$event.stopPropagation()">
                         <p-button icon="pi pi-pencil" (onClick)="openEditDialog(credit)"
                                   styleClass="p-button-sm p-button-text" pTooltip="Edit"></p-button>
                         <p-button icon="pi pi-trash" (onClick)="confirmDelete(credit)"
@@ -170,11 +196,16 @@
                 <p-progressSpinner strokeWidth="4"></p-progressSpinner>
                 <p>Loading directors...</p>
             </div>
-            <div class="empty-state" *ngIf="!loadingDirectors && directors.length === 0">
+            <div class="empty-state" *ngIf="!loadingDirectors && filteredDirectors.length === 0 && !searchQuery">
                 <i class="pi pi-inbox"></i>
                 <h3>No Directors</h3>
                 <p>Add your first director to get started</p>
                 <p-button label="Add Director" icon="pi pi-plus" (onClick)="openCreateDialog()" styleClass="mt-3"></p-button>
+            </div>
+            <div class="empty-state" *ngIf="!loadingDirectors && filteredDirectors.length === 0 && searchQuery">
+                <i class="pi pi-search"></i>
+                <h3>No Results</h3>
+                <p>No directors match "{{searchQuery}}"</p>
             </div>
         </p-tabPanel>
     </p-tabView>
@@ -201,9 +232,27 @@
                       rows="3" placeholder="Enter bio (optional)" class="w-full"></textarea>
         </div>
         <div class="form-field">
-            <label for="imageUrl">Image URL</label>
-            <input pInputText id="imageUrl" [(ngModel)]="creditForm.imageUrl"
-                   placeholder="https://..." class="w-full" />
+            <label>Image</label>
+            <div class="image-upload-area">
+                <input type="file" accept="image/*" #creditImageInput
+                       (change)="onImageSelected($event)" style="display:none" />
+                <div *ngIf="!imagePreview" class="upload-placeholder"
+                     (click)="creditImageInput.click()">
+                    <i class="pi pi-image" style="font-size: 2rem; color: var(--text-secondary);"></i>
+                    <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.85rem;">
+                        Click to upload image
+                    </p>
+                </div>
+                <div *ngIf="imagePreview" class="image-preview-wrapper">
+                    <img [src]="imagePreview" alt="Preview" class="credit-image-preview" />
+                    <div class="preview-actions">
+                        <button pButton icon="pi pi-upload" class="p-button-sm p-button-outlined"
+                                label="Change" (click)="creditImageInput.click()"></button>
+                        <button pButton icon="pi pi-times" class="p-button-sm p-button-danger p-button-outlined"
+                                label="Remove" (click)="removeImage()"></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <ng-template pTemplate="footer">
@@ -212,6 +261,78 @@
         <p-button [label]="isEditing ? 'Update' : 'Create'" icon="pi pi-check" (onClick)="saveCredit()"
                   [loading]="saving" styleClass="p-button-primary"></p-button>
     </ng-template>
+</p-dialog>
+
+<!-- Related Songs Dialog -->
+<p-dialog [(visible)]="showSongsDialog"
+          [header]="selectedCreditForSongs ? 'Songs by ' + selectedCreditForSongs.name : 'Related Songs'"
+          [modal]="true" [style]="{width: '90vw', maxWidth: '750px'}" [responsive]="true"
+          (onHide)="closeSongsDialog()" styleClass="songs-dialog">
+
+    <!-- Credit Info Header -->
+    <div *ngIf="selectedCreditForSongs" class="songs-dialog-header">
+        <div class="credit-info-row">
+            <div class="credit-avatar-sm">
+                <img *ngIf="selectedCreditForSongs.imageUrl" [src]="selectedCreditForSongs.imageUrl" [alt]="selectedCreditForSongs.name" />
+                <i *ngIf="!selectedCreditForSongs.imageUrl" class="pi pi-user"></i>
+            </div>
+            <div class="credit-details">
+                <h3>{{selectedCreditForSongs.name}}</h3>
+                <p-tag [value]="getTypeLabel(selectedCreditForSongs.creditType)" severity="info"></p-tag>
+                <span class="song-count">{{relatedSongs.length}} song{{relatedSongs.length !== 1 ? 's' : ''}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loadingSongs" class="loading-state" style="padding: 2rem;">
+        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        <p>Loading songs...</p>
+    </div>
+
+    <!-- Songs Table -->
+    <div *ngIf="!loadingSongs && relatedSongs.length > 0" class="songs-table-wrapper">
+        <p-table [value]="relatedSongs" [paginator]="relatedSongs.length > 10" [rows]="10"
+                 styleClass="p-datatable-sm p-datatable-striped" responsiveLayout="stack">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 60px;">Thumb</th>
+                    <th>Title</th>
+                    <th style="width: 80px;">Type</th>
+                    <th>Artist</th>
+                    <th>Role</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-song>
+                <tr>
+                    <td>
+                        <img [src]="song.thumbnailUrl || 'assets/placeholder-thumb.png'" [alt]="song.title"
+                             width="50" class="border-round shadow-1" style="height: 38px; object-fit: cover;" />
+                    </td>
+                    <td>
+                        <div class="song-title-cell">
+                            <span class="font-semibold" [pTooltip]="song.title" tooltipPosition="top">{{song.title}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="song.mediaType"
+                               [severity]="song.mediaType === 'VIDEO' ? 'primary' : 'info'"></p-tag>
+                    </td>
+                    <td>{{song.artist?.name || '-'}}</td>
+                    <td>
+                        <p-tag [value]="getCreditRoleInSong(song)" severity="secondary" styleClass="role-tag"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!loadingSongs && relatedSongs.length === 0" class="empty-state" style="padding: 2rem;">
+        <i class="pi pi-music"></i>
+        <h3>No Songs Found</h3>
+        <p>This credit person is not associated with any songs yet.</p>
+    </div>
 </p-dialog>
 
 <p-toast></p-toast>

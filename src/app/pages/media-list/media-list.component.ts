@@ -20,6 +20,16 @@ export class MediaListComponent implements OnInit {
     searchQuery: string = '';
     viewMode: 'list' | 'grid' = 'list';
 
+    // Filters
+    selectedMediaType: string | null = null;
+    selectedArtistId: number | null = null;
+    selectedAlbumId: number | null = null;
+    mediaTypeOptions: any[] = [
+        { label: 'All Types', value: null },
+        { label: 'Audio', value: 'AUDIO' },
+        { label: 'Video', value: 'VIDEO' }
+    ];
+
     mediaDialog: boolean = false;
     previewDialog: boolean = false;
     selectedMedia: any = {};
@@ -128,7 +138,17 @@ export class MediaListComponent implements OnInit {
 
     loadMedia(page: number, size: number) {
         this.loading = true;
-        this.mediaService.getMediaList(page, size, this.searchQuery).subscribe({
+        const filters: any = {};
+        if (this.selectedMediaType) {
+            filters.mediaType = this.selectedMediaType;
+        }
+        if (this.selectedArtistId) {
+            filters.artistId = this.selectedArtistId;
+        }
+        if (this.selectedAlbumId) {
+            filters.albumId = this.selectedAlbumId;
+        }
+        this.mediaService.getMediaList(page, size, this.searchQuery, filters).subscribe({
             next: (data) => {
                 this.mediaList = data.content;
                 this.totalRecords = data.totalElements;
@@ -148,6 +168,20 @@ export class MediaListComponent implements OnInit {
     }
 
     onSearch() {
+        this.loadMedia(0, this.rows);
+    }
+
+    onFilterChange() {
+        this.first = 0;
+        this.loadMedia(0, this.rows);
+    }
+
+    clearFilters() {
+        this.searchQuery = '';
+        this.selectedMediaType = null;
+        this.selectedArtistId = null;
+        this.selectedAlbumId = null;
+        this.first = 0;
         this.loadMedia(0, this.rows);
     }
 

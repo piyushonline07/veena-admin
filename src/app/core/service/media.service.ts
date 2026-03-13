@@ -70,10 +70,19 @@ export class MediaService {
         return this.http.post(`${this.apiUrl}/upload`, formData);
     }
 
-    getMediaList(page: number, size: number, query?: string): Observable<any> {
+    getMediaList(page: number, size: number, query?: string, filters?: { mediaType?: string, artistId?: number, albumId?: number }): Observable<any> {
         let url = `${this.apiUrl}?page=${page}&size=${size}`;
         if (query) {
             url += `&query=${encodeURIComponent(query)}`;
+        }
+        if (filters?.mediaType) {
+            url += `&mediaType=${encodeURIComponent(filters.mediaType)}`;
+        }
+        if (filters?.artistId) {
+            url += `&artistId=${filters.artistId}`;
+        }
+        if (filters?.albumId) {
+            url += `&albumId=${filters.albumId}`;
         }
         return this.http.get(url);
     }

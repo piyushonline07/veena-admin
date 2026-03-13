@@ -16,8 +16,15 @@ export class MarketingService {
         return this.http.get<any[]>(`${this.baseApi}/notifications`);
     }
 
-    draftNotification(data: any): Observable<any> {
-        return this.http.post(`${this.baseApi}/notifications/draft`, data);
+    draftNotification(data: any, image?: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('title', data.title);
+        formData.append('body', data.body);
+        formData.append('targetGroup', data.targetGroup || 'ALL');
+        if (image) {
+            formData.append('image', image);
+        }
+        return this.http.post(`${this.baseApi}/notifications/draft`, formData);
     }
 
     sendNotification(id: string): Observable<any> {

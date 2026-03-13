@@ -55,9 +55,25 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label for="imageUrl">Image URL (optional)</label>
-                                    <input pInputText id="imageUrl" [(ngModel)]="newNotif.imageUrl"
-                                           placeholder="https://..." class="w-full" />
+                                    <label>Image (optional)</label>
+                                    <div class="image-upload-area">
+                                        <input type="file" accept="image/*" #notifImageInput
+                                               (change)="onNotifImageSelected($event)" style="display:none" />
+                                        <div *ngIf="!notifImagePreview" class="upload-placeholder"
+                                             (click)="notifImageInput.click()">
+                                            <i class="pi pi-image" style="font-size: 2rem; color: var(--text-secondary);"></i>
+                                            <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.85rem;">
+                                                Click to upload notification image
+                                            </p>
+                                        </div>
+                                        <div *ngIf="notifImagePreview" class="image-preview-wrapper">
+                                            <img [src]="notifImagePreview" alt="Preview"
+                                                 style="max-width: 200px; max-height: 120px; border-radius: 8px; object-fit: cover;" />
+                                            <p-button icon="pi pi-times" (onClick)="removeNotifImage()"
+                                                      styleClass="p-button-rounded p-button-danger p-button-sm p-button-text"
+                                                      style="position: absolute; top: -8px; right: -8px;"></p-button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-field">
                                     <label for="targetGroup">Target Audience</label>

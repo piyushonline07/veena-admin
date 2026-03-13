@@ -27,9 +27,10 @@ export class MarketingComponent implements OnInit {
     newNotif = {
         title: '',
         body: '',
-        imageUrl: '',
         targetGroup: 'ALL'
     };
+    selectedNotifImage: File | null = null;
+    notifImagePreview: string | null = null;
 
     // Featured Content
     featuredSchedules: any[] = [];
@@ -88,12 +89,31 @@ export class MarketingComponent implements OnInit {
         });
     }
 
+    onNotifImageSelected(event: any) {
+        const file = event.target?.files?.[0];
+        if (file) {
+            this.selectedNotifImage = file;
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.notifImagePreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    removeNotifImage() {
+        this.selectedNotifImage = null;
+        this.notifImagePreview = null;
+    }
+
     onSaveNotif() {
         if (!this.notificationsEnabled) return;
-        this.marketingService.draftNotification(this.newNotif).subscribe(() => {
+        this.marketingService.draftNotification(this.newNotif, this.selectedNotifImage || undefined).subscribe(() => {
             this.messageService.add({ severity: 'success', summary: 'Draft Saved' });
             this.loadNotifications();
-            this.newNotif = { title: '', body: '', imageUrl: '', targetGroup: 'ALL' };
+            this.newNotif = { title: '', body: '', targetGroup: 'ALL' };
+            this.selectedNotifImage = null;
+            this.notifImagePreview = null;
         });
     }
 
