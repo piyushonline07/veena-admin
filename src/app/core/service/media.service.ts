@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
-import { Observable, Subject, BehaviorSubject, of, forkJoin } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, Subject, BehaviorSubject, of, forkJoin, from } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface BatchUpdateRequest {
@@ -52,6 +52,12 @@ export interface BulkUploadProgress {
 export interface PlayRequest {
     position?: number;
 }
+
+/** S3 multipart upload chunk size: 50MB */
+const CHUNK_SIZE = 50 * 1024 * 1024;
+
+/** Threshold below which we use the old backend-proxy upload (5MB) */
+const CHUNKED_UPLOAD_THRESHOLD = 5 * 1024 * 1024;
 
 @Injectable({
     providedIn: 'root'
@@ -262,16 +268,216 @@ export class MediaService {
     }
 
     /**
-     * Upload a single file group (media + optional thumbnail + lyrics) to the bulk-upload endpoint.
-     * Returns an observable that emits progress updates for this group.
+     * Upload a single file group (media + optional thumbnail + lyrics).
+     * Uses S3 presigned chunked upload for large media files (>5MB) to avoid token expiration.
+     * Falls back to backend-proxy upload for small files and non-media files.
      */
     private uploadFileGroup(mediaType: string, files: File[], groupName: string): Observable<UploadProgress> {
+        const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+        const progressSubject = new Subject<UploadProgress>();
+
+        // Separate media files from thumbnail/lyrics
+        const audioExtensions = ['mp3', 'wav'];
+        const videoExtensions = ['mp4', 'mov'];
+        const mediaExtensions = [...audioExtensions, ...videoExtensions];
+
+        const mediaFiles = files.filter(f => {
+            const ext = f.name.split('.').pop()?.toLowerCase() || '';
+            return mediaExtensions.includes(ext);
+        });
+        const otherFiles = files.filter(f => {
+            const ext = f.name.split('.').pop()?.toLowerCase() || '';
+            return !mediaExtensions.includes(ext);
+        });
+
+        // If the media file is large enough, use S3 chunked upload
+        const largeMediaFile = mediaFiles.find(f => f.size > CHUNKED_UPLOAD_THRESHOLD);
+
+        if (largeMediaFile) {
+            // Use S3 presigned chunked upload for the media file
+            this.chunkedUploadFileGroup(mediaType, largeMediaFile, otherFiles, groupName, totalSize, progressSubject);
+        } else {
+            // Small files: use the old backend-proxy upload
+            this.backendProxyUpload(mediaType, files, totalSize, progressSubject);
+        }
+
+        return progressSubject.asObservable();
+    }
+
+    /**
+     * Upload a large media file using S3 multipart presigned URLs.
+     * Thumbnail and lyrics are uploaded separately via the old bulk-upload endpoint.
+     */
+    private async chunkedUploadFileGroup(
+        mediaType: string,
+        mediaFile: File,
+        otherFiles: File[],
+        groupName: string,
+        totalSize: number,
+        progressSubject: Subject<UploadProgress>
+    ): Promise<void> {
+        try {
+            const fileType = 'media';
+            const contentType = mediaFile.type || 'application/octet-stream';
+
+            // Step 1: Initiate multipart upload (short API call, needs auth)
+            const initResponse: any = await this.http.post(
+                `${this.apiUrl}/s3-upload/initiate`,
+                { fileName: mediaFile.name, contentType, mediaType, fileType }
+            ).toPromise();
+
+            const { uploadId, key, mediaId } = initResponse;
+
+            // Step 2: Calculate chunks
+            const fileSize = mediaFile.size;
+            const chunkCount = Math.ceil(fileSize / CHUNK_SIZE);
+
+            // Step 3: Get presigned URLs for all parts (short API call, needs auth)
+            const urlsResponse: any[] = await this.http.post<any[]>(
+                `${this.apiUrl}/s3-upload/presigned-urls`,
+                { uploadId, key, partCount: chunkCount }
+            ).toPromise() || [];
+
+            // Step 4: Upload chunks directly to S3 using presigned URLs (NO auth needed)
+            const completedParts: { partNumber: number; eTag: string }[] = [];
+            let uploadedBytes = 0;
+
+            for (let i = 0; i < chunkCount; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, fileSize);
+                const chunk = mediaFile.slice(start, end);
+                const presignedUrl = urlsResponse[i].url;
+                const partNumber = urlsResponse[i].partNumber;
+
+                // Upload this chunk directly to S3 via XMLHttpRequest for progress tracking
+                const eTag = await this.uploadChunkToS3(presignedUrl, chunk, (chunkLoaded) => {
+                    const currentTotal = uploadedBytes + chunkLoaded;
+                    const percent = totalSize > 0 ? Math.round((currentTotal / totalSize) * 100) : 0;
+                    progressSubject.next({
+                        loaded: currentTotal,
+                        total: totalSize,
+                        percent,
+                        status: 'uploading'
+                    });
+                });
+
+                completedParts.push({ partNumber, eTag });
+                uploadedBytes += (end - start);
+            }
+
+            // Step 5: Complete multipart upload + create media record (short API call, needs auth)
+            const completeResponse: any = await this.http.post(
+                `${this.apiUrl}/s3-upload/complete`,
+                {
+                    uploadId, key, mediaId,
+                    fileName: mediaFile.name,
+                    mediaType, fileType,
+                    fileSize: mediaFile.size,
+                    parts: completedParts
+                }
+            ).toPromise();
+
+            // Step 6: If there are thumbnail/lyrics files, upload them via old endpoint
+            // and then attach them to the media record
+            let finalResponse = completeResponse;
+            if (otherFiles.length > 0) {
+                try {
+                    const formData = new FormData();
+                    otherFiles.forEach(f => {
+                        const ext = f.name.split('.').pop()?.toLowerCase() || '';
+                        if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+                            formData.append('thumbnail', f);
+                        } else if (ext === 'vtt') {
+                            formData.append('lyrics', f);
+                        }
+                    });
+                    if (formData.has('thumbnail') || formData.has('lyrics')) {
+                        finalResponse = await this.http.post(
+                            `${this.apiUrl}/${mediaId}/update`, formData
+                        ).toPromise();
+                    }
+                } catch (e) {
+                    console.warn('Failed to upload thumbnail/lyrics for', groupName, e);
+                    // Continue - the media file itself was uploaded successfully
+                }
+            }
+
+            progressSubject.next({
+                loaded: totalSize,
+                total: totalSize,
+                percent: 100,
+                status: 'completed',
+                response: Array.isArray(finalResponse) ? finalResponse : [finalResponse]
+            });
+            progressSubject.complete();
+
+        } catch (error: any) {
+            console.error('Chunked upload failed for', groupName, error);
+
+            // Try to abort the multipart upload if we have the uploadId
+            progressSubject.next({
+                loaded: 0, total: totalSize, percent: 0,
+                status: 'error', error
+            });
+            progressSubject.complete();
+        }
+    }
+
+    /**
+     * Upload a single chunk to S3 using a presigned URL via XMLHttpRequest.
+     * Returns the ETag from the response header (required for completing multipart upload).
+     */
+    private uploadChunkToS3(
+        presignedUrl: string,
+        chunk: Blob,
+        onProgress: (loaded: number) => void
+    ): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', presignedUrl, true);
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    onProgress(event.loaded);
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const eTag = xhr.getResponseHeader('ETag') || '';
+                    resolve(eTag.replace(/"/g, ''));
+                } else {
+                    reject(new Error(`S3 upload failed with status ${xhr.status}: ${xhr.statusText}`));
+                }
+            };
+
+            xhr.onerror = () => {
+                reject(new Error('Network error during S3 chunk upload'));
+            };
+
+            xhr.ontimeout = () => {
+                reject(new Error('Timeout during S3 chunk upload'));
+            };
+
+            // 6 hour timeout for very large chunks on slow connections
+            xhr.timeout = 6 * 60 * 60 * 1000;
+            xhr.send(chunk);
+        });
+    }
+
+    /**
+     * Fallback: upload files through the backend proxy (original approach).
+     * Used for small files that don't need chunking.
+     */
+    private backendProxyUpload(
+        mediaType: string,
+        files: File[],
+        totalSize: number,
+        progressSubject: Subject<UploadProgress>
+    ): void {
         const formData = new FormData();
         formData.append('mediaType', mediaType);
         files.forEach(file => formData.append('files', file));
-
-        const totalSize = files.reduce((acc, f) => acc + f.size, 0);
-        const progressSubject = new Subject<UploadProgress>();
 
         const req = new HttpRequest('POST', `${this.apiUrl}/bulk-upload`, formData, {
             reportProgress: true
@@ -300,8 +506,6 @@ export class MediaService {
                 progressSubject.complete();
             }
         });
-
-        return progressSubject.asObservable();
     }
 
     /**
