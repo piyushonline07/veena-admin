@@ -3,6 +3,7 @@ import { MediaService } from '../../core/service/media.service';
 import { MessageService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-media-link',
@@ -48,37 +49,39 @@ export class MediaLinkComponent implements OnInit {
   }
 
   loadAllMedia(): void {
-    this.loadAudioList();
-    this.loadVideoList();
-  }
-
-  loadAudioList(): void {
     this.isLoadingAudio = true;
-    this.mediaService.getMediaList(0, 1000, '', { mediaType: 'AUDIO' }).subscribe({
-      next: (page) => {
-        this.audioList = page?.content || [];
-        this.filteredAudioList = [...this.audioList];
-        this.isLoadingAudio = false;
-      },
-      error: () => {
-        this.audioList = [];
-        this.filteredAudioList = [];
-        this.isLoadingAudio = false;
-      }
-    });
-  }
-
-  loadVideoList(): void {
     this.isLoadingVideo = true;
-    this.mediaService.getMediaList(0, 1000, '', { mediaType: 'VIDEO' }).subscribe({
-      next: (page) => {
-        this.videoList = page?.content || [];
+
+    const audio$ = this.mediaService.getMediaList(0, 1000, undefined, { mediaType: 'AUDIO' });
+    const video$ = this.mediaService.getMediaList(0, 1000, undefined, { mediaType: 'VIDEO' });
+
+    forkJoin([audio$, video$]).subscribe({
+      next: ([audioPage, videoPage]) => {
+        this.audioList = audioPage?.content || [];
+        this.videoList = videoPage?.content || [];
+
+        this.filteredAudioList = [...this.audioList];
         this.filteredVideoList = [...this.videoList];
+
+        // Refresh selected items with fresh data from the reload
+        if (this.selectedAudio) {
+          const freshAudio = this.audioList.find(a => a.id === this.selectedAudio.id);
+          this.selectedAudio = freshAudio || null;
+        }
+        if (this.selectedVideo) {
+          const freshVideo = this.videoList.find(v => v.id === this.selectedVideo.id);
+          this.selectedVideo = freshVideo || null;
+        }
+
+        this.isLoadingAudio = false;
         this.isLoadingVideo = false;
       },
       error: () => {
+        this.audioList = [];
         this.videoList = [];
+        this.filteredAudioList = [];
         this.filteredVideoList = [];
+        this.isLoadingAudio = false;
         this.isLoadingVideo = false;
       }
     });
@@ -126,11 +129,20 @@ export class MediaLinkComponent implements OnInit {
 
   getLinkedVideo(audio: any): any {
     if (!audio?.linkedMediaId) return null;
+    // First check if linkedMedia is already in the response
+    if (audio.linkedMedia) return audio.linkedMedia;
+    // Fallback: search in local video list
     return this.videoList.find(v => v.id === audio.linkedMediaId);
   }
 
   getLinkedAudio(video: any): any {
-    // Find audio that links to this video
+    if (!video) return null;
+    // First check if video has linkedMediaId pointing to an audio
+    if (video.linkedMediaId) {
+      const fromList = this.audioList.find(a => a.id === video.linkedMediaId);
+      if (fromList) return fromList;
+    }
+    // Fallback: find audio that links to this video
     return this.audioList.find(a => a.linkedMediaId === video.id);
   }
 
@@ -168,10 +180,8 @@ export class MediaLinkComponent implements OnInit {
       next: () => {
         this.isLinking = false;
         this.msg.add({ severity: 'info', summary: 'Unlinked', detail: `"${audio.title}" has been unlinked` });
+        // loadAllMedia will refresh selectedAudio with fresh data from API
         this.loadAllMedia();
-        if (this.selectedAudio?.id === audio.id) {
-          this.selectedAudio = { ...audio, linkedMediaId: null, linkedMedia: null };
-        }
       },
       error: (err) => {
         this.isLinking = false;

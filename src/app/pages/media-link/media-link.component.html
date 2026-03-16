@@ -93,20 +93,21 @@
         </div>
 
         <!-- Linked Video Card or Empty State -->
-        <div class="selected-media-card video-card" *ngIf="selectedAudio.linkedMedia || getLinkedVideo(selectedAudio)">
-          <div class="card-thumb">
-            <img *ngIf="(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl"
-                 [src]="(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl" alt="Video" />
-            <i *ngIf="!(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.thumbnailUrl" class="pi pi-play-circle"></i>
+        <ng-container *ngIf="getLinkedVideo(selectedAudio) as linkedVideo">
+          <div class="selected-media-card video-card">
+            <div class="card-thumb">
+              <img *ngIf="linkedVideo.thumbnailUrl" [src]="linkedVideo.thumbnailUrl" alt="Video" />
+              <i *ngIf="!linkedVideo.thumbnailUrl" class="pi pi-play-circle"></i>
+            </div>
+            <div class="card-info">
+              <p-tag value="VIDEO" severity="warning" class="mb-2"></p-tag>
+              <div class="card-title">{{linkedVideo.title}}</div>
+              <div class="card-artist">{{linkedVideo.artist?.name || 'Unknown Artist'}}</div>
+            </div>
           </div>
-          <div class="card-info">
-            <p-tag value="VIDEO" severity="warning" class="mb-2"></p-tag>
-            <div class="card-title">{{(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.title}}</div>
-            <div class="card-artist">{{(selectedAudio.linkedMedia || getLinkedVideo(selectedAudio))?.artist?.name || 'Unknown Artist'}}</div>
-          </div>
-        </div>
+        </ng-container>
 
-        <div class="empty-video-card" *ngIf="!selectedAudio.linkedMediaId">
+        <div class="empty-video-card" *ngIf="!getLinkedVideo(selectedAudio)">
           <i class="pi pi-play-circle"></i>
           <p>No video linked</p>
         </div>
