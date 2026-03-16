@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MediaService } from '../../core/service/media.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
@@ -10,7 +10,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
   selector: 'app-media-link',
   templateUrl: './media-link.component.html',
   styleUrls: ['./media-link.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class MediaLinkComponent implements OnInit, OnDestroy {
   // Paginated media lists
@@ -21,9 +21,8 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   audioSearchQuery = '';
   videoSearchQuery = '';
 
-  // Selected items
-  selectedAudio: any = null;
-  selectedVideo: any = null;
+  // The item selected from either panel (audio or video) to inspect in center
+  selectedItem: any = null;
 
   // Loading states
   isLoadingAudio = false;
@@ -41,12 +40,10 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   videoTotalElements = 0;
   private readonly PAGE_SIZE = 30;
 
-  // Linked/unlinked counts (from first page metadata)
-  linkedCount = 0;
-  unlinkedAudioCount = 0;
-
   // Dialog visibility
   showLinkDialog = false;
+  // The item to link TO (chosen in the dialog)
+  dialogTarget: any = null;
 
   // Debounce subjects for search
   private audioSearch$ = new Subject<string>();
@@ -58,11 +55,11 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   constructor(
     private mediaService: MediaService,
     private msg: MessageService,
+    private confirmService: ConfirmationService,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    // Setup debounced search for audio
     this.audioSearch$.pipe(
       debounceTime(400),
       distinctUntilChanged(),
@@ -72,7 +69,6 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
       this.resetAndLoadAudio();
     });
 
-    // Setup debounced search for video
     this.videoSearch$.pipe(
       debounceTime(400),
       distinctUntilChanged(),
@@ -91,7 +87,7 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // --- Audio loading ---
+  // ───── Audio loading ─────
 
   private resetAndLoadAudio(): void {
     this.audioList = [];
@@ -101,26 +97,17 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   }
 
   loadAudioPage(page: number): void {
-    if (page === 0) {
-      this.isLoadingAudio = true;
-    } else {
-      this.isLoadingMoreAudio = true;
-    }
+    if (page === 0) { this.isLoadingAudio = true; } else { this.isLoadingMoreAudio = true; }
 
     const query = this.audioSearchQuery?.trim() || undefined;
     this.mediaService.getMediaList(page, this.PAGE_SIZE, query, { mediaType: 'AUDIO' }).subscribe({
       next: (resp) => {
         const items = resp?.content || [];
-        if (page === 0) {
-          this.audioList = items;
-        } else {
-          this.audioList = [...this.audioList, ...items];
-        }
+        this.audioList = page === 0 ? items : [...this.audioList, ...items];
         this.audioPage = resp?.number ?? page;
         this.audioTotalPages = resp?.totalPages ?? 0;
         this.audioTotalElements = resp?.totalElements ?? 0;
-        this.updateLinkedCounts();
-        this.refreshSelectedAudio();
+        this.refreshSelectedItem();
         this.isLoadingAudio = false;
         this.isLoadingMoreAudio = false;
       },
@@ -134,7 +121,6 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
 
   onAudioScroll(event: Event): void {
     const el = event.target as HTMLElement;
-    // Trigger load when scrolled to within 100px of the bottom
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 100) {
       this.loadMoreAudio();
     }
@@ -146,7 +132,7 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     this.loadAudioPage(this.audioPage + 1);
   }
 
-  // --- Video loading ---
+  // ───── Video loading ─────
 
   private resetAndLoadVideo(): void {
     this.videoList = [];
@@ -156,25 +142,17 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   }
 
   loadVideoPage(page: number): void {
-    if (page === 0) {
-      this.isLoadingVideo = true;
-    } else {
-      this.isLoadingMoreVideo = true;
-    }
+    if (page === 0) { this.isLoadingVideo = true; } else { this.isLoadingMoreVideo = true; }
 
     const query = this.videoSearchQuery?.trim() || undefined;
     this.mediaService.getMediaList(page, this.PAGE_SIZE, query, { mediaType: 'VIDEO' }).subscribe({
       next: (resp) => {
         const items = resp?.content || [];
-        if (page === 0) {
-          this.videoList = items;
-        } else {
-          this.videoList = [...this.videoList, ...items];
-        }
+        this.videoList = page === 0 ? items : [...this.videoList, ...items];
         this.videoPage = resp?.number ?? page;
         this.videoTotalPages = resp?.totalPages ?? 0;
         this.videoTotalElements = resp?.totalElements ?? 0;
-        this.refreshSelectedVideo();
+        this.refreshSelectedItem();
         this.isLoadingVideo = false;
         this.isLoadingMoreVideo = false;
       },
@@ -199,38 +177,20 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     this.loadVideoPage(this.videoPage + 1);
   }
 
-  // --- Search handlers ---
+  // ───── Search handlers ─────
 
-  onAudioSearch(query: string): void {
-    this.audioSearch$.next(query);
+  onAudioSearch(query: string): void { this.audioSearch$.next(query); }
+  onVideoSearch(query: string): void { this.videoSearch$.next(query); }
+
+  // ───── Refresh helper ─────
+
+  private refreshSelectedItem(): void {
+    if (!this.selectedItem) return;
+    const list = this.selectedItem.mediaType === 'AUDIO' ? this.audioList : this.videoList;
+    const fresh = list.find((m: any) => m.id === this.selectedItem.id);
+    if (fresh) { this.selectedItem = fresh; }
   }
 
-  onVideoSearch(query: string): void {
-    this.videoSearch$.next(query);
-  }
-
-  // --- Refresh helpers ---
-
-  private refreshSelectedAudio(): void {
-    if (this.selectedAudio) {
-      const fresh = this.audioList.find(a => a.id === this.selectedAudio.id);
-      if (fresh) { this.selectedAudio = fresh; }
-    }
-  }
-
-  private refreshSelectedVideo(): void {
-    if (this.selectedVideo) {
-      const fresh = this.videoList.find(v => v.id === this.selectedVideo.id);
-      if (fresh) { this.selectedVideo = fresh; }
-    }
-  }
-
-  private updateLinkedCounts(): void {
-    this.linkedCount = this.audioList.filter(a => a.linkedMediaId).length;
-    this.unlinkedAudioCount = this.audioList.filter(a => !a.linkedMediaId).length;
-  }
-
-  // Reload both panels (after link/unlink), preserving search queries
   reloadAll(): void {
     this.audioList = [];
     this.audioPage = 0;
@@ -240,62 +200,97 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     this.loadVideoPage(0);
   }
 
-  // --- Selection ---
+  // ───── Selection ─────
 
-  selectAudio(audio: any): void {
-    this.selectedAudio = audio;
+  selectAudio(audio: any): void { this.selectedItem = audio; }
+  selectVideo(video: any): void { this.selectedItem = video; }
+
+  // ───── Linked media helper ─────
+
+  /** Returns the linked partner info for any item (audio or video).
+   *  Uses the linkedMedia object returned by the API — works regardless of pagination. */
+  getLinkedPartner(item: any): any {
+    if (!item?.linkedMediaId) return null;
+    if (item.linkedMedia) return item.linkedMedia;
+    // Fallback: search in local lists
+    return this.audioList.find((m: any) => m.id === item.linkedMediaId)
+        || this.videoList.find((m: any) => m.id === item.linkedMediaId)
+        || null;
   }
 
-  selectVideo(video: any): void {
-    this.selectedVideo = video;
-  }
-
-  // --- Dialog ---
+  // ───── Dialog ─────
 
   openLinkDialog(): void {
+    this.dialogTarget = null;
     this.showLinkDialog = true;
   }
 
   closeLinkDialog(): void {
     this.showLinkDialog = false;
+    this.dialogTarget = null;
   }
 
-  // --- Linked media helpers ---
-
-  getLinkedVideo(audio: any): any {
-    if (!audio?.linkedMediaId) return null;
-    // linkedMedia is populated by the backend API response
-    if (audio.linkedMedia) return audio.linkedMedia;
-    // Fallback: search in locally loaded video list
-    return this.videoList.find(v => v.id === audio.linkedMediaId);
+  /** Returns the list of candidates to link with (opposite type, unlinked items first). */
+  get dialogOptions(): any[] {
+    if (!this.selectedItem) return [];
+    const list = this.selectedItem.mediaType === 'AUDIO' ? this.videoList : this.audioList;
+    return [...list].sort((a: any, b: any) => {
+      const aLinked = a.linkedMediaId ? 1 : 0;
+      const bLinked = b.linkedMediaId ? 1 : 0;
+      return aLinked - bLinked;
+    });
   }
 
-  getLinkedAudio(video: any): any {
-    if (!video) return null;
-    if (video.linkedMediaId) {
-      const fromList = this.audioList.find(a => a.id === video.linkedMediaId);
-      if (fromList) return fromList;
-    }
-    return this.audioList.find(a => a.linkedMediaId === video.id);
+  get dialogTargetTypeLabel(): string {
+    return this.selectedItem?.mediaType === 'AUDIO' ? 'Video' : 'Audio';
   }
 
-  // --- Link / Unlink ---
+  // ───── Link / Unlink ─────
 
   linkMedia(): void {
-    if (!this.selectedAudio || !this.selectedVideo) {
-      this.msg.add({ severity: 'warn', summary: 'Selection Required', detail: 'Select both audio and video to link' });
+    if (!this.selectedItem || !this.dialogTarget) {
+      this.msg.add({ severity: 'warn', summary: 'Selection Required', detail: 'Select both items to link' });
       return;
     }
 
+    const sourceId = this.selectedItem.id;
+    const targetId = this.dialogTarget.id;
+
+    // Check if target is already linked to something else — warn user
+    if (this.dialogTarget.linkedMediaId && this.dialogTarget.linkedMediaId !== sourceId) {
+      const existingName = this.dialogTarget.linkedMedia?.title || 'another song';
+      this.confirmService.confirm({
+        message: `"${this.dialogTarget.title}" is already linked to "${existingName}". That existing link will be replaced. Continue?`,
+        header: 'Replace Existing Link',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => this.performLink(sourceId, targetId)
+      });
+      return;
+    }
+
+    // Check if source is already linked to something else
+    if (this.selectedItem.linkedMediaId && this.selectedItem.linkedMediaId !== targetId) {
+      const existingName = this.selectedItem.linkedMedia?.title || 'another song';
+      this.confirmService.confirm({
+        message: `"${this.selectedItem.title}" is already linked to "${existingName}". That existing link will be replaced. Continue?`,
+        header: 'Replace Existing Link',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => this.performLink(sourceId, targetId)
+      });
+      return;
+    }
+
+    this.performLink(sourceId, targetId);
+  }
+
+  private performLink(sourceId: string, targetId: string): void {
     this.isLinking = true;
-    this.http.post(`${this.apiUrl}/link`, {
-      sourceId: this.selectedAudio.id,
-      targetId: this.selectedVideo.id
-    }).subscribe({
+    this.http.post(`${this.apiUrl}/link`, { sourceId, targetId }).subscribe({
       next: () => {
         this.isLinking = false;
-        this.msg.add({ severity: 'success', summary: 'Success', detail: `"${this.selectedAudio.title}" linked to "${this.selectedVideo.title}"` });
+        this.msg.add({ severity: 'success', summary: 'Linked', detail: `"${this.selectedItem.title}" ↔ "${this.dialogTarget.title}"` });
         this.showLinkDialog = false;
+        this.dialogTarget = null;
         this.reloadAll();
       },
       error: (err) => {
@@ -305,16 +300,13 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     });
   }
 
-  unlinkAudio(audio: any): void {
-    if (!audio) return;
-
+  unlinkItem(item: any): void {
+    if (!item) return;
     this.isLinking = true;
-    this.http.post(`${this.apiUrl}/unlink`, {
-      sourceId: audio.id
-    }).subscribe({
+    this.http.post(`${this.apiUrl}/unlink`, { sourceId: item.id }).subscribe({
       next: () => {
         this.isLinking = false;
-        this.msg.add({ severity: 'info', summary: 'Unlinked', detail: `"${audio.title}" has been unlinked` });
+        this.msg.add({ severity: 'info', summary: 'Unlinked', detail: `"${item.title}" has been unlinked` });
         this.reloadAll();
       },
       error: (err) => {
@@ -324,11 +316,13 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ───── Counts ─────
+
   getLinkedCount(): number {
-    return this.linkedCount;
+    return this.audioList.filter((a: any) => a.linkedMediaId).length;
   }
 
   getUnlinkedAudioCount(): number {
-    return this.unlinkedAudioCount;
+    return this.audioList.filter((a: any) => !a.linkedMediaId).length;
   }
 }

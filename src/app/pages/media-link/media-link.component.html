@@ -33,7 +33,7 @@
       <div class="media-list" *ngIf="!isLoadingAudio" (scroll)="onAudioScroll($event)">
         <div *ngFor="let audio of audioList"
              class="media-card"
-             [class.selected]="selectedAudio?.id === audio.id"
+             [class.selected]="selectedItem?.id === audio.id"
              [class.linked]="audio.linkedMediaId"
              (click)="selectAudio(audio)">
           <div class="media-thumb">
@@ -45,7 +45,7 @@
             <div class="media-artist">{{audio.artist?.name || 'Unknown Artist'}}</div>
             <div class="link-status" *ngIf="audio.linkedMediaId">
               <i class="pi pi-link"></i>
-              <span>Linked</span>
+              <span>Linked to {{audio.linkedMedia?.title || 'Video'}}</span>
             </div>
           </div>
           <div class="media-badge">
@@ -54,7 +54,6 @@
           </div>
         </div>
 
-        <!-- Loading more indicator -->
         <div *ngIf="isLoadingMoreAudio" class="loading-more">
           <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
           <span>Loading more...</span>
@@ -74,66 +73,66 @@
 
     <!-- Center - Connection Display -->
     <div class="connection-panel">
-      <div class="connection-visual" *ngIf="selectedAudio">
-        <!-- Selected Audio Card -->
-        <div class="selected-media-card audio-card">
+      <div class="connection-visual" *ngIf="selectedItem">
+        <!-- Selected Item Card -->
+        <div class="selected-media-card" [ngClass]="selectedItem.mediaType === 'AUDIO' ? 'audio-card' : 'video-card'">
           <div class="card-thumb">
-            <img *ngIf="selectedAudio.thumbnailUrl" [src]="selectedAudio.thumbnailUrl" alt="Audio" />
-            <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-headphones"></i>
+            <img *ngIf="selectedItem.thumbnailUrl" [src]="selectedItem.thumbnailUrl" alt="Selected" />
+            <i *ngIf="!selectedItem.thumbnailUrl" class="pi" [ngClass]="selectedItem.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
           </div>
           <div class="card-info">
-            <p-tag value="AUDIO" severity="info" class="mb-2"></p-tag>
-            <div class="card-title">{{selectedAudio.title}}</div>
-            <div class="card-artist">{{selectedAudio.artist?.name || 'Unknown Artist'}}</div>
+            <p-tag [value]="selectedItem.mediaType" [severity]="selectedItem.mediaType === 'AUDIO' ? 'info' : 'warning'" class="mb-2"></p-tag>
+            <div class="card-title">{{selectedItem.title}}</div>
+            <div class="card-artist">{{selectedItem.artist?.name || 'Unknown Artist'}}</div>
           </div>
         </div>
 
         <!-- Connection Line -->
-        <div class="connection-line" [class.connected]="selectedAudio.linkedMediaId">
+        <div class="connection-line" [class.connected]="selectedItem.linkedMediaId">
           <svg viewBox="0 0 100 40" preserveAspectRatio="none">
             <path d="M0,20 C30,20 70,20 100,20" class="line-path"></path>
           </svg>
           <div class="connection-icon">
-            <i class="pi" [ngClass]="selectedAudio.linkedMediaId ? 'pi-arrows-h' : 'pi-question-circle'"></i>
+            <i class="pi" [ngClass]="selectedItem.linkedMediaId ? 'pi-arrows-h' : 'pi-question-circle'"></i>
           </div>
         </div>
 
-        <!-- Linked Video Card or Empty State -->
-        <ng-container *ngIf="getLinkedVideo(selectedAudio) as linkedVideo">
-          <div class="selected-media-card video-card">
+        <!-- Linked Partner Card or Empty State -->
+        <ng-container *ngIf="getLinkedPartner(selectedItem) as partner">
+          <div class="selected-media-card" [ngClass]="partner.mediaType === 'AUDIO' ? 'audio-card' : 'video-card'">
             <div class="card-thumb">
-              <img *ngIf="linkedVideo.thumbnailUrl" [src]="linkedVideo.thumbnailUrl" alt="Video" />
-              <i *ngIf="!linkedVideo.thumbnailUrl" class="pi pi-play-circle"></i>
+              <img *ngIf="partner.thumbnailUrl" [src]="partner.thumbnailUrl" alt="Partner" />
+              <i *ngIf="!partner.thumbnailUrl" class="pi" [ngClass]="partner.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
             </div>
             <div class="card-info">
-              <p-tag value="VIDEO" severity="warning" class="mb-2"></p-tag>
-              <div class="card-title">{{linkedVideo.title}}</div>
-              <div class="card-artist">{{linkedVideo.artist?.name || 'Unknown Artist'}}</div>
+              <p-tag [value]="partner.mediaType" [severity]="partner.mediaType === 'AUDIO' ? 'info' : 'warning'" class="mb-2"></p-tag>
+              <div class="card-title">{{partner.title}}</div>
+              <div class="card-artist">{{partner.artist?.name || 'Unknown Artist'}}</div>
             </div>
           </div>
         </ng-container>
 
-        <div class="empty-video-card" *ngIf="!getLinkedVideo(selectedAudio)">
-          <i class="pi pi-play-circle"></i>
-          <p>No video linked</p>
+        <div class="empty-video-card" *ngIf="!getLinkedPartner(selectedItem)">
+          <i class="pi" [ngClass]="selectedItem.mediaType === 'AUDIO' ? 'pi-play-circle' : 'pi-headphones'"></i>
+          <p>No {{selectedItem.mediaType === 'AUDIO' ? 'video' : 'audio'}} linked</p>
         </div>
 
         <!-- Action Buttons -->
         <div class="connection-actions">
-          <p-button *ngIf="!selectedAudio.linkedMediaId"
-                    label="Link to Video"
+          <p-button *ngIf="!selectedItem.linkedMediaId"
+                    label="Link to {{selectedItem.mediaType === 'AUDIO' ? 'Video' : 'Audio'}}"
                     icon="pi pi-arrows-h"
                     (onClick)="openLinkDialog()"
                     styleClass="p-button-success">
           </p-button>
-          <p-button *ngIf="selectedAudio.linkedMediaId"
+          <p-button *ngIf="selectedItem.linkedMediaId"
                     label="Unlink"
                     icon="pi pi-times-circle"
-                    (onClick)="unlinkAudio(selectedAudio)"
+                    (onClick)="unlinkItem(selectedItem)"
                     [loading]="isLinking"
                     styleClass="p-button-danger p-button-outlined">
           </p-button>
-          <p-button *ngIf="selectedAudio.linkedMediaId"
+          <p-button *ngIf="selectedItem.linkedMediaId"
                     label="Change Link"
                     icon="pi pi-sync"
                     (onClick)="openLinkDialog()"
@@ -142,9 +141,9 @@
         </div>
       </div>
 
-      <div class="no-selection" *ngIf="!selectedAudio">
+      <div class="no-selection" *ngIf="!selectedItem">
         <i class="pi pi-arrow-left"></i>
-        <p>Select an audio track to view or manage its video link</p>
+        <p>Select an audio or video track to view or manage its link</p>
       </div>
     </div>
 
@@ -162,8 +161,8 @@
       <div class="media-list" *ngIf="!isLoadingVideo" (scroll)="onVideoScroll($event)">
         <div *ngFor="let video of videoList"
              class="media-card"
-             [class.selected]="selectedVideo?.id === video.id"
-             [class.has-link]="getLinkedAudio(video)"
+             [class.selected]="selectedItem?.id === video.id"
+             [class.has-link]="video.linkedMediaId"
              (click)="selectVideo(video)">
           <div class="media-thumb">
             <img *ngIf="video.thumbnailUrl" [src]="video.thumbnailUrl" alt="Video thumbnail" />
@@ -172,18 +171,17 @@
           <div class="media-info">
             <div class="media-title" [pTooltip]="video.title" tooltipPosition="top" [tooltipDisabled]="video.title?.length < 20">{{video.title}}</div>
             <div class="media-artist">{{video.artist?.name || 'Unknown Artist'}}</div>
-            <div class="link-status" *ngIf="getLinkedAudio(video)">
+            <div class="link-status" *ngIf="video.linkedMediaId">
               <i class="pi pi-link"></i>
-              <span>Linked</span>
+              <span>Linked to {{video.linkedMedia?.title || 'Audio'}}</span>
             </div>
           </div>
           <div class="media-badge">
             <p-tag value="VIDEO" severity="warning"></p-tag>
-            <i *ngIf="getLinkedAudio(video)" class="pi pi-check-circle linked-icon"></i>
+            <i *ngIf="video.linkedMediaId" class="pi pi-check-circle linked-icon"></i>
           </div>
         </div>
 
-        <!-- Loading more indicator -->
         <div *ngIf="isLoadingMoreVideo" class="loading-more">
           <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
           <span>Loading more...</span>
@@ -204,16 +202,16 @@
 </div>
 
 <!-- Link Dialog -->
-<p-dialog [(visible)]="showLinkDialog" header="Select Video to Link" [modal]="true" [style]="{width: '500px'}">
+<p-dialog [(visible)]="showLinkDialog" [header]="'Select ' + dialogTargetTypeLabel + ' to Link'" [modal]="true" [style]="{width: '500px'}">
   <div class="link-dialog-content">
-    <div class="selected-audio-info" *ngIf="selectedAudio">
-      <p class="mb-2">Linking audio:</p>
+    <div class="selected-audio-info" *ngIf="selectedItem">
+      <p class="mb-2">Linking {{selectedItem.mediaType | lowercase}}:</p>
       <div class="mini-card">
-        <img *ngIf="selectedAudio.thumbnailUrl" [src]="selectedAudio.thumbnailUrl" alt="Audio" class="mini-thumb" />
-        <i *ngIf="!selectedAudio.thumbnailUrl" class="pi pi-headphones mini-icon"></i>
+        <img *ngIf="selectedItem.thumbnailUrl" [src]="selectedItem.thumbnailUrl" alt="Source" class="mini-thumb" />
+        <i *ngIf="!selectedItem.thumbnailUrl" class="pi mini-icon" [ngClass]="selectedItem.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
         <div class="mini-info">
-          <strong>{{selectedAudio.title}}</strong>
-          <span>{{selectedAudio.artist?.name || 'Unknown Artist'}}</span>
+          <strong>{{selectedItem.title}}</strong>
+          <span>{{selectedItem.artist?.name || 'Unknown Artist'}}</span>
         </div>
       </div>
     </div>
@@ -221,36 +219,45 @@
     <p-divider></p-divider>
 
     <div class="video-selection">
-      <label class="block mb-2">Select video to link:</label>
-      <p-dropdown [options]="videoList"
-                  [(ngModel)]="selectedVideo"
+      <label class="block mb-2">Select {{dialogTargetTypeLabel | lowercase}} to link:</label>
+      <p-dropdown [options]="dialogOptions"
+                  [(ngModel)]="dialogTarget"
                   optionLabel="title"
-                  placeholder="Choose a video..."
+                  [placeholder]="'Choose a ' + (dialogTargetTypeLabel | lowercase) + '...'"
                   [filter]="true"
                   filterBy="title"
                   [showClear]="true"
                   [style]="{width: '100%'}">
-        <ng-template let-video pTemplate="item">
+        <ng-template let-item pTemplate="item">
           <div class="dropdown-item">
-            <img *ngIf="video.thumbnailUrl" [src]="video.thumbnailUrl" alt="thumb" class="dropdown-thumb" />
-            <i *ngIf="!video.thumbnailUrl" class="pi pi-play-circle dropdown-icon"></i>
+            <img *ngIf="item.thumbnailUrl" [src]="item.thumbnailUrl" alt="thumb" class="dropdown-thumb" />
+            <i *ngIf="!item.thumbnailUrl" class="pi dropdown-icon" [ngClass]="item.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
             <div class="dropdown-info">
-              <div class="dropdown-title">{{video.title}}</div>
-              <div class="dropdown-artist">{{video.artist?.name || 'Unknown Artist'}}</div>
+              <div class="dropdown-title">
+                {{item.title}}
+                <span class="already-linked-hint" *ngIf="item.linkedMediaId">⚠ already linked</span>
+              </div>
+              <div class="dropdown-artist">{{item.artist?.name || 'Unknown Artist'}}</div>
             </div>
           </div>
         </ng-template>
       </p-dropdown>
     </div>
 
-    <div class="selected-video-preview" *ngIf="selectedVideo">
+    <!-- Warning if target is already linked -->
+    <div class="relink-warning" *ngIf="dialogTarget?.linkedMediaId && dialogTarget?.linkedMediaId !== selectedItem?.id">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>"{{dialogTarget.title}}" is already linked to "{{dialogTarget.linkedMedia?.title || 'another song'}}". Linking will replace that.</span>
+    </div>
+
+    <div class="selected-video-preview" *ngIf="dialogTarget">
       <p class="mt-3 mb-2">Will link to:</p>
       <div class="mini-card video">
-        <img *ngIf="selectedVideo.thumbnailUrl" [src]="selectedVideo.thumbnailUrl" alt="Video" class="mini-thumb" />
-        <i *ngIf="!selectedVideo.thumbnailUrl" class="pi pi-play-circle mini-icon"></i>
+        <img *ngIf="dialogTarget.thumbnailUrl" [src]="dialogTarget.thumbnailUrl" alt="Target" class="mini-thumb" />
+        <i *ngIf="!dialogTarget.thumbnailUrl" class="pi mini-icon" [ngClass]="dialogTarget.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
         <div class="mini-info">
-          <strong>{{selectedVideo.title}}</strong>
-          <span>{{selectedVideo.artist?.name || 'Unknown Artist'}}</span>
+          <strong>{{dialogTarget.title}}</strong>
+          <span>{{dialogTarget.artist?.name || 'Unknown Artist'}}</span>
         </div>
       </div>
     </div>
@@ -258,8 +265,9 @@
 
   <ng-template pTemplate="footer">
     <p-button label="Cancel" icon="pi pi-times" (onClick)="closeLinkDialog()" styleClass="p-button-text"></p-button>
-    <p-button label="Link" icon="pi pi-arrows-h" (onClick)="linkMedia()" [disabled]="!selectedVideo" [loading]="isLinking" styleClass="p-button-success"></p-button>
+    <p-button label="Link" icon="pi pi-arrows-h" (onClick)="linkMedia()" [disabled]="!dialogTarget" [loading]="isLinking" styleClass="p-button-success"></p-button>
   </ng-template>
 </p-dialog>
 
+<p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
