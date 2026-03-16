@@ -15,6 +15,8 @@ interface UploadedMedia {
     album?: any;
     thumbnailUrl?: string;
     lyricsUrl?: string;
+    fileSize?: number;
+    fileExtension?: string;
     selected: boolean;
 }
 
@@ -157,12 +159,33 @@ export class BulkUploadComponent implements OnInit {
             const maxSize = 10 * 1024 * 1024 * 1024; // 10GB
             const validFiles: File[] = [];
             const oversizedFiles: string[] = [];
+            const wrongTypeFiles: string[] = [];
+            const allowedMedia = this.allowedMediaExtensions;
+            const disallowedMedia = this.mediaType?.value === 'VIDEO' ? this.audioExtensions : this.videoExtensions;
+
             for (const file of Array.from(files) as File[]) {
+                const ext = this.getFileExtension(file.name);
+
+                // Reject media files that don't match selected type
+                if (disallowedMedia.includes(ext)) {
+                    wrongTypeFiles.push(file.name);
+                    continue;
+                }
+
                 if (file.size > maxSize) {
                     oversizedFiles.push(file.name);
                 } else {
                     validFiles.push(file);
                 }
+            }
+            if (wrongTypeFiles.length > 0) {
+                const selectedType = this.mediaType?.value === 'VIDEO' ? 'Video' : 'Audio';
+                const allowedExts = allowedMedia.map(e => `.${e}`).join(', ');
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Wrong file type',
+                    detail: `Skipped ${wrongTypeFiles.length} file(s) not matching "${selectedType}" type. Allowed media: ${allowedExts}. Skipped: ${wrongTypeFiles.join(', ')}`
+                });
             }
             if (oversizedFiles.length > 0) {
                 this.messageService.add({
@@ -183,10 +206,46 @@ export class BulkUploadComponent implements OnInit {
         this.filesToUpload = [];
     }
 
-    // File type detection (strict formats: mp3/wav for audio, mp4 for video, vtt for lyrics)
-    private mediaExtensions = ['mp3', 'wav', 'mp4', 'mov'];
+    onMediaTypeChange(): void {
+        if (this.filesToUpload.length === 0) return;
+
+        const disallowed = this.mediaType?.value === 'VIDEO' ? this.audioExtensions : this.videoExtensions;
+        const invalidFiles = this.filesToUpload.filter(f => disallowed.includes(this.getFileExtension(f.name)));
+
+        if (invalidFiles.length > 0) {
+            this.filesToUpload = this.filesToUpload.filter(f => !disallowed.includes(this.getFileExtension(f.name)));
+            const selectedType = this.mediaType?.value === 'VIDEO' ? 'Video' : 'Audio';
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Files removed',
+                detail: `Removed ${invalidFiles.length} file(s) that don't match "${selectedType}" type: ${invalidFiles.map(f => f.name).join(', ')}`
+            });
+        }
+    }
+
+    // File type detection (strict formats based on selected media type)
+    private audioExtensions = ['mp3', 'wav'];
+    private videoExtensions = ['mp4', 'mov'];
     private thumbnailExtensions = ['jpg', 'jpeg', 'png', 'webp'];
     private lyricsExtensions = ['vtt'];
+
+    /** Returns allowed media extensions based on the currently selected media type */
+    get allowedMediaExtensions(): string[] {
+        return this.mediaType?.value === 'VIDEO' ? this.videoExtensions : this.audioExtensions;
+    }
+
+    /** All possible media extensions (audio + video) for general type detection */
+    private get allMediaExtensions(): string[] {
+        return [...this.audioExtensions, ...this.videoExtensions];
+    }
+
+    /** Accept string for the file picker based on selected media type */
+    get acceptFileTypes(): string {
+        const mediaExts = this.allowedMediaExtensions.map(e => `.${e}`).join(',');
+        const thumbExts = this.thumbnailExtensions.map(e => `.${e}`).join(',');
+        const lyricsExts = this.lyricsExtensions.map(e => `.${e}`).join(',');
+        return `${mediaExts},${thumbExts},${lyricsExts}`;
+    }
 
     getFileExtension(filename: string): string {
         const lastDot = filename.lastIndexOf('.');
@@ -195,7 +254,8 @@ export class BulkUploadComponent implements OnInit {
 
     getFileType(filename: string): string {
         const ext = this.getFileExtension(filename);
-        if (this.mediaExtensions.includes(ext)) return 'Media';
+        if (this.audioExtensions.includes(ext)) return 'Audio';
+        if (this.videoExtensions.includes(ext)) return 'Video';
         if (this.thumbnailExtensions.includes(ext)) return 'Thumbnail';
         if (this.lyricsExtensions.includes(ext)) return 'Lyrics';
         return 'Unknown';
@@ -203,7 +263,7 @@ export class BulkUploadComponent implements OnInit {
 
     getFileTypeSeverity(filename: string): string {
         const type = this.getFileType(filename);
-        if (type === 'Media') return 'info';
+        if (type === 'Audio' || type === 'Video') return 'info';
         if (type === 'Thumbnail') return 'warning';
         if (type === 'Lyrics') return 'success';
         return 'secondary';
@@ -211,7 +271,7 @@ export class BulkUploadComponent implements OnInit {
 
     get mediaFileCount(): number {
         return this.filesToUpload.filter(f =>
-            this.mediaExtensions.includes(this.getFileExtension(f.name))
+            this.allowedMediaExtensions.includes(this.getFileExtension(f.name))
         ).length;
     }
 
@@ -330,6 +390,95 @@ export class BulkUploadComponent implements OnInit {
 
     set allSelected(value: boolean) {
         this.toggleSelectAll(value);
+    }
+
+    // Delete single media item
+    deleteMediaItem(media: UploadedMedia): void {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete "${media.title}"? This will permanently remove it and its files.`,
+            header: 'Confirm Delete',
+            icon: 'pi pi-trash',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.mediaService.deleteMedia(media.id).subscribe({
+                    next: () => {
+                        this.uploadedMedia = this.uploadedMedia.filter(m => m.id !== media.id);
+                        this.draftMedia = this.draftMedia.filter(m => m.id !== media.id);
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Deleted',
+                            detail: `"${media.title}" has been deleted`
+                        });
+                    },
+                    error: () => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: `Failed to delete "${media.title}"`
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // Delete all selected media items
+    deleteSelectedMedia(): void {
+        const selected = this.selectedMedia;
+        if (selected.length === 0) {
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No items selected' });
+            return;
+        }
+
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${selected.length} selected item(s)? This will permanently remove them and their files.`,
+            header: 'Confirm Batch Delete',
+            icon: 'pi pi-trash',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                let successCount = 0;
+                let errorCount = 0;
+                let processed = 0;
+                const total = selected.length;
+
+                selected.forEach(media => {
+                    this.mediaService.deleteMedia(media.id).subscribe({
+                        next: () => {
+                            this.uploadedMedia = this.uploadedMedia.filter(m => m.id !== media.id);
+                            this.draftMedia = this.draftMedia.filter(m => m.id !== media.id);
+                            successCount++;
+                            processed++;
+                            if (processed === total) {
+                                this.showDeleteSummary(successCount, errorCount);
+                            }
+                        },
+                        error: () => {
+                            errorCount++;
+                            processed++;
+                            if (processed === total) {
+                                this.showDeleteSummary(successCount, errorCount);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    private showDeleteSummary(successCount: number, errorCount: number): void {
+        if (errorCount === 0) {
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Deleted',
+                detail: `${successCount} item(s) deleted successfully`
+            });
+        } else {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Partially Deleted',
+                detail: `${successCount} deleted, ${errorCount} failed`
+            });
+        }
     }
 
     // Batch update

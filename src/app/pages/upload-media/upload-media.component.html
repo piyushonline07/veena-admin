@@ -10,7 +10,7 @@
                     <div class="col-12 md:col-6 field">
                         <label for="mediaType">Media Type</label>
                         <p-dropdown [options]="mediaTypes" [(ngModel)]="mediaType" optionLabel="label"
-                            placeholder="Select type"></p-dropdown>
+                            placeholder="Select type" (onChange)="onMediaTypeChange()"></p-dropdown>
                     </div>
                     <div class="col-12 md:col-6 field">
                         <label for="artist">Artist (Optional)</label>
@@ -146,9 +146,13 @@
                     <div class="col-12 md:col-6 field">
                         <label for="sourceFile">Source File (Video/Audio)</label>
                         <p-fileUpload mode="basic" name="file" (onSelect)="onFileSelect($event, 'file')"
-                            accept=".mp4,.mov,.mp3,.wav" [maxFileSize]="10000000000"
+                            [accept]="acceptSourceFile" [maxFileSize]="10000000000"
                             chooseLabel="Choose Source" id="sourceFile"></p-fileUpload>
-                        <small class="text-secondary block mt-1">Supported: MP4/MOV (video), MP3/WAV (audio). Max 10GB.</small>
+                        <small class="text-secondary block mt-1">
+                            <span *ngIf="!mediaType">Select a media type first.</span>
+                            <span *ngIf="mediaType?.value === 'AUDIO'">Allowed: MP3, WAV. Max 10GB.</span>
+                            <span *ngIf="mediaType?.value === 'VIDEO'">Allowed: MP4, MOV. Max 10GB.</span>
+                        </small>
                         <div *ngIf="file" class="mt-2 text-sm text-gray-500">Selected: {{file.name}}</div>
                     </div>
 

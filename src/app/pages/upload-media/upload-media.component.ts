@@ -113,13 +113,54 @@ export class UploadMediaComponent implements OnInit {
         });
     }
 
+    get acceptSourceFile(): string {
+        if (!this.mediaType) return '.mp4,.mov,.mp3,.wav';
+        return this.mediaType.value === 'VIDEO' ? '.mp4,.mov' : '.mp3,.wav';
+    }
+
     onFileSelect(event: any, type: string) {
         if (type === 'file') {
-            this.file = event.files[0];
+            const selected: File = event.files[0];
+            if (selected && this.mediaType) {
+                const ext = selected.name.split('.').pop()?.toLowerCase() || '';
+                const audioExts = ['mp3', 'wav'];
+                const videoExts = ['mp4', 'mov'];
+                const allowed = this.mediaType.value === 'VIDEO' ? videoExts : audioExts;
+                if (!allowed.includes(ext)) {
+                    const typeName = this.mediaType.value === 'VIDEO' ? 'Video' : 'Audio';
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Wrong file type',
+                        detail: `"${selected.name}" is not a valid ${typeName} file. Allowed: ${allowed.map(e => '.' + e).join(', ')}`
+                    });
+                    this.file = null;
+                    return;
+                }
+            }
+            this.file = selected;
         } else if (type === 'thumbnail') {
             this.thumbnail = event.files[0];
         } else if (type === 'lyrics') {
             this.lyrics = event.files[0];
+        }
+    }
+
+    onMediaTypeChange(): void {
+        // Clear selected source file if it doesn't match the new type
+        if (this.file && this.mediaType) {
+            const ext = this.file.name.split('.').pop()?.toLowerCase() || '';
+            const audioExts = ['mp3', 'wav'];
+            const videoExts = ['mp4', 'mov'];
+            const allowed = this.mediaType.value === 'VIDEO' ? videoExts : audioExts;
+            if (!allowed.includes(ext)) {
+                const typeName = this.mediaType.value === 'VIDEO' ? 'Video' : 'Audio';
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'File cleared',
+                    detail: `"${this.file.name}" was removed because it doesn't match "${typeName}" type.`
+                });
+                this.file = null;
+            }
         }
     }
 

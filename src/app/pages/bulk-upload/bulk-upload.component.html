@@ -14,14 +14,14 @@
                 <div class="col-12 md:col-6 mb-3">
                     <label class="block mb-2 font-medium">Media Type</label>
                     <p-dropdown [options]="mediaTypes" [(ngModel)]="mediaType" optionLabel="label"
-                        styleClass="w-full"></p-dropdown>
+                        styleClass="w-full" (onChange)="onMediaTypeChange()"></p-dropdown>
                 </div>
             </div>
 
             <div class="upload-area p-4 border-2 border-dashed border-round mb-3 text-center"
                 [class.border-primary]="filesToUpload.length > 0">
                 <p-fileUpload mode="basic" [multiple]="true"
-                    accept=".mp3,.wav,.mp4,.mov,.jpg,.jpeg,.png,.webp,.vtt"
+                    [accept]="acceptFileTypes"
                     (onSelect)="onFilesSelected($event)"
                     [auto]="false"
                     [maxFileSize]="10000000000"
@@ -34,7 +34,10 @@
                 </p>
                 <p class="text-secondary text-sm">
                     <i class="pi pi-info-circle mr-1"></i>
-                    Files are matched by name. Example: <code>song1.mp3</code>, <code>song1.jpg</code>, <code>song1.vtt</code> will be linked together. Max 10GB per file.
+                    Files are matched by name. Example:
+                    <code *ngIf="mediaType?.value === 'AUDIO'">song1.mp3</code>
+                    <code *ngIf="mediaType?.value === 'VIDEO'">song1.mp4</code>,
+                    <code>song1.jpg</code>, <code>song1.vtt</code> will be linked together. Max 10GB per file.
                 </p>
             </div>
 
@@ -42,8 +45,10 @@
             <div class="grid mb-3">
                 <div class="col-12 md:col-4">
                     <div class="p-2 border-round surface-ground">
-                        <span class="font-medium text-primary"><i class="pi pi-volume-up mr-1"></i> Audio/Video</span>
-                        <p class="text-sm text-secondary mt-1 mb-0">MP3, WAV (audio), MP4 (video)</p>
+                        <span *ngIf="mediaType?.value === 'AUDIO'" class="font-medium text-primary"><i class="pi pi-volume-up mr-1"></i> Audio</span>
+                        <span *ngIf="mediaType?.value === 'VIDEO'" class="font-medium text-primary"><i class="pi pi-video mr-1"></i> Video</span>
+                        <p *ngIf="mediaType?.value === 'AUDIO'" class="text-sm text-secondary mt-1 mb-0">MP3, WAV</p>
+                        <p *ngIf="mediaType?.value === 'VIDEO'" class="text-sm text-secondary mt-1 mb-0">MP4, MOV</p>
                     </div>
                 </div>
                 <div class="col-12 md:col-4">
@@ -278,9 +283,15 @@
                 <p-card header="Media Items">
                     <div class="flex justify-content-between align-items-center mb-3">
                         <p-checkbox [(ngModel)]="allSelected" [binary]="true" label="Select All"></p-checkbox>
-                        <button pButton label="Next: Review & Publish" icon="pi pi-arrow-right" iconPos="right"
-                            [disabled]="selectedMedia.length === 0"
-                            (click)="goToPublish()"></button>
+                        <div class="flex gap-2">
+                            <button pButton label="Delete Selected" icon="pi pi-trash"
+                                class="p-button-danger p-button-outlined"
+                                [disabled]="selectedMedia.length === 0"
+                                (click)="deleteSelectedMedia()"></button>
+                            <button pButton label="Next: Review & Publish" icon="pi pi-arrow-right" iconPos="right"
+                                [disabled]="selectedMedia.length === 0"
+                                (click)="goToPublish()"></button>
+                        </div>
                     </div>
 
                     <p-table [value]="allMedia" styleClass="p-datatable-sm"
@@ -289,12 +300,15 @@
                             <tr>
                                 <th style="width: 50px;"></th>
                                 <th>Title</th>
+                                <th style="width: 70px;">Ext</th>
                                 <th style="width: 90px;">Type</th>
+                                <th style="width: 90px;">Size</th>
                                 <th>Artist</th>
                                 <th>Album</th>
-                                <th style="width: 80px;">Thumb</th>
-                                <th style="width: 80px;">Lyrics</th>
+                                <th style="width: 60px;">Thumb</th>
+                                <th style="width: 60px;">Lyrics</th>
                                 <th>Status</th>
+                                <th style="width: 45px;"></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-media>
@@ -304,8 +318,16 @@
                                 </td>
                                 <td>{{ media.title }}</td>
                                 <td>
+                                    <span *ngIf="media.fileExtension" class="text-sm font-mono font-medium text-secondary">.{{ media.fileExtension | uppercase }}</span>
+                                    <span *ngIf="!media.fileExtension" class="text-gray-400">-</span>
+                                </td>
+                                <td>
                                     <p-tag [value]="media.mediaType"
                                         [severity]="media.mediaType === 'VIDEO' ? 'info' : 'warning'"></p-tag>
+                                </td>
+                                <td class="text-sm">
+                                    <span *ngIf="media.fileSize">{{ formatFileSize(media.fileSize) }}</span>
+                                    <span *ngIf="!media.fileSize" class="text-gray-400">-</span>
                                 </td>
                                 <td>{{ media.artist?.name || '-' }}</td>
                                 <td>{{ media.album?.title || '-' }}</td>
@@ -318,11 +340,16 @@
                                 <td>
                                     <p-tag [value]="media.status" [severity]="getStatusSeverity(media.status)"></p-tag>
                                 </td>
+                                <td class="text-center">
+                                    <i class="pi pi-trash text-red-500 cursor-pointer hover:text-red-700"
+                                        pTooltip="Delete" tooltipPosition="left"
+                                        (click)="deleteMediaItem(media)"></i>
+                                </td>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="8" class="text-center text-secondary">No media items. Upload some files first.</td>
+                                <td colspan="11" class="text-center text-secondary">No media items. Upload some files first.</td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -363,7 +390,9 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Title</th>
+                        <th style="width: 70px;">Ext</th>
                         <th>Type</th>
+                        <th style="width: 90px;">Size</th>
                         <th>Artist</th>
                         <th>Album</th>
                         <th>Status</th>
@@ -373,8 +402,16 @@
                     <tr>
                         <td>{{ media.title }}</td>
                         <td>
+                            <span *ngIf="media.fileExtension" class="text-sm font-mono font-medium text-secondary">.{{ media.fileExtension | uppercase }}</span>
+                            <span *ngIf="!media.fileExtension" class="text-gray-400">-</span>
+                        </td>
+                        <td>
                             <p-tag [value]="media.mediaType"
                                 [severity]="media.mediaType === 'VIDEO' ? 'info' : 'warning'"></p-tag>
+                        </td>
+                        <td class="text-sm">
+                            <span *ngIf="media.fileSize">{{ formatFileSize(media.fileSize) }}</span>
+                            <span *ngIf="!media.fileSize" class="text-gray-400">-</span>
                         </td>
                         <td>{{ media.artist?.name || '-' }}</td>
                         <td>{{ media.album?.title || '-' }}</td>
