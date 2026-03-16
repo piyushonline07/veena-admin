@@ -336,7 +336,12 @@ export class BulkUploadComponent implements OnInit {
                         this.uploadStatus = `Uploading... ${progress.completedCount}/${progress.totalCount} groups done (${activeCount} active) — ${this.formatFileSize(progress.overallLoaded)} / ${this.formatFileSize(progress.overallTotal)}`;
                     } else if (progress.status === 'completed') {
                         this.uploadStatus = 'Processing files...';
-                        this.uploadedMedia = (progress.responses || []).map((m: any) => ({
+                        console.log('[BulkUpload] Upload completed. Responses:', progress.responses?.length,
+                            'Groups:', progress.groups.map(g => `${g.groupName}:${g.status}`));
+
+                        // Map uploaded media from responses (filter out null/invalid entries)
+                        const validResponses = (progress.responses || []).filter((m: any) => m && m.id);
+                        this.uploadedMedia = validResponses.map((m: any) => ({
                             ...m,
                             selected: true
                         }));
@@ -345,14 +350,20 @@ export class BulkUploadComponent implements OnInit {
                         const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
                         const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
                         const errorCount = progress.groups.filter(g => g.status === 'error').length;
+                        const successCount = progress.groups.filter(g => g.status === 'completed').length;
 
-                        let detail = `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`;
+                        let detail = '';
+                        if (mediaCount > 0) {
+                            detail = `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`;
+                        } else if (successCount > 0) {
+                            detail = `${successCount} file group(s) uploaded successfully`;
+                        }
                         if (errorCount > 0) {
-                            detail += `. ${errorCount} group(s) failed.`;
+                            detail += detail ? `. ${errorCount} group(s) failed.` : `${errorCount} group(s) failed.`;
                         }
 
                         this.messageService.add({
-                            severity: errorCount > 0 ? 'warn' : 'success',
+                            severity: errorCount > 0 && successCount === 0 ? 'error' : (errorCount > 0 ? 'warn' : 'success'),
                             summary: 'Upload Complete!',
                             detail
                         });
@@ -379,7 +390,10 @@ export class BulkUploadComponent implements OnInit {
 
     // Selection
     get allMedia(): UploadedMedia[] {
-        return [...this.uploadedMedia, ...this.draftMedia];
+        // Deduplicate: uploadedMedia takes priority (has selected: true)
+        const uploadedIds = new Set(this.uploadedMedia.map(m => m.id));
+        const uniqueDrafts = this.draftMedia.filter(m => !uploadedIds.has(m.id));
+        return [...this.uploadedMedia, ...uniqueDrafts];
     }
 
     get selectedMedia(): UploadedMedia[] {

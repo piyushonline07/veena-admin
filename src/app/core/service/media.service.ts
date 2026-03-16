@@ -444,7 +444,11 @@ export class MediaService {
 
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
+                    // Keep ETag as-is (with or without quotes) - backend normalizes it
                     const eTag = xhr.getResponseHeader('ETag') || '';
+                    if (!eTag) {
+                        console.warn('[ChunkedUpload] S3 response missing ETag header - CORS may not expose it');
+                    }
                     resolve(eTag.replace(/"/g, ''));
                 } else {
                     reject(new Error(`S3 upload failed with status ${xhr.status}: ${xhr.statusText}`));
