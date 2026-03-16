@@ -22,16 +22,16 @@
     <!-- Left Panel - Audio List -->
     <div class="media-panel audio-panel">
       <div class="panel-header">
-        <h3><i class="pi pi-headphones"></i> Audio Tracks</h3>
+        <h3><i class="pi pi-headphones"></i> Audio Tracks <span class="count-badge" *ngIf="audioTotalElements">({{audioTotalElements}})</span></h3>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText [(ngModel)]="audioSearchQuery" (ngModelChange)="onAudioSearch()"
+          <input pInputText [ngModel]="audioSearchQuery" (ngModelChange)="onAudioSearch($event)"
                  placeholder="Search audio..." class="search-input" />
         </span>
       </div>
 
-      <div class="media-list" *ngIf="!isLoadingAudio">
-        <div *ngFor="let audio of filteredAudioList"
+      <div class="media-list" *ngIf="!isLoadingAudio" (scroll)="onAudioScroll($event)">
+        <div *ngFor="let audio of audioList"
              class="media-card"
              [class.selected]="selectedAudio?.id === audio.id"
              [class.linked]="audio.linkedMediaId"
@@ -54,7 +54,13 @@
           </div>
         </div>
 
-        <div *ngIf="filteredAudioList.length === 0" class="empty-state">
+        <!-- Loading more indicator -->
+        <div *ngIf="isLoadingMoreAudio" class="loading-more">
+          <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
+          <span>Loading more...</span>
+        </div>
+
+        <div *ngIf="audioList.length === 0" class="empty-state">
           <i class="pi pi-inbox"></i>
           <p>No audio tracks found</p>
         </div>
@@ -145,16 +151,16 @@
     <!-- Right Panel - Video List -->
     <div class="media-panel video-panel">
       <div class="panel-header">
-        <h3><i class="pi pi-play-circle"></i> Video Tracks</h3>
+        <h3><i class="pi pi-play-circle"></i> Video Tracks <span class="count-badge" *ngIf="videoTotalElements">({{videoTotalElements}})</span></h3>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText [(ngModel)]="videoSearchQuery" (ngModelChange)="onVideoSearch()"
+          <input pInputText [ngModel]="videoSearchQuery" (ngModelChange)="onVideoSearch($event)"
                  placeholder="Search video..." class="search-input" />
         </span>
       </div>
 
-      <div class="media-list" *ngIf="!isLoadingVideo">
-        <div *ngFor="let video of filteredVideoList"
+      <div class="media-list" *ngIf="!isLoadingVideo" (scroll)="onVideoScroll($event)">
+        <div *ngFor="let video of videoList"
              class="media-card"
              [class.selected]="selectedVideo?.id === video.id"
              [class.has-link]="getLinkedAudio(video)"
@@ -177,7 +183,13 @@
           </div>
         </div>
 
-        <div *ngIf="filteredVideoList.length === 0" class="empty-state">
+        <!-- Loading more indicator -->
+        <div *ngIf="isLoadingMoreVideo" class="loading-more">
+          <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
+          <span>Loading more...</span>
+        </div>
+
+        <div *ngIf="videoList.length === 0" class="empty-state">
           <i class="pi pi-inbox"></i>
           <p>No video tracks found</p>
         </div>
