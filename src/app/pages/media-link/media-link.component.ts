@@ -54,10 +54,9 @@ export class MediaLinkComponent implements OnInit {
 
   loadAudioList(): void {
     this.isLoadingAudio = true;
-    this.mediaService.getMediaList(0, 200, '').subscribe({
+    this.mediaService.getMediaList(0, 1000, '', { mediaType: 'AUDIO' }).subscribe({
       next: (page) => {
-        const items = page?.content || [];
-        this.audioList = items.filter((m: any) => m.mediaType === 'AUDIO');
+        this.audioList = page?.content || [];
         this.filteredAudioList = [...this.audioList];
         this.isLoadingAudio = false;
       },
@@ -71,10 +70,9 @@ export class MediaLinkComponent implements OnInit {
 
   loadVideoList(): void {
     this.isLoadingVideo = true;
-    this.mediaService.getMediaList(0, 200, '').subscribe({
+    this.mediaService.getMediaList(0, 1000, '', { mediaType: 'VIDEO' }).subscribe({
       next: (page) => {
-        const items = page?.content || [];
-        this.videoList = items.filter((m: any) => m.mediaType === 'VIDEO');
+        this.videoList = page?.content || [];
         this.filteredVideoList = [...this.videoList];
         this.isLoadingVideo = false;
       },
