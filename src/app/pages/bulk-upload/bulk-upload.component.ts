@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { MediaService, BatchUpdateRequest, UploadProgress, BulkUploadProgress, FileGroupProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
@@ -26,7 +26,7 @@ interface UploadedMedia {
     styleUrls: ['./bulk-upload.component.scss'],
     providers: [MessageService, ConfirmationService]
 })
-export class BulkUploadComponent implements OnInit {
+export class BulkUploadComponent implements OnInit, OnDestroy {
     // Step management
     currentStep: number = 0;
     steps = [
@@ -51,6 +51,10 @@ export class BulkUploadComponent implements OnInit {
     uploadConcurrency: number = 3;
     completedGroupCount: number = 0;
     totalGroupCount: number = 0;
+
+    // Session keep-alive timer (pings backend every 2 minutes during upload)
+    private keepAliveInterval: any = null;
+    private readonly KEEP_ALIVE_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
     // Uploaded media
     uploadedMedia: UploadedMedia[] = [];
@@ -98,6 +102,29 @@ export class BulkUploadComponent implements OnInit {
         this.loadProducers();
         this.loadDirectors();
         this.loadDraftMedia();
+    }
+
+    ngOnDestroy(): void {
+        this.stopKeepAlive();
+    }
+
+    /** Start pinging the backend every 2 minutes to keep the Cognito session alive during long uploads. */
+    private startKeepAlive(): void {
+        this.stopKeepAlive(); // clear any existing timer
+        console.log('[KeepAlive] Started — pinging every', this.KEEP_ALIVE_INTERVAL_MS / 1000, 'seconds');
+        this.keepAliveInterval = setInterval(() => {
+            console.log('[KeepAlive] Pinging backend...');
+            this.mediaService.ping().subscribe();
+        }, this.KEEP_ALIVE_INTERVAL_MS);
+    }
+
+    /** Stop the keep-alive timer. */
+    private stopKeepAlive(): void {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
+            console.log('[KeepAlive] Stopped');
+        }
     }
 
     loadArtists(): void {
@@ -313,6 +340,9 @@ export class BulkUploadComponent implements OnInit {
         this.completedGroupCount = 0;
         this.totalGroupCount = 0;
 
+        // Start keep-alive pings to prevent session expiry during long uploads
+        this.startKeepAlive();
+
         const fileGroups = this.mediaService.groupFilesByBaseName(this.filesToUpload);
         this.totalGroupCount = fileGroups.size;
         this.uploadStatus = `Uploading ${this.totalGroupCount} file group(s) in parallel (${this.uploadConcurrency} at a time)...`;
@@ -371,6 +401,7 @@ export class BulkUploadComponent implements OnInit {
                         this.filesToUpload = [];
                         this.uploading = false;
                         this.uploadStatus = '';
+                        this.stopKeepAlive();
                         this.currentStep = 1;
                         this.loadDraftMedia();
                     }
@@ -382,6 +413,7 @@ export class BulkUploadComponent implements OnInit {
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
                     this.uploading = false;
                     this.uploadStatus = '';
+                    this.stopKeepAlive();
                     this.cdr.detectChanges();
                 });
             }

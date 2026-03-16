@@ -69,6 +69,19 @@ export class MediaService {
     constructor(private http: HttpClient) { }
 
     /**
+     * Lightweight ping to keep the admin session alive during long uploads.
+     * Hits an authenticated endpoint so the Cognito token gets exercised.
+     */
+    ping(): Observable<any> {
+        return this.http.get(`${this.apiUrl}/ping`).pipe(
+            catchError((err) => {
+                console.warn('[KeepAlive] Ping failed:', err.status);
+                return of(null);
+            })
+        );
+    }
+
+    /**
      * Record a play event for a media item.
      * This updates play counts and user history for trending calculations.
      * @param mediaId The UUID of the media being played
