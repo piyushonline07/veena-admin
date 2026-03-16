@@ -52,6 +52,10 @@ export class UploadMediaComponent implements OnInit {
     thumbnail: File | null = null;
     lyrics: File | null = null;
     loading: boolean = false;
+    uploadProgress: number = 0;
+    uploadedBytes: number = 0;
+    totalBytes: number = 0;
+    uploadStatus: string = '';
     lastUploadedMedia: any = null;
 
     constructor(
@@ -126,6 +130,10 @@ export class UploadMediaComponent implements OnInit {
         }
 
         this.loading = true;
+        this.uploadProgress = 0;
+        this.uploadedBytes = 0;
+        this.totalBytes = this.file?.size || 0;
+        this.uploadStatus = 'Uploading...';
         const formData = new FormData();
         formData.append('title', this.title);
         formData.append('description', this.description);
@@ -183,21 +191,38 @@ export class UploadMediaComponent implements OnInit {
             formData.append('lyrics', this.lyrics);
         }
 
-        this.mediaService.uploadMedia(formData).subscribe({
-            next: (res) => {
-                this.loading = false;
-                this.lastUploadedMedia = res;
+        this.mediaService.uploadMediaWithProgress(formData).subscribe({
+            next: (progress) => {
+                this.uploadProgress = progress.percent;
+                this.uploadedBytes = progress.loaded;
+                this.totalBytes = progress.total || this.totalBytes;
 
-                let message = 'Media uploaded successfully';
-                if (this.selectedAlbum) {
-                    message += ` and added to "${this.selectedAlbum.name}"`;
+                if (progress.status === 'uploading') {
+                    this.uploadStatus = `Uploading... ${this.formatFileSize(progress.loaded)} / ${this.formatFileSize(progress.total)}`;
+                } else if (progress.status === 'completed') {
+                    this.loading = false;
+                    this.uploadProgress = 0;
+                    this.uploadStatus = '';
+                    this.lastUploadedMedia = progress.response;
+
+                    let message = 'Media uploaded successfully';
+                    if (this.selectedAlbum) {
+                        message += ` and added to "${this.selectedAlbum.name}"`;
+                    }
+
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: message });
+                    this.resetForm();
+                } else if (progress.status === 'error') {
+                    this.loading = false;
+                    this.uploadProgress = 0;
+                    this.uploadStatus = '';
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Upload failed' });
                 }
-
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: message });
-                this.resetForm();
             },
             error: (err) => {
                 this.loading = false;
+                this.uploadProgress = 0;
+                this.uploadStatus = '';
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Upload failed' });
                 console.error(err);
             }
@@ -221,5 +246,17 @@ export class UploadMediaComponent implements OnInit {
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;
+        this.uploadProgress = 0;
+        this.uploadedBytes = 0;
+        this.totalBytes = 0;
+        this.uploadStatus = '';
+    }
+
+    formatFileSize(bytes: number): string {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }

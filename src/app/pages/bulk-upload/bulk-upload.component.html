@@ -24,6 +24,7 @@
                     accept=".mp3,.wav,.mp4,.mov,.jpg,.jpeg,.png,.webp,.vtt"
                     (onSelect)="onFilesSelected($event)"
                     [auto]="false"
+                    [maxFileSize]="10000000000"
                     chooseLabel="Select Files"
                     chooseIcon="pi pi-upload"
                     styleClass="p-button-outlined">
@@ -33,7 +34,7 @@
                 </p>
                 <p class="text-secondary text-sm">
                     <i class="pi pi-info-circle mr-1"></i>
-                    Files are matched by name. Example: <code>song1.mp3</code>, <code>song1.jpg</code>, <code>song1.vtt</code> will be linked together.
+                    Files are matched by name. Example: <code>song1.mp3</code>, <code>song1.jpg</code>, <code>song1.vtt</code> will be linked together. Max 10GB per file.
                 </p>
             </div>
 
@@ -67,7 +68,8 @@
                         <span class="text-sm">
                             <span class="text-primary">{{ mediaFileCount }} media</span> |
                             <span class="text-orange-500">{{ thumbnailFileCount }} thumbnails</span> |
-                            <span class="text-green-500">{{ lyricsFileCount }} lyrics</span>
+                            <span class="text-green-500">{{ lyricsFileCount }} lyrics</span> |
+                            <span class="font-medium">Total: {{ formatFileSize(totalFileSize) }}</span>
                         </span>
                         <button pButton label="Clear All" icon="pi pi-times" class="p-button-text p-button-danger"
                             (click)="clearFiles()"></button>
@@ -77,6 +79,7 @@
                     <ng-template pTemplate="header">
                         <tr>
                             <th>File Name</th>
+                            <th style="width: 80px;">Extension</th>
                             <th style="width: 100px;">Type</th>
                             <th style="width: 100px;">Size</th>
                             <th style="width: 60px;"></th>
@@ -84,12 +87,17 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-file let-i="rowIndex">
                         <tr>
-                            <td>{{ file.name }}</td>
+                            <td>
+                                <span class="font-medium">{{ file.name }}</span>
+                            </td>
+                            <td>
+                                <span class="text-sm font-mono font-medium text-secondary">{{ getFileExtensionLabel(file.name) }}</span>
+                            </td>
                             <td>
                                 <p-tag [value]="getFileType(file.name)"
                                     [severity]="getFileTypeSeverity(file.name)"></p-tag>
                             </td>
-                            <td>{{ formatFileSize(file.size) }}</td>
+                            <td class="font-medium">{{ formatFileSize(file.size) }}</td>
                             <td>
                                 <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
                                     (click)="removeFile(i)"></button>
@@ -99,8 +107,9 @@
                 </p-table>
             </div>
 
-            <!-- Upload Progress Bar -->
+            <!-- Upload Progress -->
             <div *ngIf="uploading" class="upload-progress-container mb-3 p-3 border-round surface-ground">
+                <!-- Overall Progress -->
                 <div class="flex justify-content-between align-items-center mb-2">
                     <span class="font-medium">
                         <i class="pi pi-spin pi-spinner mr-2"></i>
@@ -108,11 +117,44 @@
                     </span>
                     <span class="text-primary font-bold">{{ uploadProgress }}%</span>
                 </div>
-                <p-progressBar [value]="uploadProgress" [showValue]="false"
-                    [style]="{'height': '12px'}" styleClass="upload-progress-bar"></p-progressBar>
+                <p-progressBar [value]="uploadProgress" [showValue]="false" mode="determinate"
+                    [style]="{'height': '12px', 'border-radius': '6px'}"></p-progressBar>
                 <div class="flex justify-content-between mt-2 text-sm text-secondary">
-                    <span>{{ formatFileSize(uploadedBytes) }} uploaded</span>
-                    <span>Total: {{ formatFileSize(totalBytes) }}</span>
+                    <span>{{ formatFileSize(uploadedBytes) }} / {{ formatFileSize(totalBytes) }}</span>
+                    <span>{{ completedGroupCount }} / {{ totalGroupCount }} groups done</span>
+                </div>
+
+                <!-- Per-file-group progress -->
+                <div *ngIf="fileGroupProgress.length > 0" class="mt-3">
+                    <p-table [value]="fileGroupProgress" styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="180px">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 40px;"></th>
+                                <th>File Group</th>
+                                <th style="width: 100px;">Size</th>
+                                <th style="width: 200px;">Progress</th>
+                                <th style="width: 90px;">Status</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-group>
+                            <tr>
+                                <td class="text-center">
+                                    <i [class]="getGroupStatusIcon(group.status)"></i>
+                                </td>
+                                <td class="font-medium">{{ group.groupName }}</td>
+                                <td class="text-sm">{{ formatFileSize(group.total) }}</td>
+                                <td>
+                                    <p-progressBar [value]="group.percent" [showValue]="false"
+                                        [style]="{'height': '6px', 'border-radius': '4px'}"></p-progressBar>
+                                    <span class="text-xs text-secondary">{{ group.percent }}%</span>
+                                </td>
+                                <td>
+                                    <p-tag [value]="group.status"
+                                        [severity]="getGroupStatusSeverity(group.status)"></p-tag>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
                 </div>
             </div>
 
@@ -139,6 +181,13 @@
             <div class="col-12 lg:col-4">
                 <p-card header="Batch Edit">
                     <p class="text-secondary text-sm mb-3">Apply to {{ selectedMedia.length }} selected items</p>
+
+                    <div class="field mb-3">
+                        <label class="block mb-2">Media Type</label>
+                        <p-dropdown [options]="mediaTypes" [(ngModel)]="batchMediaType" optionLabel="label"
+                            [showClear]="true" placeholder="Change Media Type" styleClass="w-full"></p-dropdown>
+                        <small class="text-secondary">Change audio/video type for selected items</small>
+                    </div>
 
                     <div class="field mb-3">
                         <label class="block mb-2">Artist</label>
@@ -240,7 +289,7 @@
                             <tr>
                                 <th style="width: 50px;"></th>
                                 <th>Title</th>
-                                <th>Type</th>
+                                <th style="width: 90px;">Type</th>
                                 <th>Artist</th>
                                 <th>Album</th>
                                 <th style="width: 80px;">Thumb</th>
@@ -273,7 +322,7 @@
                         </ng-template>
                         <ng-template pTemplate="emptymessage">
                             <tr>
-                                <td colspan="6" class="text-center text-secondary">No media items. Upload some files first.</td>
+                                <td colspan="8" class="text-center text-secondary">No media items. Upload some files first.</td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -323,7 +372,10 @@
                 <ng-template pTemplate="body" let-media>
                     <tr>
                         <td>{{ media.title }}</td>
-                        <td><p-tag [value]="media.mediaType"></p-tag></td>
+                        <td>
+                            <p-tag [value]="media.mediaType"
+                                [severity]="media.mediaType === 'VIDEO' ? 'info' : 'warning'"></p-tag>
+                        </td>
                         <td>{{ media.artist?.name || '-' }}</td>
                         <td>{{ media.album?.title || '-' }}</td>
                         <td><p-tag [value]="media.status" [severity]="getStatusSeverity(media.status)"></p-tag></td>

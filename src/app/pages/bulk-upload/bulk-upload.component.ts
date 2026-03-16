@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MediaService, BatchUpdateRequest, UploadProgress } from '../../core/service/media.service';
+import { MediaService, BatchUpdateRequest, UploadProgress, BulkUploadProgress, FileGroupProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
 import { CreditService, Credit } from '../../core/service/credit.service';
@@ -45,6 +45,10 @@ export class BulkUploadComponent implements OnInit {
     uploadedBytes: number = 0;
     totalBytes: number = 0;
     uploadStatus: string = '';
+    fileGroupProgress: FileGroupProgress[] = [];
+    uploadConcurrency: number = 3;
+    completedGroupCount: number = 0;
+    totalGroupCount: number = 0;
 
     // Uploaded media
     uploadedMedia: UploadedMedia[] = [];
@@ -67,6 +71,7 @@ export class BulkUploadComponent implements OnInit {
     batchTitle: string = '';
     batchDescription: string = '';
     batchReleaseDate: Date | null = null;
+    batchMediaType: any = null;
     updating: boolean = false;
 
     // Publish
@@ -149,7 +154,24 @@ export class BulkUploadComponent implements OnInit {
     onFilesSelected(event: any): void {
         const files = event.files || event.target?.files;
         if (files) {
-            this.filesToUpload = [...this.filesToUpload, ...Array.from(files) as File[]];
+            const maxSize = 10 * 1024 * 1024 * 1024; // 10GB
+            const validFiles: File[] = [];
+            const oversizedFiles: string[] = [];
+            for (const file of Array.from(files) as File[]) {
+                if (file.size > maxSize) {
+                    oversizedFiles.push(file.name);
+                } else {
+                    validFiles.push(file);
+                }
+            }
+            if (oversizedFiles.length > 0) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'File too large',
+                    detail: `Skipped ${oversizedFiles.length} file(s) exceeding 10GB: ${oversizedFiles.join(', ')}`
+                });
+            }
+            this.filesToUpload = [...this.filesToUpload, ...validFiles];
         }
     }
 
@@ -205,6 +227,15 @@ export class BulkUploadComponent implements OnInit {
         ).length;
     }
 
+    get totalFileSize(): number {
+        return this.filesToUpload.reduce((acc, f) => acc + f.size, 0);
+    }
+
+    getFileExtensionLabel(filename: string): string {
+        const ext = this.getFileExtension(filename);
+        return ext ? `.${ext.toUpperCase()}` : '';
+    }
+
     // Upload
     uploadFiles(): void {
         if (this.mediaFileCount === 0) {
@@ -216,22 +247,33 @@ export class BulkUploadComponent implements OnInit {
         this.uploadProgress = 0;
         this.uploadedBytes = 0;
         this.totalBytes = this.filesToUpload.reduce((acc, f) => acc + f.size, 0);
-        this.uploadStatus = 'Uploading to S3...';
+        this.fileGroupProgress = [];
+        this.completedGroupCount = 0;
+        this.totalGroupCount = 0;
 
-        this.mediaService.bulkUploadMediaWithProgress(
+        const fileGroups = this.mediaService.groupFilesByBaseName(this.filesToUpload);
+        this.totalGroupCount = fileGroups.size;
+        this.uploadStatus = `Uploading ${this.totalGroupCount} file group(s) in parallel (${this.uploadConcurrency} at a time)...`;
+
+        this.mediaService.parallelBulkUpload(
             this.mediaType.value,
-            this.filesToUpload
+            this.filesToUpload,
+            this.uploadConcurrency
         ).subscribe({
-            next: (progress) => {
-                this.uploadProgress = progress.percent;
-                this.uploadedBytes = progress.loaded;
-                this.totalBytes = progress.total || this.totalBytes;
+            next: (progress: BulkUploadProgress) => {
+                this.uploadProgress = progress.overallPercent;
+                this.uploadedBytes = progress.overallLoaded;
+                this.totalBytes = progress.overallTotal || this.totalBytes;
+                this.fileGroupProgress = progress.groups;
+                this.completedGroupCount = progress.completedCount;
+                this.totalGroupCount = progress.totalCount;
 
                 if (progress.status === 'uploading') {
-                    this.uploadStatus = `Uploading... ${this.formatFileSize(progress.loaded)} / ${this.formatFileSize(progress.total)}`;
+                    const activeCount = progress.groups.filter(g => g.status === 'uploading').length;
+                    this.uploadStatus = `Uploading... ${progress.completedCount}/${progress.totalCount} groups done (${activeCount} active) — ${this.formatFileSize(progress.overallLoaded)} / ${this.formatFileSize(progress.overallTotal)}`;
                 } else if (progress.status === 'completed') {
                     this.uploadStatus = 'Processing files...';
-                    this.uploadedMedia = (progress.response || []).map((m: any) => ({
+                    this.uploadedMedia = (progress.responses || []).map((m: any) => ({
                         ...m,
                         selected: true
                     }));
@@ -239,22 +281,24 @@ export class BulkUploadComponent implements OnInit {
                     const mediaCount = this.uploadedMedia.length;
                     const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
                     const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
+                    const errorCount = progress.groups.filter(g => g.status === 'error').length;
+
+                    let detail = `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`;
+                    if (errorCount > 0) {
+                        detail += `. ${errorCount} group(s) failed.`;
+                    }
 
                     this.messageService.add({
-                        severity: 'success',
+                        severity: errorCount > 0 ? 'warn' : 'success',
                         summary: 'Upload Complete!',
-                        detail: `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`
+                        detail
                     });
 
                     this.filesToUpload = [];
                     this.uploading = false;
                     this.uploadStatus = '';
-                    this.currentStep = 1; // Move to metadata step
-                    this.loadDraftMedia(); // Refresh draft list
-                } else if (progress.status === 'error') {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
-                    this.uploading = false;
-                    this.uploadStatus = '';
+                    this.currentStep = 1;
+                    this.loadDraftMedia();
                 }
             },
             error: (err) => {
@@ -332,6 +376,9 @@ export class BulkUploadComponent implements OnInit {
             const date = new Date(this.batchReleaseDate);
             request.releaseDate = date.toISOString().split('T')[0];
         }
+        if (this.batchMediaType) {
+            request.mediaType = this.batchMediaType.value;
+        }
 
         this.updating = true;
         this.mediaService.batchUpdateMedia(request).subscribe({
@@ -365,6 +412,7 @@ export class BulkUploadComponent implements OnInit {
                 this.batchTitle = '';
                 this.batchDescription = '';
                 this.batchReleaseDate = null;
+                this.batchMediaType = null;
                 this.updating = false;
             },
             error: () => {
@@ -459,5 +507,23 @@ export class BulkUploadComponent implements OnInit {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    getGroupStatusIcon(status: string): string {
+        switch (status) {
+            case 'completed': return 'pi pi-check-circle text-green-500';
+            case 'uploading': return 'pi pi-spin pi-spinner text-primary';
+            case 'error': return 'pi pi-times-circle text-red-500';
+            default: return 'pi pi-clock text-gray-400';
+        }
+    }
+
+    getGroupStatusSeverity(status: string): string {
+        switch (status) {
+            case 'completed': return 'success';
+            case 'uploading': return 'info';
+            case 'error': return 'danger';
+            default: return 'secondary';
+        }
     }
 }

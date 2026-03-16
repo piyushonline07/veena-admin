@@ -13,6 +13,18 @@
         font-weight: 600;
         color: var(--text-primary);
     }
+
+    ::ng-deep .p-progressbar {
+        background: var(--surface-200, #e9ecef);
+        border-radius: 6px;
+        overflow: hidden;
+
+        .p-progressbar-value {
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-400)) !important;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+    }
 }
 
 /* Responsive */
@@ -41,7 +53,7 @@
         }
 
         .grid {
-            .col-12.md\\:col-6 {
+            [class*="md:col-6"] {
                 width: 100%;
             }
         }
