@@ -100,16 +100,19 @@ export class MediaService {
             reportProgress: true
         });
 
+        let lastTotal = 0;
+
         this.http.request(req).subscribe({
             next: (event) => {
                 if (event.type === HttpEventType.UploadProgress) {
                     const total = event.total || 0;
                     const loaded = event.loaded || 0;
+                    if (total > 0) lastTotal = total;
                     const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
                     progressSubject.next({ loaded, total, percent, status: 'uploading' });
                 } else if (event.type === HttpEventType.Response) {
                     progressSubject.next({
-                        loaded: 100, total: 100, percent: 100,
+                        loaded: lastTotal || 100, total: lastTotal || 100, percent: 100,
                         status: 'completed', response: event.body
                     });
                     progressSubject.complete();
@@ -267,6 +270,7 @@ export class MediaService {
         formData.append('mediaType', mediaType);
         files.forEach(file => formData.append('files', file));
 
+        const totalSize = files.reduce((acc, f) => acc + f.size, 0);
         const progressSubject = new Subject<UploadProgress>();
 
         const req = new HttpRequest('POST', `${this.apiUrl}/bulk-upload`, formData, {
@@ -276,20 +280,23 @@ export class MediaService {
         this.http.request(req).subscribe({
             next: (event) => {
                 if (event.type === HttpEventType.UploadProgress) {
-                    const total = event.total || 0;
+                    const total = event.total || totalSize;
                     const loaded = event.loaded || 0;
                     const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
                     progressSubject.next({ loaded, total, percent, status: 'uploading' });
                 } else if (event.type === HttpEventType.Response) {
                     progressSubject.next({
-                        loaded: 100, total: 100, percent: 100,
-                        status: 'completed', response: event.body
+                        loaded: totalSize,
+                        total: totalSize,
+                        percent: 100,
+                        status: 'completed',
+                        response: event.body
                     });
                     progressSubject.complete();
                 }
             },
             error: (err) => {
-                progressSubject.next({ loaded: 0, total: 0, percent: 0, status: 'error', error: err });
+                progressSubject.next({ loaded: 0, total: totalSize, percent: 0, status: 'error', error: err });
                 progressSubject.complete();
             }
         });

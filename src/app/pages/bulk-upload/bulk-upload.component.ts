@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { MediaService, BatchUpdateRequest, UploadProgress, BulkUploadProgress, FileGroupProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
@@ -85,7 +85,9 @@ export class BulkUploadComponent implements OnInit {
         private albumService: AlbumService,
         private creditService: CreditService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private cdr: ChangeDetectorRef,
+        private ngZone: NgZone
     ) { }
 
     ngOnInit(): void {
@@ -321,50 +323,56 @@ export class BulkUploadComponent implements OnInit {
             this.uploadConcurrency
         ).subscribe({
             next: (progress: BulkUploadProgress) => {
-                this.uploadProgress = progress.overallPercent;
-                this.uploadedBytes = progress.overallLoaded;
-                this.totalBytes = progress.overallTotal || this.totalBytes;
-                this.fileGroupProgress = progress.groups;
-                this.completedGroupCount = progress.completedCount;
-                this.totalGroupCount = progress.totalCount;
+                this.ngZone.run(() => {
+                    this.uploadProgress = progress.overallPercent;
+                    this.uploadedBytes = progress.overallLoaded;
+                    this.totalBytes = progress.overallTotal || this.totalBytes;
+                    this.fileGroupProgress = [...progress.groups];
+                    this.completedGroupCount = progress.completedCount;
+                    this.totalGroupCount = progress.totalCount;
 
-                if (progress.status === 'uploading') {
-                    const activeCount = progress.groups.filter(g => g.status === 'uploading').length;
-                    this.uploadStatus = `Uploading... ${progress.completedCount}/${progress.totalCount} groups done (${activeCount} active) — ${this.formatFileSize(progress.overallLoaded)} / ${this.formatFileSize(progress.overallTotal)}`;
-                } else if (progress.status === 'completed') {
-                    this.uploadStatus = 'Processing files...';
-                    this.uploadedMedia = (progress.responses || []).map((m: any) => ({
-                        ...m,
-                        selected: true
-                    }));
+                    if (progress.status === 'uploading') {
+                        const activeCount = progress.groups.filter(g => g.status === 'uploading').length;
+                        this.uploadStatus = `Uploading... ${progress.completedCount}/${progress.totalCount} groups done (${activeCount} active) — ${this.formatFileSize(progress.overallLoaded)} / ${this.formatFileSize(progress.overallTotal)}`;
+                    } else if (progress.status === 'completed') {
+                        this.uploadStatus = 'Processing files...';
+                        this.uploadedMedia = (progress.responses || []).map((m: any) => ({
+                            ...m,
+                            selected: true
+                        }));
 
-                    const mediaCount = this.uploadedMedia.length;
-                    const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
-                    const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
-                    const errorCount = progress.groups.filter(g => g.status === 'error').length;
+                        const mediaCount = this.uploadedMedia.length;
+                        const withThumbnail = this.uploadedMedia.filter(m => m.thumbnailUrl).length;
+                        const withLyrics = this.uploadedMedia.filter(m => m.lyricsUrl).length;
+                        const errorCount = progress.groups.filter(g => g.status === 'error').length;
 
-                    let detail = `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`;
-                    if (errorCount > 0) {
-                        detail += `. ${errorCount} group(s) failed.`;
+                        let detail = `${mediaCount} songs uploaded (${withThumbnail} with thumbnails, ${withLyrics} with lyrics)`;
+                        if (errorCount > 0) {
+                            detail += `. ${errorCount} group(s) failed.`;
+                        }
+
+                        this.messageService.add({
+                            severity: errorCount > 0 ? 'warn' : 'success',
+                            summary: 'Upload Complete!',
+                            detail
+                        });
+
+                        this.filesToUpload = [];
+                        this.uploading = false;
+                        this.uploadStatus = '';
+                        this.currentStep = 1;
+                        this.loadDraftMedia();
                     }
-
-                    this.messageService.add({
-                        severity: errorCount > 0 ? 'warn' : 'success',
-                        summary: 'Upload Complete!',
-                        detail
-                    });
-
-                    this.filesToUpload = [];
-                    this.uploading = false;
-                    this.uploadStatus = '';
-                    this.currentStep = 1;
-                    this.loadDraftMedia();
-                }
+                    this.cdr.detectChanges();
+                });
             },
             error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
-                this.uploading = false;
-                this.uploadStatus = '';
+                this.ngZone.run(() => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload files' });
+                    this.uploading = false;
+                    this.uploadStatus = '';
+                    this.cdr.detectChanges();
+                });
             }
         });
     }
