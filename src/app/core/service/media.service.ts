@@ -69,19 +69,6 @@ export class MediaService {
     constructor(private http: HttpClient) { }
 
     /**
-     * Lightweight ping to keep the admin session alive during long uploads.
-     * Hits an authenticated endpoint so the Cognito token gets exercised.
-     */
-    ping(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/ping`).pipe(
-            catchError((err) => {
-                console.warn('[KeepAlive] Ping failed:', err.status);
-                return of(null);
-            })
-        );
-    }
-
-    /**
      * Record a play event for a media item.
      * This updates play counts and user history for trending calculations.
      * @param mediaId The UUID of the media being played
@@ -457,12 +444,18 @@ export class MediaService {
 
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    // Keep ETag as-is (with or without quotes) - backend normalizes it
-                    const eTag = xhr.getResponseHeader('ETag') || '';
+                    const rawETag = xhr.getResponseHeader('ETag') || '';
+                    const eTag = rawETag.replace(/"/g, '').trim();
+                    console.log(`[ChunkedUpload] Part uploaded, raw ETag='${rawETag}', cleaned='${eTag}'`);
                     if (!eTag) {
-                        console.warn('[ChunkedUpload] S3 response missing ETag header - CORS may not expose it');
+                        reject(new Error(
+                            'S3 response missing ETag header. ' +
+                            'CORS on the S3 bucket may not be exposing it. ' +
+                            'Check that ExposeHeaders includes "ETag".'
+                        ));
+                        return;
                     }
-                    resolve(eTag.replace(/"/g, ''));
+                    resolve(eTag);
                 } else {
                     reject(new Error(`S3 upload failed with status ${xhr.status}: ${xhr.statusText}`));
                 }

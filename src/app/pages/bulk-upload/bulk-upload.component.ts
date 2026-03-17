@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { MediaService, BatchUpdateRequest, UploadProgress, BulkUploadProgress, FileGroupProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
@@ -26,7 +26,7 @@ interface UploadedMedia {
     styleUrls: ['./bulk-upload.component.scss'],
     providers: [MessageService, ConfirmationService]
 })
-export class BulkUploadComponent implements OnInit, OnDestroy {
+export class BulkUploadComponent implements OnInit {
     // Step management
     currentStep: number = 0;
     steps = [
@@ -52,11 +52,6 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
     completedGroupCount: number = 0;
     totalGroupCount: number = 0;
 
-    // Session keep-alive timer (pings backend every 2 minutes during upload)
-    private keepAliveInterval: any = null;
-    private readonly KEEP_ALIVE_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
-
-    // Uploaded media
     uploadedMedia: UploadedMedia[] = [];
     draftMedia: UploadedMedia[] = [];
 
@@ -110,27 +105,6 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
 
     /** Start pinging the backend every 2 minutes to keep the Cognito session alive during long uploads. */
     private startKeepAlive(): void {
-        this.stopKeepAlive(); // clear any existing timer
-        console.log('[KeepAlive] Started — pinging every', this.KEEP_ALIVE_INTERVAL_MS / 1000, 'seconds');
-        this.keepAliveInterval = setInterval(() => {
-            console.log('[KeepAlive] Pinging backend...');
-            this.mediaService.ping().subscribe();
-        }, this.KEEP_ALIVE_INTERVAL_MS);
-    }
-
-    /** Stop the keep-alive timer. */
-    private stopKeepAlive(): void {
-        if (this.keepAliveInterval) {
-            clearInterval(this.keepAliveInterval);
-            this.keepAliveInterval = null;
-            console.log('[KeepAlive] Stopped');
-        }
-    }
-
-    loadArtists(): void {
-        this.artistService.getAllActiveArtists().subscribe({
-            next: (artists) => this.artists = artists,
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load artists' })
         });
     }
 
@@ -362,8 +336,6 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
                     this.totalGroupCount = progress.totalCount;
 
                     if (progress.status === 'uploading') {
-                        const activeCount = progress.groups.filter(g => g.status === 'uploading').length;
-                        this.uploadStatus = `Uploading... ${progress.completedCount}/${progress.totalCount} groups done (${activeCount} active) — ${this.formatFileSize(progress.overallLoaded)} / ${this.formatFileSize(progress.overallTotal)}`;
                     } else if (progress.status === 'completed') {
                         this.uploadStatus = 'Processing files...';
                         console.log('[BulkUpload] Upload completed. Responses:', progress.responses?.length,
@@ -446,7 +418,6 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
         this.toggleSelectAll(value);
     }
 
-    // Delete single media item
     deleteMediaItem(media: UploadedMedia): void {
         this.confirmationService.confirm({
             message: `Are you sure you want to delete "${media.title}"? This will permanently remove it and its files.`,
@@ -456,7 +427,6 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
             accept: () => {
                 this.mediaService.deleteMedia(media.id).subscribe({
                     next: () => {
-                        this.uploadedMedia = this.uploadedMedia.filter(m => m.id !== media.id);
                         this.draftMedia = this.draftMedia.filter(m => m.id !== media.id);
                         this.messageService.add({
                             severity: 'success',
