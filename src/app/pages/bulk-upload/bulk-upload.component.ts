@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { MediaService, BatchUpdateRequest, UploadProgress, BulkUploadProgress, FileGroupProgress } from '../../core/service/media.service';
 import { ArtistService, Artist } from '../../core/service/artist.service';
 import { AlbumService, Album } from '../../core/service/album.service';
@@ -26,7 +26,7 @@ interface UploadedMedia {
     styleUrls: ['./bulk-upload.component.scss'],
     providers: [MessageService, ConfirmationService]
 })
-export class BulkUploadComponent implements OnInit {
+export class BulkUploadComponent implements OnInit, OnDestroy {
     // Step management
     currentStep: number = 0;
     steps = [
@@ -103,8 +103,31 @@ export class BulkUploadComponent implements OnInit {
         this.stopKeepAlive();
     }
 
+    private keepAliveInterval: any = null;
+
     /** Start pinging the backend every 2 minutes to keep the Cognito session alive during long uploads. */
     private startKeepAlive(): void {
+        this.stopKeepAlive();
+        this.keepAliveInterval = setInterval(() => {
+            // Lightweight call to keep the auth session alive
+            this.mediaService.getDraftMedia().subscribe({
+                next: () => console.log('[KeepAlive] Ping successful'),
+                error: () => console.warn('[KeepAlive] Ping failed')
+            });
+        }, 2 * 60 * 1000); // every 2 minutes
+    }
+
+    private stopKeepAlive(): void {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
+        }
+    }
+
+    loadArtists(): void {
+        this.artistService.getAllActiveArtists().subscribe({
+            next: (artists) => this.artists = artists,
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load artists' })
         });
     }
 

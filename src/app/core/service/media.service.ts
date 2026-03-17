@@ -444,20 +444,14 @@ export class MediaService {
 
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    const rawETag = xhr.getResponseHeader('ETag') || '';
-                    const eTag = rawETag.replace(/"/g, '').trim();
-                    console.log(`[ChunkedUpload] Part uploaded, raw ETag='${rawETag}', cleaned='${eTag}'`);
+                    // Keep ETag as-is (with or without quotes) - backend normalizes it
+                    const eTag = xhr.getResponseHeader('ETag') || '';
                     if (!eTag) {
-                        reject(new Error(
-                            'S3 response missing ETag header. ' +
-                            'CORS on the S3 bucket may not be exposing it. ' +
-                            'Check that ExposeHeaders includes "ETag".'
-                        ));
-                        return;
+                        console.warn('[ChunkedUpload] S3 response missing ETag header - CORS may not expose it');
                     }
-                    resolve(eTag);
+                    resolve(eTag.replace(/"/g, ''));
                 } else {
-                    reject(new Error(`S3 upload failed with status ${xhr.status}: ${xhr.statusText}`));
+                    reject(new Error(`S3 chunk upload failed with status ${xhr.status}`));
                 }
             };
 

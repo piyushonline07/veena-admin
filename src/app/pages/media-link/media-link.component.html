@@ -220,7 +220,12 @@
 
     <div class="video-selection">
       <label class="block mb-2">Select {{dialogTargetTypeLabel | lowercase}} to link:</label>
-      <p-dropdown [options]="dialogOptions"
+      <div *ngIf="isLoadingDialogOptions" class="text-center p-3">
+        <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
+        <span class="ml-2">Loading {{dialogTargetTypeLabel | lowercase}} tracks...</span>
+      </div>
+      <p-dropdown *ngIf="!isLoadingDialogOptions"
+                  [options]="dialogOptions"
                   [(ngModel)]="dialogTarget"
                   optionLabel="title"
                   [placeholder]="'Choose a ' + (dialogTargetTypeLabel | lowercase) + '...'"

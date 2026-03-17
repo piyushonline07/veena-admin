@@ -44,6 +44,9 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   showLinkDialog = false;
   // The item to link TO (chosen in the dialog)
   dialogTarget: any = null;
+  // Full list of opposite-type items loaded for the dialog dropdown
+  dialogOptionsList: any[] = [];
+  isLoadingDialogOptions = false;
 
   // Debounce subjects for search
   private audioSearch$ = new Subject<string>();
@@ -222,17 +225,52 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
 
   openLinkDialog(): void {
     this.dialogTarget = null;
+    this.dialogOptionsList = [];
     this.showLinkDialog = true;
+
+    if (!this.selectedItem) return;
+
+    // Load ALL items of the opposite type for the dialog dropdown
+    const oppositeType = this.selectedItem.mediaType === 'AUDIO' ? 'VIDEO' : 'AUDIO';
+    this.isLoadingDialogOptions = true;
+    this.mediaService.getMediaList(0, 10000, undefined, { mediaType: oppositeType }).subscribe({
+      next: (resp) => {
+        const items = resp?.content || [];
+        // Sort: unlinked items first
+        this.dialogOptionsList = items.sort((a: any, b: any) => {
+          const aLinked = a.linkedMediaId ? 1 : 0;
+          const bLinked = b.linkedMediaId ? 1 : 0;
+          return aLinked - bLinked;
+        });
+        this.isLoadingDialogOptions = false;
+      },
+      error: () => {
+        // Fallback to currently loaded panel list
+        const list = this.selectedItem.mediaType === 'AUDIO' ? this.videoList : this.audioList;
+        this.dialogOptionsList = [...list].sort((a: any, b: any) => {
+          const aLinked = a.linkedMediaId ? 1 : 0;
+          const bLinked = b.linkedMediaId ? 1 : 0;
+          return aLinked - bLinked;
+        });
+        this.isLoadingDialogOptions = false;
+      }
+    });
   }
 
   closeLinkDialog(): void {
     this.showLinkDialog = false;
     this.dialogTarget = null;
+    this.dialogOptionsList = [];
   }
 
-  /** Returns the list of candidates to link with (opposite type, unlinked items first). */
+  /** Returns the list of candidates to link with (opposite type, all loaded). */
   get dialogOptions(): any[] {
     if (!this.selectedItem) return [];
+    // Use the fully loaded list from the API
+    if (this.dialogOptionsList.length > 0) {
+      return this.dialogOptionsList;
+    }
+    // Fallback to panel lists if dialog options haven't loaded yet
     const list = this.selectedItem.mediaType === 'AUDIO' ? this.videoList : this.audioList;
     return [...list].sort((a: any, b: any) => {
       const aLinked = a.linkedMediaId ? 1 : 0;
