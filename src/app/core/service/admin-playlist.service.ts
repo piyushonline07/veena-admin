@@ -21,6 +21,8 @@ export interface CreatePlaylistRequest {
   description?: string;
   coverUrl?: string;
   visibleToUsers: boolean;
+  isPopular?: boolean;
+  popularOrder?: number;
 }
 
 export interface UpdatePlaylistRequest {

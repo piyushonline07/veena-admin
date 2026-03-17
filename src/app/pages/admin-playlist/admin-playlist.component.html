@@ -81,11 +81,6 @@
                           (onClick)="toggleVisibility(playlist)"
                           styleClass="p-button-sm p-button-text"
                           [class]="playlist.visibleToUsers ? 'p-button-warning' : 'p-button-success'"></p-button>
-                <p-button [icon]="playlist.isPopular ? 'pi pi-star-fill' : 'pi pi-star'"
-                          [pTooltip]="playlist.isPopular ? 'Remove from Popular' : 'Mark as Popular'"
-                          (onClick)="togglePopular(playlist)"
-                          styleClass="p-button-sm p-button-text"
-                          [class]="playlist.isPopular ? 'popular-active' : ''"></p-button>
                 <p-button icon="pi pi-pencil" pTooltip="Edit"
                           (onClick)="openEditDialog(playlist)"
                           styleClass="p-button-sm p-button-text"></p-button>
@@ -145,6 +140,18 @@
             <p-inputSwitch [(ngModel)]="newPlaylist.visibleToUsers"></p-inputSwitch>
             <label>Visible to Users</label>
             <small>When enabled, this playlist will be shown to all users</small>
+        </div>
+        <div class="form-field popular-toggle">
+            <p-inputSwitch [(ngModel)]="newPlaylist.isPopular"></p-inputSwitch>
+            <label>Popular Playlist</label>
+            <small>Mark this playlist as popular to feature it in the popular category</small>
+        </div>
+        <div class="form-field" *ngIf="newPlaylist.isPopular">
+            <label for="createPopularOrder">Popular Order</label>
+            <input pInputText id="createPopularOrder" type="number" min="1"
+                   [(ngModel)]="newPlaylist.popularOrder"
+                   placeholder="e.g. 1, 2, 3..." class="w-full" />
+            <small class="text-secondary">Lower number = higher priority. This defines the display order in the popular section.</small>
         </div>
     </div>
     <ng-template pTemplate="footer">
