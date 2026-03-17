@@ -493,38 +493,119 @@
   font-weight: 600;
 }
 
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Dialog scrollable media list */
+.dialog-media-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--surface-border, #dee2e6);
+  border-radius: 6px;
+  background: var(--surface-ground, #f8f9fa);
 
-  .dropdown-thumb {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    object-fit: cover;
+  .dialog-media-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--surface-border, #dee2e6);
+    transition: background 0.15s;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--surface-hover, #e9ecef);
+    }
+
+    &.selected {
+      background: rgba(99, 102, 241, 0.1);
+      border-left: 3px solid #6366f1;
+    }
+
+    &.already-linked {
+      opacity: 0.7;
+    }
+
+    .dialog-media-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--surface-card, #fff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .pi {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .dialog-media-info {
+      flex: 1;
+      min-width: 0;
+
+      .dialog-media-title {
+        font-weight: 500;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .dialog-media-artist {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .dialog-check-icon {
+      color: #6366f1;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
   }
 
-  .dropdown-icon {
-    width: 40px;
-    height: 40px;
+  .loading-more {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-ground);
-    border-radius: 4px;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
-  .dropdown-info {
-    .dropdown-title {
-      font-weight: 500;
+  .empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+
+    .pi {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
     }
 
-    .dropdown-artist {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
+    p {
+      font-size: 0.85rem;
     }
   }
+}
+
+.text-secondary {
+  color: var(--text-secondary, #6c757d);
+}
+
+.text-sm {
+  font-size: 0.8rem;
 }
 
 /* Responsive */

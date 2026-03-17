@@ -202,7 +202,7 @@
 </div>
 
 <!-- Link Dialog -->
-<p-dialog [(visible)]="showLinkDialog" [header]="'Select ' + dialogTargetTypeLabel + ' to Link'" [modal]="true" [style]="{width: '500px'}">
+<p-dialog [(visible)]="showLinkDialog" [header]="'Select ' + dialogTargetTypeLabel + ' to Link'" [modal]="true" [style]="{width: '550px'}" (onHide)="closeLinkDialog()">
   <div class="link-dialog-content">
     <div class="selected-audio-info" *ngIf="selectedItem">
       <p class="mb-2">Linking {{selectedItem.mediaType | lowercase}}:</p>
@@ -220,33 +220,59 @@
 
     <div class="video-selection">
       <label class="block mb-2">Select {{dialogTargetTypeLabel | lowercase}} to link:</label>
+
+      <!-- Search input for dialog -->
+      <span class="p-input-icon-left" style="width: 100%; margin-bottom: 0.75rem;">
+        <i class="pi pi-search"></i>
+        <input pInputText [ngModel]="dialogSearchQuery" (ngModelChange)="onDialogSearch($event)"
+               [placeholder]="'Search ' + (dialogTargetTypeLabel | lowercase) + '...'"
+               style="width: 100%;" />
+      </span>
+
+      <!-- Total count -->
+      <div *ngIf="dialogTotalElements > 0 && !isLoadingDialogOptions" class="text-sm text-secondary mb-2">
+        Showing {{dialogOptionsList.length}} of {{dialogTotalElements}} {{dialogTargetTypeLabel | lowercase}} tracks
+      </div>
+
+      <!-- Loading state -->
       <div *ngIf="isLoadingDialogOptions" class="text-center p-3">
-        <p-progressSpinner [style]="{width: '24px', height: '24px'}" strokeWidth="4"></p-progressSpinner>
+        <p-progressSpinner [style]="{width: '30px', height: '30px'}" strokeWidth="4"></p-progressSpinner>
         <span class="ml-2">Loading {{dialogTargetTypeLabel | lowercase}} tracks...</span>
       </div>
-      <p-dropdown *ngIf="!isLoadingDialogOptions"
-                  [options]="dialogOptions"
-                  [(ngModel)]="dialogTarget"
-                  optionLabel="title"
-                  [placeholder]="'Choose a ' + (dialogTargetTypeLabel | lowercase) + '...'"
-                  [filter]="true"
-                  filterBy="title"
-                  [showClear]="true"
-                  [style]="{width: '100%'}">
-        <ng-template let-item pTemplate="item">
-          <div class="dropdown-item">
-            <img *ngIf="item.thumbnailUrl" [src]="item.thumbnailUrl" alt="thumb" class="dropdown-thumb" />
-            <i *ngIf="!item.thumbnailUrl" class="pi dropdown-icon" [ngClass]="item.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
-            <div class="dropdown-info">
-              <div class="dropdown-title">
-                {{item.title}}
-                <span class="already-linked-hint" *ngIf="item.linkedMediaId">⚠ already linked</span>
-              </div>
-              <div class="dropdown-artist">{{item.artist?.name || 'Unknown Artist'}}</div>
-            </div>
+
+      <!-- Scrollable list -->
+      <div *ngIf="!isLoadingDialogOptions" class="dialog-media-list" (scroll)="onDialogListScroll($event)">
+        <div *ngFor="let item of dialogOptionsList"
+             class="dialog-media-card"
+             [class.selected]="dialogTarget?.id === item.id"
+             [class.already-linked]="item.linkedMediaId"
+             (click)="selectDialogTarget(item)">
+          <div class="dialog-media-thumb">
+            <img *ngIf="item.thumbnailUrl" [src]="item.thumbnailUrl" alt="thumb" />
+            <i *ngIf="!item.thumbnailUrl" class="pi" [ngClass]="item.mediaType === 'AUDIO' ? 'pi-headphones' : 'pi-play-circle'"></i>
           </div>
-        </ng-template>
-      </p-dropdown>
+          <div class="dialog-media-info">
+            <div class="dialog-media-title">
+              {{item.title}}
+              <span class="already-linked-hint" *ngIf="item.linkedMediaId">⚠ linked</span>
+            </div>
+            <div class="dialog-media-artist">{{item.artist?.name || 'Unknown Artist'}}</div>
+          </div>
+          <i *ngIf="dialogTarget?.id === item.id" class="pi pi-check-circle dialog-check-icon"></i>
+        </div>
+
+        <!-- Load more spinner -->
+        <div *ngIf="isLoadingMoreDialogOptions" class="loading-more">
+          <p-progressSpinner [style]="{width: '20px', height: '20px'}" strokeWidth="4"></p-progressSpinner>
+          <span>Loading more...</span>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="dialogOptionsList.length === 0" class="empty-state" style="padding: 2rem;">
+          <i class="pi pi-inbox"></i>
+          <p>No {{dialogTargetTypeLabel | lowercase}} tracks found</p>
+        </div>
+      </div>
     </div>
 
     <!-- Warning if target is already linked -->

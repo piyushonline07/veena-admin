@@ -44,9 +44,16 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   showLinkDialog = false;
   // The item to link TO (chosen in the dialog)
   dialogTarget: any = null;
-  // Full list of opposite-type items loaded for the dialog dropdown
+  // Dialog paginated search state
   dialogOptionsList: any[] = [];
+  dialogSearchQuery = '';
+  dialogPage = 0;
+  dialogTotalPages = 0;
+  dialogTotalElements = 0;
   isLoadingDialogOptions = false;
+  isLoadingMoreDialogOptions = false;
+  private dialogSearch$ = new Subject<string>();
+  private readonly DIALOG_PAGE_SIZE = 20;
 
   // Debounce subjects for search
   private audioSearch$ = new Subject<string>();
@@ -79,6 +86,15 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
     ).subscribe(query => {
       this.videoSearchQuery = query;
       this.resetAndLoadVideo();
+    });
+
+    this.dialogSearch$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(query => {
+      this.dialogSearchQuery = query;
+      this.resetAndLoadDialogOptions();
     });
 
     this.loadAudioPage(0);
@@ -226,57 +242,86 @@ export class MediaLinkComponent implements OnInit, OnDestroy {
   openLinkDialog(): void {
     this.dialogTarget = null;
     this.dialogOptionsList = [];
+    this.dialogSearchQuery = '';
+    this.dialogPage = 0;
+    this.dialogTotalPages = 0;
+    this.dialogTotalElements = 0;
     this.showLinkDialog = true;
 
     if (!this.selectedItem) return;
-
-    // Load ALL items of the opposite type for the dialog dropdown
-    const oppositeType = this.selectedItem.mediaType === 'AUDIO' ? 'VIDEO' : 'AUDIO';
-    this.isLoadingDialogOptions = true;
-    this.mediaService.getMediaList(0, 10000, undefined, { mediaType: oppositeType }).subscribe({
-      next: (resp) => {
-        const items = resp?.content || [];
-        // Sort: unlinked items first
-        this.dialogOptionsList = items.sort((a: any, b: any) => {
-          const aLinked = a.linkedMediaId ? 1 : 0;
-          const bLinked = b.linkedMediaId ? 1 : 0;
-          return aLinked - bLinked;
-        });
-        this.isLoadingDialogOptions = false;
-      },
-      error: () => {
-        // Fallback to currently loaded panel list
-        const list = this.selectedItem.mediaType === 'AUDIO' ? this.videoList : this.audioList;
-        this.dialogOptionsList = [...list].sort((a: any, b: any) => {
-          const aLinked = a.linkedMediaId ? 1 : 0;
-          const bLinked = b.linkedMediaId ? 1 : 0;
-          return aLinked - bLinked;
-        });
-        this.isLoadingDialogOptions = false;
-      }
-    });
+    this.loadDialogPage(0);
   }
 
   closeLinkDialog(): void {
     this.showLinkDialog = false;
     this.dialogTarget = null;
     this.dialogOptionsList = [];
+    this.dialogSearchQuery = '';
   }
 
-  /** Returns the list of candidates to link with (opposite type, all loaded). */
-  get dialogOptions(): any[] {
-    if (!this.selectedItem) return [];
-    // Use the fully loaded list from the API
-    if (this.dialogOptionsList.length > 0) {
-      return this.dialogOptionsList;
+  /** Get the opposite media type for the dialog */
+  private get dialogMediaType(): string {
+    return this.selectedItem?.mediaType === 'AUDIO' ? 'VIDEO' : 'AUDIO';
+  }
+
+  /** Load a page of dialog options from the API */
+  private loadDialogPage(page: number): void {
+    if (page === 0) {
+      this.isLoadingDialogOptions = true;
+    } else {
+      this.isLoadingMoreDialogOptions = true;
     }
-    // Fallback to panel lists if dialog options haven't loaded yet
-    const list = this.selectedItem.mediaType === 'AUDIO' ? this.videoList : this.audioList;
-    return [...list].sort((a: any, b: any) => {
-      const aLinked = a.linkedMediaId ? 1 : 0;
-      const bLinked = b.linkedMediaId ? 1 : 0;
-      return aLinked - bLinked;
+
+    const query = this.dialogSearchQuery?.trim() || undefined;
+    this.mediaService.getMediaList(page, this.DIALOG_PAGE_SIZE, query, { mediaType: this.dialogMediaType }).subscribe({
+      next: (resp) => {
+        const items = resp?.content || [];
+        this.dialogOptionsList = page === 0 ? items : [...this.dialogOptionsList, ...items];
+        this.dialogPage = resp?.number ?? page;
+        this.dialogTotalPages = resp?.totalPages ?? 0;
+        this.dialogTotalElements = resp?.totalElements ?? 0;
+        this.isLoadingDialogOptions = false;
+        this.isLoadingMoreDialogOptions = false;
+      },
+      error: () => {
+        if (page === 0) { this.dialogOptionsList = []; }
+        this.isLoadingDialogOptions = false;
+        this.isLoadingMoreDialogOptions = false;
+      }
     });
+  }
+
+  /** Reset and reload dialog options (on search change) */
+  private resetAndLoadDialogOptions(): void {
+    this.dialogOptionsList = [];
+    this.dialogPage = 0;
+    this.dialogTotalPages = 0;
+    this.loadDialogPage(0);
+  }
+
+  /** Triggered when user types in dialog search */
+  onDialogSearch(query: string): void {
+    this.dialogSearch$.next(query);
+  }
+
+  /** Triggered when user scrolls the dialog list */
+  onDialogListScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 100) {
+      this.loadMoreDialogOptions();
+    }
+  }
+
+  /** Load more dialog options on scroll */
+  loadMoreDialogOptions(): void {
+    if (this.isLoadingMoreDialogOptions || this.isLoadingDialogOptions) return;
+    if (this.dialogPage + 1 >= this.dialogTotalPages) return;
+    this.loadDialogPage(this.dialogPage + 1);
+  }
+
+  /** Select an item from the dialog list */
+  selectDialogTarget(item: any): void {
+    this.dialogTarget = item;
   }
 
   get dialogTargetTypeLabel(): string {
