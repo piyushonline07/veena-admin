@@ -67,12 +67,8 @@
                 <p class="playlist-description">{{playlist.description || 'No description'}}</p>
                 <div class="playlist-meta">
                     <span><i class="pi pi-music"></i> {{playlist.trackCount}} tracks</span>
-                    <span *ngIf="playlist.isPopular" class="popular-order-inline">
-                        <i class="pi pi-star-fill"></i> Order:
-                        <input type="number" min="1" class="order-input"
-                               [value]="playlist.popularOrder"
-                               (change)="updatePopularOrder(playlist, $any($event.target).valueAsNumber)"
-                               (click)="$event.stopPropagation()" />
+                    <span *ngIf="playlist.isPopular" class="popular-order-tag">
+                        <i class="pi pi-star-fill"></i> Popular #{{playlist.popularOrder}}
                     </span>
                 </div>
             </div>
@@ -192,6 +188,18 @@
             <p-inputSwitch [(ngModel)]="selectedPlaylist.visibleToUsers"></p-inputSwitch>
             <label>Visible to Users</label>
             <small>When enabled, this playlist will be shown to all users</small>
+        </div>
+        <div class="form-field popular-toggle">
+            <p-inputSwitch [(ngModel)]="selectedPlaylist.isPopular"></p-inputSwitch>
+            <label>Popular Playlist</label>
+            <small>Mark this playlist as popular to feature it in the popular category</small>
+        </div>
+        <div class="form-field" *ngIf="selectedPlaylist.isPopular">
+            <label for="editPopularOrder">Popular Order</label>
+            <input pInputText id="editPopularOrder" type="number" min="1"
+                   [(ngModel)]="selectedPlaylist.popularOrder"
+                   placeholder="e.g. 1, 2, 3..." class="w-full" />
+            <small class="text-secondary">Lower number = higher priority. This defines the display order in the popular section.</small>
         </div>
     </div>
     <ng-template pTemplate="footer">

@@ -167,7 +167,9 @@ export class AdminPlaylistComponent implements OnInit {
       name: this.selectedPlaylist.name,
       description: this.selectedPlaylist.description,
       coverUrl: this.selectedPlaylist.coverUrl,
-      visibleToUsers: this.selectedPlaylist.visibleToUsers
+      visibleToUsers: this.selectedPlaylist.visibleToUsers,
+      isPopular: this.selectedPlaylist.isPopular,
+      popularOrder: this.selectedPlaylist.isPopular ? this.selectedPlaylist.popularOrder : undefined
     }).subscribe({
       next: (updated) => {
         if (this.selectedImageFile) {

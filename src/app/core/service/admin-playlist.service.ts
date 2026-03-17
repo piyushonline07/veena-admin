@@ -28,6 +28,8 @@ export interface UpdatePlaylistRequest {
   description?: string;
   coverUrl?: string;
   visibleToUsers: boolean;
+  isPopular?: boolean;
+  popularOrder?: number;
 }
 
 @Injectable({
