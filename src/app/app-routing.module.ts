@@ -18,6 +18,7 @@ import { BillingComponent } from './pages/billing/billing.component';
 import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 import { CreditsComponent } from './pages/credits/credits.component';
+import { FeaturedContentComponent } from './pages/featured-content/featured-content.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'media-link', component: MediaLinkComponent, canActivate: [AuthGuard] },
   { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
+  { path: 'featured', component: FeaturedContentComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

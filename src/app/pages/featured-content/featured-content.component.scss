@@ -1,0 +1,188 @@
+.featured-container {
+  padding: 1rem;
+  max-width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .header-left {
+    h1 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      i { color: #f59e0b; }
+    }
+    .subtitle {
+      margin: 0.25rem 0 0 0;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.stats-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--surface-card, #fff);
+    border-radius: 10px;
+    border: 1px solid var(--surface-border, #dee2e6);
+    min-width: 120px;
+
+    i { font-size: 1.5rem; color: #6366f1; }
+    &.success i { color: #10b981; }
+    &.info i { color: #3b82f6; }
+    &.warning i { color: #f59e0b; }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+      .stat-value { font-size: 1.25rem; font-weight: 700; }
+      .stat-label { font-size: 0.75rem; color: var(--text-secondary); }
+    }
+  }
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border, #dee2e6);
+  padding-bottom: 0.5rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+// Table styles
+tr.expired { opacity: 0.5; }
+tr.inactive { opacity: 0.6; }
+
+.preview-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-ground, #f8f9fa);
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+  i { font-size: 1.2rem; color: var(--text-secondary); }
+}
+
+.title-cell {
+  display: flex;
+  flex-direction: column;
+  strong { font-size: 0.9rem; }
+  .artist-name { font-size: 0.75rem; color: var(--text-secondary); }
+}
+
+.schedule-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  small { font-size: 0.75rem; color: var(--text-secondary); }
+}
+
+.action-icons {
+  display: flex;
+  gap: 0.75rem;
+
+  i {
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    transition: color 0.15s;
+    &:hover { color: var(--text-primary); }
+    &.danger:hover { color: #ef4444; }
+  }
+}
+
+// Song search results in dialog
+.song-results {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid var(--surface-border, #dee2e6);
+  border-radius: 6px;
+
+  .song-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--surface-border, #dee2e6);
+    transition: background 0.15s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: var(--surface-hover, #e9ecef); }
+    &.selected { background: rgba(99, 102, 241, 0.1); border-left: 3px solid #6366f1; }
+
+    .song-thumb {
+      width: 40px; height: 40px; border-radius: 4px; overflow: hidden;
+      flex-shrink: 0; background: var(--surface-ground); display: flex;
+      align-items: center; justify-content: center;
+      img { width: 100%; height: 100%; object-fit: cover; }
+      .pi { font-size: 1.2rem; color: var(--text-secondary); }
+    }
+
+    .song-info {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      strong { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      span { font-size: 0.75rem; color: var(--text-secondary); }
+    }
+
+    .selected-icon { color: #6366f1; font-size: 1.1rem; flex-shrink: 0; }
+  }
+}
+
+.schedule-section .grid {
+  display: flex;
+  gap: 1rem;
+  .col-6 { flex: 1; }
+}
+
+.grid {
+  display: flex;
+  gap: 1rem;
+  .col-6 { flex: 1; }
+}
+
+.ad-preview {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+.dialog-content {
+  padding: 0.5rem 0;
+}
+
+.text-secondary { color: var(--text-secondary, #6c757d); }
+.font-bold { font-weight: 600; }
+

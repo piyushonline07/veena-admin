@@ -66,6 +66,7 @@ import { BillingComponent } from './pages/billing/billing.component';
 import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 import { CreditsComponent } from './pages/credits/credits.component';
+import { FeaturedContentComponent } from './pages/featured-content/featured-content.component';
 
 @NgModule({
   declarations: [
@@ -90,7 +91,8 @@ import { CreditsComponent } from './pages/credits/credits.component';
     BillingComponent,
     BulkUploadComponent,
     AdminPlaylistComponent,
-    CreditsComponent
+    CreditsComponent,
+    FeaturedContentComponent
   ],
   imports: [
     InputTextareaModule,
