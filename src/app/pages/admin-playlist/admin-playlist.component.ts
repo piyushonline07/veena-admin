@@ -62,6 +62,10 @@ export class AdminPlaylistComponent implements OnInit {
     return this.playlists.filter(p => !p.visibleToUsers).length;
   }
 
+  getPopularCount(): number {
+    return this.playlists.filter(p => p.isPopular).length;
+  }
+
   loadPlaylists(): void {
     this.isLoading = true;
     this.playlistService.getAdminPlaylists().subscribe({
@@ -270,6 +274,67 @@ export class AdminPlaylistComponent implements OnInit {
         });
       }
     });
+  }
+
+  // ==================== POPULAR TOGGLE ====================
+
+  togglePopular(playlist: Playlist): void {
+    const newPopular = !playlist.isPopular;
+    const nextOrder = newPopular ? this.getNextPopularOrder() : undefined;
+
+    this.playlistService.togglePopular(playlist.id, newPopular, nextOrder).subscribe({
+      next: (updated) => {
+        const index = this.playlists.findIndex(p => p.id === updated.id);
+        if (index >= 0) {
+          this.playlists[index] = updated;
+        }
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Updated',
+          detail: newPopular ? 'Playlist marked as popular' : 'Playlist removed from popular'
+        });
+      },
+      error: (err) => {
+        console.error('Error toggling popular', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update popular status'
+        });
+      }
+    });
+  }
+
+  updatePopularOrder(playlist: Playlist, newOrder: number): void {
+    if (!playlist.isPopular || newOrder < 1) return;
+
+    this.playlistService.updatePopularOrder(playlist.id, newOrder).subscribe({
+      next: (updated) => {
+        const index = this.playlists.findIndex(p => p.id === updated.id);
+        if (index >= 0) {
+          this.playlists[index] = updated;
+        }
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Updated',
+          detail: `Popular order updated to ${newOrder}`
+        });
+      },
+      error: (err) => {
+        console.error('Error updating popular order', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update popular order'
+        });
+      }
+    });
+  }
+
+  private getNextPopularOrder(): number {
+    const popularPlaylists = this.playlists.filter(p => p.isPopular && p.popularOrder != null);
+    if (popularPlaylists.length === 0) return 1;
+    return Math.max(...popularPlaylists.map(p => p.popularOrder!)) + 1;
   }
 
   // ==================== TRACKS ====================

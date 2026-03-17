@@ -34,6 +34,13 @@
                 <span class="stat-label">Hidden</span>
             </div>
         </div>
+        <div class="stat-card popular">
+            <i class="pi pi-star-fill"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{getPopularCount()}}</span>
+                <span class="stat-label">Popular</span>
+            </div>
+        </div>
     </div>
 
     <!-- Playlists Grid -->
@@ -48,6 +55,10 @@
                     <i class="pi" [ngClass]="playlist.visibleToUsers ? 'pi-eye' : 'pi-eye-slash'"></i>
                     <span>{{playlist.visibleToUsers ? 'Visible' : 'Hidden'}}</span>
                 </div>
+                <div class="popular-badge" *ngIf="playlist.isPopular">
+                    <i class="pi pi-star-fill"></i>
+                    <span>#{{playlist.popularOrder}}</span>
+                </div>
             </div>
             <div class="card-body">
                 <h3 class="playlist-name" [pTooltip]="playlist.name" tooltipPosition="top">
@@ -56,6 +67,13 @@
                 <p class="playlist-description">{{playlist.description || 'No description'}}</p>
                 <div class="playlist-meta">
                     <span><i class="pi pi-music"></i> {{playlist.trackCount}} tracks</span>
+                    <span *ngIf="playlist.isPopular" class="popular-order-inline">
+                        <i class="pi pi-star-fill"></i> Order:
+                        <input type="number" min="1" class="order-input"
+                               [value]="playlist.popularOrder"
+                               (change)="updatePopularOrder(playlist, $any($event.target).valueAsNumber)"
+                               (click)="$event.stopPropagation()" />
+                    </span>
                 </div>
             </div>
             <div class="card-footer">
@@ -67,6 +85,11 @@
                           (onClick)="toggleVisibility(playlist)"
                           styleClass="p-button-sm p-button-text"
                           [class]="playlist.visibleToUsers ? 'p-button-warning' : 'p-button-success'"></p-button>
+                <p-button [icon]="playlist.isPopular ? 'pi pi-star-fill' : 'pi pi-star'"
+                          [pTooltip]="playlist.isPopular ? 'Remove from Popular' : 'Mark as Popular'"
+                          (onClick)="togglePopular(playlist)"
+                          styleClass="p-button-sm p-button-text"
+                          [class]="playlist.isPopular ? 'popular-active' : ''"></p-button>
                 <p-button icon="pi pi-pencil" pTooltip="Edit"
                           (onClick)="openEditDialog(playlist)"
                           styleClass="p-button-sm p-button-text"></p-button>

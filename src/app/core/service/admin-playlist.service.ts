@@ -12,6 +12,8 @@ export interface Playlist {
   isPublic: boolean;
   isAdminPlaylist: boolean;
   visibleToUsers: boolean;
+  isPopular: boolean;
+  popularOrder?: number;
 }
 
 export interface CreatePlaylistRequest {
@@ -81,5 +83,20 @@ export class AdminPlaylistService {
     const formData = new FormData();
     formData.append('image', image);
     return this.http.post<Playlist>(`${this.apiUrl}/${id}/image`, formData);
+  }
+
+  // Toggle popular status
+  togglePopular(id: string, isPopular: boolean, popularOrder?: number): Observable<Playlist> {
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/popular`, { isPopular, popularOrder });
+  }
+
+  // Update popular order
+  updatePopularOrder(id: string, popularOrder: number): Observable<Playlist> {
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/popular-order`, { popularOrder });
+  }
+
+  // Get popular playlists
+  getPopularPlaylists(): Observable<Playlist[]> {
+    return this.http.get<Playlist[]>(`${this.apiUrl}/popular`);
   }
 }
