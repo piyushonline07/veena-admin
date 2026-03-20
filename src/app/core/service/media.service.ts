@@ -17,6 +17,7 @@ export interface BatchUpdateRequest {
     description?: string;
     releaseDate?: string;
     mediaType?: string;
+    podcast?: boolean;
 }
 
 export interface UploadProgress {

@@ -48,6 +48,9 @@ export class UploadMediaComponent implements OnInit {
     // Release date
     releaseDate: Date | null = null;
 
+    // Podcast flag
+    podcast: boolean = false;
+
     file: File | null = null;
     thumbnail: File | null = null;
     lyrics: File | null = null;
@@ -225,6 +228,11 @@ export class UploadMediaComponent implements OnInit {
             formData.append('releaseDate', date.toISOString().split('T')[0]);
         }
 
+        // Podcast flag
+        if (this.podcast) {
+            formData.append('podcast', 'true');
+        }
+
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -284,6 +292,7 @@ export class UploadMediaComponent implements OnInit {
         this.selectedDirector = null;
         this.selectedAlbum = null;
         this.releaseDate = null;
+        this.podcast = false;
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;

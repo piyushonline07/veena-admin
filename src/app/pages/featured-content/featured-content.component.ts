@@ -22,8 +22,10 @@ export class FeaturedContentComponent implements OnInit {
   songSearchResults: any[] = [];
   isSearchingSongs = false;
   selectedSong: any = null;
+  songSlotIndex: number | null = null;
   songStartTime: Date = new Date();
   songEndTime: Date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // +30 days
+  private songSearchTimer: any = null;
 
   // Add Ad dialog
   showAdDialog = false;
@@ -34,6 +36,7 @@ export class FeaturedContentComponent implements OnInit {
     { label: 'Audio Ad', value: 'AUDIO_AD' }
   ];
   adTitle = '';
+  adSlotIndex: number | null = null;
   adStartTime: Date = new Date();
   adEndTime: Date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   adFile: File | null = null;
@@ -100,13 +103,17 @@ export class FeaturedContentComponent implements OnInit {
     this.selectedSong = null;
     this.songSearchQuery = '';
     this.songSearchResults = [];
+    this.songSlotIndex = null;
     this.songStartTime = new Date();
     this.songEndTime = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     this.showSongDialog = true;
   }
 
   searchSongs(): void {
-    if (!this.songSearchQuery?.trim()) return;
+    if (!this.songSearchQuery?.trim()) {
+      this.songSearchResults = [];
+      return;
+    }
     this.isSearchingSongs = true;
     this.mediaService.getMediaList(0, 20, this.songSearchQuery.trim()).subscribe({
       next: (resp: any) => {
@@ -119,6 +126,15 @@ export class FeaturedContentComponent implements OnInit {
     });
   }
 
+  onSongSearchInput(): void {
+    if (this.songSearchTimer) {
+      clearTimeout(this.songSearchTimer);
+    }
+    this.songSearchTimer = setTimeout(() => {
+      this.searchSongs();
+    }, 400);
+  }
+
   selectSong(song: any): void {
     this.selectedSong = song;
   }
@@ -127,6 +143,7 @@ export class FeaturedContentComponent implements OnInit {
     if (!this.selectedSong) return;
     const request: FeaturedSongRequest = {
       mediaId: this.selectedSong.id,
+      slotIndex: this.songSlotIndex ?? undefined,
       startTime: this.songStartTime.toISOString(),
       endTime: this.songEndTime.toISOString()
     };
@@ -146,6 +163,7 @@ export class FeaturedContentComponent implements OnInit {
 
   openAdDialog(): void {
     this.adTitle = '';
+    this.adSlotIndex = null;
     this.adFile = null;
     this.adImage = null;
     this.adFilePreview = null;
@@ -207,6 +225,9 @@ export class FeaturedContentComponent implements OnInit {
     const formData = new FormData();
     formData.append('contentType', this.adContentType.value);
     formData.append('title', this.adTitle.trim());
+    if (this.adSlotIndex != null) {
+      formData.append('slotIndex', this.adSlotIndex.toString());
+    }
     formData.append('startTime', this.adStartTime.toISOString());
     formData.append('endTime', this.adEndTime.toISOString());
     if (this.adFile) formData.append('adFile', this.adFile);
@@ -293,6 +314,21 @@ export class FeaturedContentComponent implements OnInit {
   }
 
   // ───── Helpers ─────
+
+  updateSlotIndex(item: FeaturedContent, newSlot: number): void {
+    if (!newSlot || newSlot < 1 || newSlot === item.slotIndex) return;
+
+    this.featuredService.update(item.id, { slotIndex: newSlot }).subscribe({
+      next: () => {
+        item.slotIndex = newSlot;
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Order updated to ${newSlot}` });
+        this.loadAll();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update order' });
+      }
+    });
+  }
 
   getContentTypeLabel(type: string): string {
     switch (type) {

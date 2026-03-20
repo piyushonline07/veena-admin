@@ -194,7 +194,8 @@ export class MediaListComponent implements OnInit {
             composerId: media.composer?.id || null,
             lyricistId: media.lyricist?.id || null,
             producerId: media.producer?.id || null,
-            releaseDate: media.releaseDate ? new Date(media.releaseDate) : null
+            releaseDate: media.releaseDate ? new Date(media.releaseDate) : null,
+            podcast: media.podcast || false
         };
         this.newThumbnailFile = null;
         this.newLyricsFile = null;
@@ -261,8 +262,9 @@ export class MediaListComponent implements OnInit {
                                   this.selectedMedia.producerId !== undefined;
         const hasSubArtists = this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0;
         const hasReleaseDate = this.selectedMedia.releaseDate !== undefined;
+        const hasPodcast = this.selectedMedia.podcast !== undefined;
 
-        if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists || hasReleaseDate) {
+        if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists || hasReleaseDate || hasPodcast) {
             // Use the new multipart endpoint
             const formData = new FormData();
             formData.append('title', this.selectedMedia.title);
@@ -298,6 +300,11 @@ export class MediaListComponent implements OnInit {
             if (this.selectedMedia.releaseDate) {
                 const date = new Date(this.selectedMedia.releaseDate);
                 formData.append('releaseDate', date.toISOString().split('T')[0]);
+            }
+
+            // Podcast flag
+            if (this.selectedMedia.podcast !== undefined) {
+                formData.append('podcast', this.selectedMedia.podcast.toString());
             }
 
             if (this.newThumbnailFile) {

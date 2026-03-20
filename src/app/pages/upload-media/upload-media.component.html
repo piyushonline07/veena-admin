@@ -69,6 +69,14 @@
                         <small class="text-secondary mt-1 block">The official release date of the song</small>
                     </div>
 
+                    <!-- Podcast -->
+                    <div class="col-12 md:col-6 field flex align-items-end">
+                        <div>
+                            <p-checkbox [(ngModel)]="podcast" [binary]="true" inputId="podcast" label="Mark as Podcast"></p-checkbox>
+                            <small class="text-secondary mt-1 block">Enable if this is a podcast episode</small>
+                        </div>
+                    </div>
+
                     <!-- Sub-Artists (Featuring) -->
                     <div class="col-12 field">
                         <label for="subArtists">Featuring Artists (Optional)</label>

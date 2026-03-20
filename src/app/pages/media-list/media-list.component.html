@@ -146,6 +146,7 @@
                             <p-tag [value]="media.mediaType"
                                 [severity]="media.mediaType === 'VIDEO' ? 'primary' : 'info'"
                                 styleClass="type-tag"></p-tag>
+                            <i *ngIf="media.podcast" class="pi pi-microphone text-purple-500 ml-1" pTooltip="Podcast" style="font-size: 0.85rem;"></i>
                         </td>
                         <td class="hide-mobile">
                             <p-tag [value]="media.status"
@@ -332,6 +333,15 @@
                         class="w-full" id="producerId">
                     </p-dropdown>
                     <small class="text-secondary">Music producer</small>
+                </div>
+            </div>
+
+            <!-- Podcast Section -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="pi pi-microphone"></i> Podcast</h4>
+                <div class="field mb-3">
+                    <p-checkbox [(ngModel)]="selectedMedia.podcast" [binary]="true" inputId="podcast" label="Mark as Podcast"></p-checkbox>
+                    <small class="text-secondary block mt-1">Enable if this is a podcast episode</small>
                 </div>
             </div>
 

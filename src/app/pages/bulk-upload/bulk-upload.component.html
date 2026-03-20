@@ -271,6 +271,11 @@
                         <small class="text-secondary">Official release date for all selected items</small>
                     </div>
 
+                    <div class="field mb-3">
+                        <p-checkbox [(ngModel)]="batchPodcast" [binary]="true" label="Mark as Podcast"></p-checkbox>
+                        <small class="text-secondary block mt-1">Enable if these are podcast episodes</small>
+                    </div>
+
                     <button pButton label="Apply to Selected" icon="pi pi-check" class="w-full"
                         [disabled]="selectedMedia.length === 0 || updating"
                         [loading]="updating"
