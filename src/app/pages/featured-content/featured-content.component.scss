@@ -214,3 +214,26 @@ tr.inactive { opacity: 0.6; }
 .text-secondary { color: var(--text-secondary, #6c757d); }
 .font-bold { font-weight: 600; }
 
+// Featured image preview styles
+.featured-image-preview {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.5rem;
+
+  .preview-img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--surface-border, #dee2e6);
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+

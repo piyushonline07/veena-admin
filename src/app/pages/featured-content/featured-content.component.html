@@ -67,8 +67,9 @@
         </td>
         <td>
           <div class="preview-thumb">
-            <img *ngIf="item.thumbnailUrl || item.adImageUrl" [src]="item.thumbnailUrl || item.adImageUrl" alt="Preview" />
-            <i *ngIf="!item.thumbnailUrl && !item.adImageUrl" [class]="getContentTypeIcon(item.contentType)"></i>
+            <img *ngIf="item.featuredImageUrl || item.thumbnailUrl || item.adImageUrl"
+                 [src]="item.featuredImageUrl || item.thumbnailUrl || item.adImageUrl" alt="Preview" />
+            <i *ngIf="!item.featuredImageUrl && !item.thumbnailUrl && !item.adImageUrl" [class]="getContentTypeIcon(item.contentType)"></i>
           </div>
         </td>
         <td>
@@ -166,6 +167,23 @@
         <small class="text-secondary">Lower number = shown first. Leave empty to auto-assign.</small>
       </div>
 
+      <!-- Featured Image Upload -->
+      <div class="mb-3">
+        <label class="block mb-1 font-bold">Featured Image (optional)</label>
+        <small class="block mb-2 text-secondary">Upload a custom banner image for this featured song</small>
+        <div *ngIf="!songFeaturedImagePreview">
+          <p-fileUpload mode="basic" accept=".jpg,.jpeg,.png,.webp" [maxFileSize]="10485760"
+                        chooseLabel="Choose Image" (onSelect)="onSongFeaturedImageSelected($event)"
+                        [auto]="false" [customUpload]="true"></p-fileUpload>
+        </div>
+        <div *ngIf="songFeaturedImagePreview" class="featured-image-preview">
+          <img [src]="songFeaturedImagePreview" alt="Featured Image Preview" class="preview-img" />
+          <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                  pTooltip="Remove Image" (click)="removeSongFeaturedImage()"></button>
+        </div>
+        <small class="text-secondary" *ngIf="songFeaturedImage">Selected: {{songFeaturedImage.name}}</small>
+      </div>
+
       <label class="block mb-2 font-bold">Schedule</label>
       <div class="grid">
         <div class="col-6">
@@ -182,7 +200,7 @@
 
   <ng-template pTemplate="footer">
     <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="showSongDialog = false"></button>
-    <button pButton label="Add to Featured" icon="pi pi-star" [disabled]="!selectedSong" (click)="addFeaturedSong()"></button>
+    <button pButton label="Add to Featured" icon="pi pi-star" [disabled]="!selectedSong" [loading]="isAddingSong" (click)="addFeaturedSong()"></button>
   </ng-template>
 </p-dialog>
 
@@ -217,6 +235,23 @@
                     [auto]="false" [customUpload]="true"></p-fileUpload>
       <small class="text-secondary" *ngIf="adImage">Selected: {{adImage.name}}</small>
       <img *ngIf="adImagePreview" [src]="adImagePreview" class="ad-preview mt-2" />
+    </div>
+
+    <!-- Featured Image Upload -->
+    <div class="mb-3">
+      <label class="block mb-1 font-bold">Featured Banner Image (optional)</label>
+      <small class="block mb-2 text-secondary">Upload a custom banner image for this ad</small>
+      <div *ngIf="!adFeaturedImagePreview">
+        <p-fileUpload mode="basic" accept=".jpg,.jpeg,.png,.webp" [maxFileSize]="10485760"
+                      chooseLabel="Choose Banner" (onSelect)="onAdFeaturedImageSelected($event)"
+                      [auto]="false" [customUpload]="true"></p-fileUpload>
+      </div>
+      <div *ngIf="adFeaturedImagePreview" class="featured-image-preview">
+        <img [src]="adFeaturedImagePreview" alt="Featured Image Preview" class="preview-img" />
+        <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                pTooltip="Remove Image" (click)="removeAdFeaturedImage()"></button>
+      </div>
+      <small class="text-secondary" *ngIf="adFeaturedImage">Selected: {{adFeaturedImage.name}}</small>
     </div>
 
     <p-divider></p-divider>

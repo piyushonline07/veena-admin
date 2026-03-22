@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FeaturedContentService, FeaturedContent, FeaturedSongRequest } from '../../core/service/featured-content.service';
+import { FeaturedContentService, FeaturedContent } from '../../core/service/featured-content.service';
 import { MediaService } from '../../core/service/media.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
@@ -25,6 +25,9 @@ export class FeaturedContentComponent implements OnInit {
   songSlotIndex: number | null = null;
   songStartTime: Date = new Date();
   songEndTime: Date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // +30 days
+  songFeaturedImage: File | null = null;
+  songFeaturedImagePreview: string | null = null;
+  isAddingSong = false;
   private songSearchTimer: any = null;
 
   // Add Ad dialog
@@ -43,6 +46,8 @@ export class FeaturedContentComponent implements OnInit {
   adImage: File | null = null;
   adFilePreview: string | null = null;
   adImagePreview: string | null = null;
+  adFeaturedImage: File | null = null;
+  adFeaturedImagePreview: string | null = null;
   isUploadingAd = false;
 
   // Edit dialog
@@ -106,6 +111,8 @@ export class FeaturedContentComponent implements OnInit {
     this.songSlotIndex = null;
     this.songStartTime = new Date();
     this.songEndTime = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    this.songFeaturedImage = null;
+    this.songFeaturedImagePreview = null;
     this.showSongDialog = true;
   }
 
@@ -141,22 +148,46 @@ export class FeaturedContentComponent implements OnInit {
 
   addFeaturedSong(): void {
     if (!this.selectedSong) return;
-    const request: FeaturedSongRequest = {
-      mediaId: this.selectedSong.id,
-      slotIndex: this.songSlotIndex ?? undefined,
-      startTime: this.songStartTime.toISOString(),
-      endTime: this.songEndTime.toISOString()
-    };
-    this.featuredService.addFeaturedSong(request).subscribe({
+
+    this.isAddingSong = true;
+    const formData = new FormData();
+    formData.append('mediaId', this.selectedSong.id);
+    if (this.songSlotIndex != null) {
+      formData.append('slotIndex', this.songSlotIndex.toString());
+    }
+    formData.append('startTime', this.songStartTime.toISOString());
+    formData.append('endTime', this.songEndTime.toISOString());
+    if (this.songFeaturedImage) {
+      formData.append('featuredImage', this.songFeaturedImage);
+    }
+
+    this.featuredService.addFeaturedSong(formData).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Added', detail: `"${this.selectedSong.title}" added to featured` });
         this.showSongDialog = false;
+        this.isAddingSong = false;
         this.loadAll();
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add featured song' });
+        this.isAddingSong = false;
       }
     });
+  }
+
+  onSongFeaturedImageSelected(event: any): void {
+    const file = event.files?.[0] || event.target?.files?.[0];
+    if (file) {
+      this.songFeaturedImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.songFeaturedImagePreview = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeSongFeaturedImage(): void {
+    this.songFeaturedImage = null;
+    this.songFeaturedImagePreview = null;
   }
 
   // ───── Ad Dialog ─────
@@ -168,6 +199,8 @@ export class FeaturedContentComponent implements OnInit {
     this.adImage = null;
     this.adFilePreview = null;
     this.adImagePreview = null;
+    this.adFeaturedImage = null;
+    this.adFeaturedImagePreview = null;
     this.adContentType = this.adContentTypes[0];
     this.adStartTime = new Date();
     this.adEndTime = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -232,6 +265,7 @@ export class FeaturedContentComponent implements OnInit {
     formData.append('endTime', this.adEndTime.toISOString());
     if (this.adFile) formData.append('adFile', this.adFile);
     if (this.adImage) formData.append('adImage', this.adImage);
+    if (this.adFeaturedImage) formData.append('featuredImage', this.adFeaturedImage);
 
     this.featuredService.addAd(formData).subscribe({
       next: () => {
@@ -245,6 +279,21 @@ export class FeaturedContentComponent implements OnInit {
         this.isUploadingAd = false;
       }
     });
+  }
+
+  onAdFeaturedImageSelected(event: any): void {
+    const file = event.files?.[0] || event.target?.files?.[0];
+    if (file) {
+      this.adFeaturedImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.adFeaturedImagePreview = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeAdFeaturedImage(): void {
+    this.adFeaturedImage = null;
+    this.adFeaturedImagePreview = null;
   }
 
   // ───── Edit Dialog ─────

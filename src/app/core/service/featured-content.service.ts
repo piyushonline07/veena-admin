@@ -22,6 +22,8 @@ export interface FeaturedContent {
   // Ad fields
   adMediaUrl?: string;
   adImageUrl?: string;
+  // Custom featured image (for both songs and ads)
+  featuredImageUrl?: string;
 }
 
 export interface FeaturedSongRequest {
@@ -53,8 +55,8 @@ export class FeaturedContentService {
     return this.http.get<FeaturedContent[]>(`${this.apiUrl}/active`);
   }
 
-  addFeaturedSong(request: FeaturedSongRequest): Observable<FeaturedContent> {
-    return this.http.post<FeaturedContent>(`${this.apiUrl}/song`, request);
+  addFeaturedSong(formData: FormData): Observable<FeaturedContent> {
+    return this.http.post<FeaturedContent>(`${this.apiUrl}/song`, formData);
   }
 
   addAd(formData: FormData): Observable<FeaturedContent> {
