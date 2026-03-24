@@ -69,7 +69,8 @@ export class SidebarComponent implements OnInit {
                 label: 'Growth',
                 items: [
                     { label: 'Marketing Hub', icon: 'pi pi-megaphone', routerLink: ['/marketing'] },
-                    { label: 'Notifications', icon: 'pi pi-bell', routerLink: ['/notifications'] }
+                    { label: 'Push Notifications', icon: 'pi pi-send', routerLink: ['/notifications'] },
+                    { label: 'In-App Notifications', icon: 'pi pi-bell', routerLink: ['/in-app-notifications'] }
                 ]
             },
             {

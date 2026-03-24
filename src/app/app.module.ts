@@ -67,6 +67,7 @@ import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 import { CreditsComponent } from './pages/credits/credits.component';
 import { FeaturedContentComponent } from './pages/featured-content/featured-content.component';
+import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app-notifications.component';
 
 @NgModule({
   declarations: [
@@ -92,7 +93,8 @@ import { FeaturedContentComponent } from './pages/featured-content/featured-cont
     BulkUploadComponent,
     AdminPlaylistComponent,
     CreditsComponent,
-    FeaturedContentComponent
+    FeaturedContentComponent,
+    InAppNotificationsComponent
   ],
   imports: [
     InputTextareaModule,

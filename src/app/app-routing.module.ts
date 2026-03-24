@@ -11,6 +11,7 @@ import { MarketingComponent } from './pages/marketing/marketing.component';
 import { OperationsComponent } from './pages/operations/operations.component';
 import { DeveloperComponent } from './pages/developer/developer.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app-notifications.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { MediaLinkComponent } from './pages/media-link/media-link.component';
 import { AlbumComponent } from './pages/album/album.component';
@@ -34,6 +35,7 @@ const routes: Routes = [
   { path: 'users', component: UserListComponent, canActivate: [AuthGuard] },
   { path: 'developer', component: DeveloperComponent, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
+  { path: 'in-app-notifications', component: InAppNotificationsComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'media-link', component: MediaLinkComponent, canActivate: [AuthGuard] },
   { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
