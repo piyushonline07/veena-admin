@@ -18,6 +18,7 @@
            [lazy]="true" (onLazyLoad)="onPageChange($event)">
     <ng-template pTemplate="header">
       <tr>
+        <th style="width: 60px;">Image</th>
         <th>Name</th>
         <th>SKU</th>
         <th>Category</th>
@@ -29,6 +30,11 @@
     </ng-template>
     <ng-template pTemplate="body" let-product>
       <tr>
+        <td>
+          <img *ngIf="product.images?.length > 0" [src]="product.images[0].imageUrl"
+               style="width:42px; height:42px; object-fit:cover; border-radius:6px; border:1px solid #e4e4e7;" />
+          <span *ngIf="!product.images?.length" style="color:#ccc;"><i class="pi pi-image"></i></span>
+        </td>
         <td>
           <strong>{{ product.name }}</strong>
           <span *ngIf="product.isFeatured" style="margin-left: 6px;">⭐</span>
@@ -56,7 +62,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="7" style="text-align: center; padding: 2rem;">No products found.</td></tr>
+      <tr><td colspan="8" style="text-align: center; padding: 2rem;">No products found.</td></tr>
     </ng-template>
   </p-table>
 </p-card>
@@ -118,6 +124,40 @@
     </div>
     <div class="field">
       <p-checkbox [(ngModel)]="productForm.isFeatured" [binary]="true" label="Featured"></p-checkbox>
+    </div>
+
+    <!-- Product Images Upload -->
+    <div class="field" style="grid-column: 1 / -1;">
+      <label>Product Photos</label>
+      <div class="photo-upload-zone multi"
+           (dragover)="$event.preventDefault()"
+           (drop)="onProductImageDrop($event)"
+           (click)="productImageInput.click()">
+        <i class="pi pi-cloud-upload upload-icon"></i>
+        <span class="upload-label">Click or drag & drop to add photos</span>
+        <span class="upload-hint">PNG, JPG, WEBP · Max 10 MB each</span>
+      </div>
+      <input #productImageInput type="file" accept="image/*" multiple style="display:none"
+             (change)="onProductImagesSelected($event)" />
+
+      <!-- Existing images (already saved on server) -->
+      <div class="image-thumb-grid" *ngIf="productForm.images?.length > 0 || pendingImagePreviews.length > 0">
+        <div class="image-thumb" *ngFor="let img of productForm.images; let i = index">
+          <img [src]="img.imageUrl" alt="Product image" />
+          <button type="button" class="remove-img-btn" (click)="removeExistingImage(i)" pTooltip="Remove">
+            <i class="pi pi-times"></i>
+          </button>
+          <span class="img-badge" *ngIf="i === 0 && pendingImagePreviews.length === 0">Primary</span>
+        </div>
+        <!-- Pending images (selected but not yet uploaded) -->
+        <div class="image-thumb pending" *ngFor="let preview of pendingImagePreviews; let j = index">
+          <img [src]="preview" alt="New image" />
+          <button type="button" class="remove-img-btn" (click)="removePendingImage(j)" pTooltip="Remove">
+            <i class="pi pi-times"></i>
+          </button>
+          <span class="img-badge new-badge">New</span>
+        </div>
+      </div>
     </div>
   </div>
   <ng-template pTemplate="footer">

@@ -18,6 +18,10 @@ export class EcomCategoriesComponent implements OnInit {
   isEditMode = false;
   categoryForm: any = {};
 
+  // Image upload
+  selectedCatImageFile: File | null = null;
+  catImagePreview: string | null = null;
+
   constructor(
     private ecomService: EcomService,
     private messageService: MessageService,
@@ -56,18 +60,24 @@ export class EcomCategoriesComponent implements OnInit {
 
   openNewDialog(): void {
     this.categoryForm = { name: '', description: '', displayOrder: 0, isActive: true };
+    this.selectedCatImageFile = null;
+    this.catImagePreview = null;
     this.isEditMode = false;
     this.showDialog = true;
   }
 
   openEditDialog(category: any): void {
     this.categoryForm = { ...category };
+    this.selectedCatImageFile = null;
+    this.catImagePreview = category.imageUrl || null; // show existing image
     this.isEditMode = true;
     this.showDialog = true;
   }
 
   hideDialog(): void {
     this.showDialog = false;
+    this.selectedCatImageFile = null;
+    this.catImagePreview = null;
   }
 
   save(): void {
@@ -77,7 +87,7 @@ export class EcomCategoriesComponent implements OnInit {
     }
 
     if (this.isEditMode && this.categoryForm.id) {
-      this.ecomService.updateCategory(this.categoryForm.id, this.categoryForm).subscribe({
+      this.ecomService.updateCategory(this.categoryForm.id, this.categoryForm, this.selectedCatImageFile || undefined).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Category updated' });
           this.showDialog = false;
@@ -88,7 +98,7 @@ export class EcomCategoriesComponent implements OnInit {
         }
       });
     } else {
-      this.ecomService.createCategory(this.categoryForm).subscribe({
+      this.ecomService.createCategory(this.categoryForm, this.selectedCatImageFile || undefined).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Category created' });
           this.showDialog = false;
@@ -127,5 +137,48 @@ export class EcomCategoriesComponent implements OnInit {
         this.loadCategories();
       }
     });
+  }
+
+  // ========== Image Selection Handlers ==========
+
+  onCatImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.setCatImageFile(input.files[0]);
+      input.value = '';
+    }
+  }
+
+  onCatImageDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.setCatImageFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  removeCatImage(event: Event): void {
+    event.stopPropagation();
+    this.selectedCatImageFile = null;
+    this.catImagePreview = null;
+    this.categoryForm.imageUrl = null;
+  }
+
+  private setCatImageFile(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.messageService.add({ severity: 'warn', summary: 'Only image files are allowed' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.messageService.add({ severity: 'warn', summary: 'File size exceeds 10 MB limit' });
+      return;
+    }
+    this.selectedCatImageFile = file;
+    // Generate local preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.catImagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 }

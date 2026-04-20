@@ -21,16 +21,29 @@ export class EcomService {
     return this.http.get<any>(`${this.baseUrl}/categories/${id}`);
   }
 
-  createCategory(category: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/categories`, category);
+  createCategory(category: any, imageFile?: File): Observable<any> {
+    const formData = this.buildCategoryFormData(category, imageFile);
+    return this.http.post<any>(`${this.baseUrl}/categories`, formData);
   }
 
-  updateCategory(id: number, category: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/categories/${id}`, category);
+  updateCategory(id: number, category: any, imageFile?: File): Observable<any> {
+    const formData = this.buildCategoryFormData(category, imageFile);
+    return this.http.put<any>(`${this.baseUrl}/categories/${id}`, formData);
   }
 
   deleteCategory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/categories/${id}`);
+  }
+
+  private buildCategoryFormData(category: any, imageFile?: File): FormData {
+    const formData = new FormData();
+    // Send the category JSON as a Blob with application/json content type
+    const dataBlob = new Blob([JSON.stringify(category)], { type: 'application/json' });
+    formData.append('data', dataBlob);
+    if (imageFile) {
+      formData.append('image', imageFile, imageFile.name);
+    }
+    return formData;
   }
 
   // ==================== Products ====================
@@ -49,12 +62,14 @@ export class EcomService {
     return this.http.get<any>(`${this.baseUrl}/products/${id}`);
   }
 
-  createProduct(product: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/products`, product);
+  createProduct(product: any, imageFiles?: File[]): Observable<any> {
+    const formData = this.buildProductFormData(product, imageFiles);
+    return this.http.post<any>(`${this.baseUrl}/products`, formData);
   }
 
-  updateProduct(id: number, product: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/products/${id}`, product);
+  updateProduct(id: number, product: any, imageFiles?: File[]): Observable<any> {
+    const formData = this.buildProductFormData(product, imageFiles);
+    return this.http.put<any>(`${this.baseUrl}/products/${id}`, formData);
   }
 
   deleteProduct(id: number): Observable<void> {
@@ -63,6 +78,18 @@ export class EcomService {
 
   getLowStockProducts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/products/low-stock`);
+  }
+
+  private buildProductFormData(product: any, imageFiles?: File[]): FormData {
+    const formData = new FormData();
+    const dataBlob = new Blob([JSON.stringify(product)], { type: 'application/json' });
+    formData.append('data', dataBlob);
+    if (imageFiles && imageFiles.length > 0) {
+      imageFiles.forEach(file => {
+        formData.append('images', file, file.name);
+      });
+    }
+    return formData;
   }
 
   // ==================== Orders ====================

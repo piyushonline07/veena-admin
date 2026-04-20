@@ -10,6 +10,7 @@
   <p-table [value]="flatCategories" [loading]="loading" styleClass="p-datatable-sm" [paginator]="false">
     <ng-template pTemplate="header">
       <tr>
+        <th style="width: 55px;">Image</th>
         <th>Name</th>
         <th>Slug</th>
         <th>Products</th>
@@ -20,6 +21,11 @@
     </ng-template>
     <ng-template pTemplate="body" let-cat>
       <tr>
+        <td>
+          <img *ngIf="cat.imageUrl" [src]="cat.imageUrl"
+               style="width:38px; height:38px; object-fit:cover; border-radius:6px; border:1px solid #e4e4e7;" />
+          <span *ngIf="!cat.imageUrl" style="color:#ccc;"><i class="pi pi-image"></i></span>
+        </td>
         <td>
           <span [style.padding-left.px]="cat.level * 24">
             <i *ngIf="cat.level > 0" class="pi pi-angle-right" style="margin-right: 4px; color: #999;"></i>
@@ -41,7 +47,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="6" style="text-align: center; padding: 2rem;">No categories found. Click "Add Category" to create one.</td></tr>
+      <tr><td colspan="7" style="text-align: center; padding: 2rem;">No categories found. Click "Add Category" to create one.</td></tr>
     </ng-template>
   </p-table>
 </p-card>
@@ -61,9 +67,28 @@
       <label>Description</label>
       <textarea pInputTextarea [(ngModel)]="categoryForm.description" rows="3" placeholder="Category description"></textarea>
     </div>
+    <!-- Photo Upload -->
     <div class="field" style="margin-bottom: 1rem;">
-      <label>Image URL</label>
-      <input type="text" pInputText [(ngModel)]="categoryForm.imageUrl" placeholder="https://..." />
+      <label>Category Photo</label>
+      <div class="photo-upload-zone"
+           [class.has-image]="catImagePreview"
+           (dragover)="$event.preventDefault()"
+           (drop)="onCatImageDrop($event)"
+           (click)="catImageInput.click()">
+        <ng-container *ngIf="!catImagePreview">
+          <i class="pi pi-cloud-upload upload-icon"></i>
+          <span class="upload-label">Click or drag & drop to upload photo</span>
+          <span class="upload-hint">PNG, JPG, WEBP · Max 10 MB</span>
+        </ng-container>
+        <ng-container *ngIf="catImagePreview">
+          <img [src]="catImagePreview" class="preview-img" alt="Category image" />
+          <button type="button" class="remove-img-btn" (click)="removeCatImage($event)" pTooltip="Remove image">
+            <i class="pi pi-times"></i>
+          </button>
+        </ng-container>
+      </div>
+      <input #catImageInput type="file" accept="image/*" style="display:none"
+             (change)="onCatImageSelected($event)" />
     </div>
     <div class="field" style="margin-bottom: 1rem;">
       <label>Parent Category</label>

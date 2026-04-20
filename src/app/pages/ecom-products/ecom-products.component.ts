@@ -21,6 +21,10 @@ export class EcomProductsComponent implements OnInit {
   isEditMode = false;
   productForm: any = {};
 
+  // Pending image files (not yet uploaded — will be sent on save)
+  pendingImageFiles: File[] = [];
+  pendingImagePreviews: string[] = [];
+
   constructor(
     private ecomService: EcomService,
     private messageService: MessageService,
@@ -82,17 +86,25 @@ export class EcomProductsComponent implements OnInit {
       name: '', price: null, quantity: 0, isActive: true, isFeatured: false,
       taxPercent: 0, lowStockThreshold: 5, images: [], variants: []
     };
+    this.pendingImageFiles = [];
+    this.pendingImagePreviews = [];
     this.isEditMode = false;
     this.showDialog = true;
   }
 
   openEditDialog(product: any): void {
     this.productForm = { ...product };
+    this.pendingImageFiles = [];
+    this.pendingImagePreviews = [];
     this.isEditMode = true;
     this.showDialog = true;
   }
 
-  hideDialog(): void { this.showDialog = false; }
+  hideDialog(): void {
+    this.showDialog = false;
+    this.pendingImageFiles = [];
+    this.pendingImagePreviews = [];
+  }
 
   save(): void {
     if (!this.productForm.name?.trim()) {
@@ -108,8 +120,10 @@ export class EcomProductsComponent implements OnInit {
       return;
     }
 
+    const filesToSend = this.pendingImageFiles.length > 0 ? this.pendingImageFiles : undefined;
+
     if (this.isEditMode && this.productForm.id) {
-      this.ecomService.updateProduct(this.productForm.id, this.productForm).subscribe({
+      this.ecomService.updateProduct(this.productForm.id, this.productForm, filesToSend).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Product updated' });
           this.showDialog = false;
@@ -120,7 +134,7 @@ export class EcomProductsComponent implements OnInit {
         }
       });
     } else {
-      this.ecomService.createProduct(this.productForm).subscribe({
+      this.ecomService.createProduct(this.productForm, filesToSend).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Product created' });
           this.showDialog = false;
@@ -162,5 +176,55 @@ export class EcomProductsComponent implements OnInit {
     if (product.quantity <= 0) return 'Out of Stock';
     if (product.quantity <= (product.lowStockThreshold || 5)) return 'Low Stock';
     return 'In Stock';
+  }
+
+  // ========== Product Image Handlers ==========
+
+  onProductImagesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      Array.from(input.files).forEach(f => this.addPendingImage(f));
+      input.value = '';
+    }
+  }
+
+  onProductImageDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      Array.from(event.dataTransfer.files).forEach(f => this.addPendingImage(f));
+    }
+  }
+
+  removeExistingImage(index: number): void {
+    if (this.productForm.images) {
+      this.productForm.images.splice(index, 1);
+      this.productForm.images.forEach((img: any, i: number) => {
+        img.isPrimary = i === 0;
+        img.displayOrder = i;
+      });
+    }
+  }
+
+  removePendingImage(index: number): void {
+    this.pendingImageFiles.splice(index, 1);
+    this.pendingImagePreviews.splice(index, 1);
+  }
+
+  private addPendingImage(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.messageService.add({ severity: 'warn', summary: 'Only image files are allowed' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.messageService.add({ severity: 'warn', summary: 'File size exceeds 10 MB limit' });
+      return;
+    }
+    this.pendingImageFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.pendingImagePreviews.push(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   }
 }
