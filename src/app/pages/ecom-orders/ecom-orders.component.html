@@ -1,0 +1,114 @@
+<p-toast></p-toast>
+
+<!-- Dashboard Stats -->
+<div class="stats-grid" *ngIf="dashboard">
+  <p-card styleClass="stat-card">
+    <div class="stat"><span class="stat-value">{{ dashboard.totalOrders }}</span><span class="stat-label">Total Orders</span></div>
+  </p-card>
+  <p-card styleClass="stat-card">
+    <div class="stat"><span class="stat-value">{{ dashboard.pendingOrders }}</span><span class="stat-label">Pending</span></div>
+  </p-card>
+  <p-card styleClass="stat-card">
+    <div class="stat"><span class="stat-value">₹{{ dashboard.revenueToday | number:'1.0-0' }}</span><span class="stat-label">Today's Revenue</span></div>
+  </p-card>
+  <p-card styleClass="stat-card">
+    <div class="stat"><span class="stat-value">₹{{ dashboard.totalRevenue | number:'1.0-0' }}</span><span class="stat-label">Total Revenue</span></div>
+  </p-card>
+</div>
+
+<div class="page-header">
+  <h2><i class="pi pi-shopping-cart"></i> Orders</h2>
+  <div class="header-actions">
+    <p-dropdown [options]="orderStatuses" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+                placeholder="Filter by status" (onChange)="onStatusFilter()" [style]="{minWidth: '160px'}"></p-dropdown>
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input type="text" pInputText [(ngModel)]="searchQuery" placeholder="Search orders..." (keyup.enter)="onSearch()" />
+    </span>
+  </div>
+</div>
+
+<p-card>
+  <p-table [value]="orders" [loading]="loading" styleClass="p-datatable-sm"
+           [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
+           [lazy]="true" (onLazyLoad)="onPageChange($event)">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Order #</th>
+        <th>Customer</th>
+        <th style="text-align:right;">Amount (₹)</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th style="width: 200px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-order>
+      <tr>
+        <td><strong>{{ order.orderNumber }}</strong></td>
+        <td>{{ order.userName || '-' }}<br><small>{{ order.userEmail || '' }}</small></td>
+        <td style="text-align:right;"><strong>₹{{ order.totalAmount | number:'1.0-0' }}</strong></td>
+        <td><p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag></td>
+        <td>{{ order.createdAt | date:'short' }}</td>
+        <td>
+          <button pButton icon="pi pi-eye" class="p-button-sm p-button-text" (click)="viewOrder(order)" pTooltip="View Details"></button>
+          <button pButton icon="pi pi-refresh" class="p-button-sm p-button-text" (click)="openStatusDialog(order)" pTooltip="Update Status"></button>
+          <button pButton icon="pi pi-truck" class="p-button-sm p-button-text p-button-info"
+                  *ngIf="order.status === 'CONFIRMED' || order.status === 'PROCESSING'"
+                  (click)="createShipment(order)" pTooltip="Create Shipment"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="6" style="text-align: center; padding: 2rem;">No orders found.</td></tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<!-- Order Detail Dialog -->
+<p-dialog header="Order Details" [(visible)]="showDetailDialog" [modal]="true" [style]="{width: '700px'}" [maximizable]="true">
+  <div *ngIf="loadingDetail" style="text-align: center; padding: 2rem;">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+  <div *ngIf="!loadingDetail && selectedOrder">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div><strong>Order #:</strong> {{ selectedOrder.orderNumber }}</div>
+      <div><strong>Status:</strong> <p-tag [value]="selectedOrder.status" [severity]="getStatusSeverity(selectedOrder.status)"></p-tag></div>
+      <div><strong>Total:</strong> ₹{{ selectedOrder.totalAmount | number:'1.2-2' }}</div>
+      <div><strong>Date:</strong> {{ selectedOrder.createdAt | date:'medium' }}</div>
+    </div>
+    <p-divider></p-divider>
+    <h4>Items</h4>
+    <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr><th>Product</th><th>Qty</th><th style="text-align:right;">Price</th><th style="text-align:right;">Total</th></tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.productName }} <small *ngIf="item.variantName">({{ item.variantName }})</small></td>
+          <td>{{ item.quantity }}</td>
+          <td style="text-align:right;">₹{{ item.unitPrice | number:'1.0-0' }}</td>
+          <td style="text-align:right;">₹{{ item.totalPrice | number:'1.0-0' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p-divider></p-divider>
+    <h4>Shipping Address</h4>
+    <p>{{ selectedOrder.shippingName }}<br>{{ selectedOrder.shippingAddress1 }}<br>
+       <span *ngIf="selectedOrder.shippingAddress2">{{ selectedOrder.shippingAddress2 }}<br></span>
+       {{ selectedOrder.shippingCity }}, {{ selectedOrder.shippingState }} - {{ selectedOrder.shippingPincode }}<br>
+       Phone: {{ selectedOrder.shippingPhone }}</p>
+  </div>
+</p-dialog>
+
+<!-- Status Update Dialog -->
+<p-dialog header="Update Order Status" [(visible)]="showStatusDialog" [modal]="true" [style]="{width: '400px'}">
+  <div class="p-fluid">
+    <label>New Status</label>
+    <p-dropdown [options]="statusOptions" [(ngModel)]="newStatus"
+                optionLabel="label" optionValue="value" placeholder="Select status"></p-dropdown>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="showStatusDialog = false"></button>
+    <button pButton label="Update" icon="pi pi-check" (click)="updateStatus()" [disabled]="!newStatus"></button>
+  </ng-template>
+</p-dialog>

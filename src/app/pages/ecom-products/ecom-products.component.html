@@ -1,0 +1,127 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h2><i class="pi pi-box"></i> E-Commerce Products</h2>
+  <div class="header-actions">
+    <span class="p-input-icon-left" style="margin-right: 0.5rem;">
+      <i class="pi pi-search"></i>
+      <input type="text" pInputText [(ngModel)]="searchQuery" placeholder="Search products..." (keyup.enter)="onSearch()" />
+    </span>
+    <button pButton label="Add Product" icon="pi pi-plus" (click)="openNewDialog()"></button>
+  </div>
+</div>
+
+<p-card>
+  <p-table [value]="products" [loading]="loading" styleClass="p-datatable-sm"
+           [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
+           [lazy]="true" (onLazyLoad)="onPageChange($event)">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>SKU</th>
+        <th>Category</th>
+        <th style="text-align:right;">Price (₹)</th>
+        <th style="text-align:center;">Stock</th>
+        <th>Status</th>
+        <th style="width: 150px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>
+          <strong>{{ product.name }}</strong>
+          <span *ngIf="product.isFeatured" style="margin-left: 6px;">⭐</span>
+        </td>
+        <td><code>{{ product.sku || '-' }}</code></td>
+        <td>{{ product.categoryName || '-' }}</td>
+        <td style="text-align:right;">
+          <span *ngIf="product.compareAtPrice" style="text-decoration: line-through; color: #999; margin-right: 8px;">
+            {{ product.compareAtPrice | number:'1.0-0' }}
+          </span>
+          <strong>₹{{ product.price | number:'1.0-0' }}</strong>
+        </td>
+        <td style="text-align:center;">
+          <p-tag [value]="getStockLabel(product) + ' (' + product.quantity + ')'"
+                 [severity]="getStockSeverity(product)"></p-tag>
+        </td>
+        <td>
+          <p-tag [value]="product.isActive ? 'Active' : 'Inactive'"
+                 [severity]="product.isActive ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-sm p-button-text" (click)="openEditDialog(product)" pTooltip="Edit"></button>
+          <button pButton icon="pi pi-trash" class="p-button-sm p-button-text p-button-danger" (click)="deleteProduct(product)" pTooltip="Delete"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="7" style="text-align: center; padding: 2rem;">No products found.</td></tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<!-- Product Dialog -->
+<p-dialog [header]="isEditMode ? 'Edit Product' : 'New Product'" [(visible)]="showDialog" [modal]="true" [style]="{width: '700px'}" [maximizable]="true">
+  <div class="p-fluid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div class="field">
+      <label>Name *</label>
+      <input type="text" pInputText [(ngModel)]="productForm.name" />
+    </div>
+    <div class="field">
+      <label>Category *</label>
+      <p-dropdown [options]="categories" [(ngModel)]="productForm.categoryId"
+                  optionLabel="displayName" optionValue="id" placeholder="Select category"></p-dropdown>
+    </div>
+    <div class="field">
+      <label>Price (₹) *</label>
+      <input type="number" pInputText [(ngModel)]="productForm.price" />
+    </div>
+    <div class="field">
+      <label>Compare At Price (₹)</label>
+      <input type="number" pInputText [(ngModel)]="productForm.compareAtPrice" />
+    </div>
+    <div class="field">
+      <label>SKU</label>
+      <input type="text" pInputText [(ngModel)]="productForm.sku" />
+    </div>
+    <div class="field">
+      <label>Quantity</label>
+      <input type="number" pInputText [(ngModel)]="productForm.quantity" />
+    </div>
+    <div class="field">
+      <label>Weight (grams)</label>
+      <input type="number" pInputText [(ngModel)]="productForm.weightGrams" />
+    </div>
+    <div class="field">
+      <label>Tax %</label>
+      <input type="number" pInputText [(ngModel)]="productForm.taxPercent" />
+    </div>
+    <div class="field">
+      <label>HSN Code</label>
+      <input type="text" pInputText [(ngModel)]="productForm.hsnCode" />
+    </div>
+    <div class="field">
+      <label>Low Stock Threshold</label>
+      <input type="number" pInputText [(ngModel)]="productForm.lowStockThreshold" />
+    </div>
+    <div class="field" style="grid-column: 1 / -1;">
+      <label>Short Description</label>
+      <input type="text" pInputText [(ngModel)]="productForm.shortDescription" />
+    </div>
+    <div class="field" style="grid-column: 1 / -1;">
+      <label>Description</label>
+      <textarea pInputTextarea [(ngModel)]="productForm.description" rows="4"></textarea>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="productForm.isActive" [binary]="true" label="Active"></p-checkbox>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="productForm.isFeatured" [binary]="true" label="Featured"></p-checkbox>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton label="Save" icon="pi pi-check" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

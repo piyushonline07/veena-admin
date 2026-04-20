@@ -74,6 +74,14 @@ export class SidebarComponent implements OnInit {
                 ]
             },
             {
+                label: 'E-Commerce',
+                items: [
+                    { label: 'Categories', icon: 'pi pi-tags', routerLink: ['/ecom-categories'] },
+                    { label: 'Products', icon: 'pi pi-box', routerLink: ['/ecom-products'] },
+                    { label: 'Orders', icon: 'pi pi-shopping-cart', routerLink: ['/ecom-orders'] }
+                ]
+            },
+            {
                 label: 'Operations',
                 items: [
                     { label: 'System Health', icon: 'pi pi-shield', routerLink: ['/operations'] },

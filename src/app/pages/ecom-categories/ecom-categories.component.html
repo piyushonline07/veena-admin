@@ -1,0 +1,83 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h2><i class="pi pi-tags"></i> E-Commerce Categories</h2>
+  <button pButton label="Add Category" icon="pi pi-plus" (click)="openNewDialog()"></button>
+</div>
+
+<p-card>
+  <p-table [value]="flatCategories" [loading]="loading" styleClass="p-datatable-sm" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Products</th>
+        <th>Order</th>
+        <th>Status</th>
+        <th style="width: 180px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cat>
+      <tr>
+        <td>
+          <span [style.padding-left.px]="cat.level * 24">
+            <i *ngIf="cat.level > 0" class="pi pi-angle-right" style="margin-right: 4px; color: #999;"></i>
+            <strong>{{ cat.name }}</strong>
+          </span>
+        </td>
+        <td><code>{{ cat.slug }}</code></td>
+        <td><p-tag [value]="(cat.productCount || 0) + ''" severity="info"></p-tag></td>
+        <td>{{ cat.displayOrder }}</td>
+        <td>
+          <p-tag [value]="cat.isActive ? 'Active' : 'Inactive'"
+                 [severity]="cat.isActive ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-sm p-button-text" (click)="openEditDialog(cat)" pTooltip="Edit"></button>
+          <button pButton icon="pi pi-power-off" class="p-button-sm p-button-text" [class.p-button-warning]="cat.isActive" (click)="toggleActive(cat)" [pTooltip]="cat.isActive ? 'Deactivate' : 'Activate'"></button>
+          <button pButton icon="pi pi-trash" class="p-button-sm p-button-text p-button-danger" (click)="deleteCategory(cat)" pTooltip="Delete"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="6" style="text-align: center; padding: 2rem;">No categories found. Click "Add Category" to create one.</td></tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<!-- Category Dialog -->
+<p-dialog [header]="isEditMode ? 'Edit Category' : 'New Category'" [(visible)]="showDialog" [modal]="true" [style]="{width: '500px'}">
+  <div class="p-fluid">
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Name *</label>
+      <input type="text" pInputText [(ngModel)]="categoryForm.name" placeholder="Category name" />
+    </div>
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Slug</label>
+      <input type="text" pInputText [(ngModel)]="categoryForm.slug" placeholder="Auto-generated if empty" />
+    </div>
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Description</label>
+      <textarea pInputTextarea [(ngModel)]="categoryForm.description" rows="3" placeholder="Category description"></textarea>
+    </div>
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Image URL</label>
+      <input type="text" pInputText [(ngModel)]="categoryForm.imageUrl" placeholder="https://..." />
+    </div>
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Parent Category</label>
+      <p-dropdown [options]="flatCategories" [(ngModel)]="categoryForm.parentId"
+                  optionLabel="name" optionValue="id" [showClear]="true"
+                  placeholder="None (Top Level)"></p-dropdown>
+    </div>
+    <div class="field" style="margin-bottom: 1rem;">
+      <label>Display Order</label>
+      <input type="number" pInputText [(ngModel)]="categoryForm.displayOrder" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton label="Save" icon="pi pi-check" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

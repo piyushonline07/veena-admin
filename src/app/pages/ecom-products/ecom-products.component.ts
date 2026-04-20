@@ -1,0 +1,166 @@
+import { Component, OnInit } from '@angular/core';
+import { EcomService } from '../../core/service/ecom.service';
+import { MessageService, ConfirmationService } from 'primeng/api';
+
+@Component({
+  selector: 'app-ecom-products',
+  templateUrl: './ecom-products.component.html',
+  styleUrls: ['./ecom-products.component.scss'],
+  providers: [MessageService, ConfirmationService]
+})
+export class EcomProductsComponent implements OnInit {
+  products: any[] = [];
+  categories: any[] = [];
+  loading = false;
+  totalRecords = 0;
+  rows = 20;
+  searchQuery = '';
+
+  // Dialog
+  showDialog = false;
+  isEditMode = false;
+  productForm: any = {};
+
+  constructor(
+    private ecomService: EcomService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadCategories();
+  }
+
+  loadProducts(): void {
+    this.loading = true;
+    this.ecomService.getProducts(0, this.rows, this.searchQuery).subscribe({
+      next: (data) => {
+        this.products = data.content;
+        this.totalRecords = data.totalElements;
+        this.loading = false;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load products' });
+        this.loading = false;
+      }
+    });
+  }
+
+  loadCategories(): void {
+    this.ecomService.getCategories().subscribe({
+      next: (data) => { this.categories = this.flattenCategories(data); },
+      error: () => { this.categories = []; }
+    });
+  }
+
+  flattenCategories(categories: any[], level: number = 0): any[] {
+    let result: any[] = [];
+    for (const cat of categories) {
+      result.push({ ...cat, displayName: '  '.repeat(level) + cat.name });
+      if (cat.children?.length > 0) {
+        result = result.concat(this.flattenCategories(cat.children, level + 1));
+      }
+    }
+    return result;
+  }
+
+  onSearch(): void { this.loadProducts(); }
+
+  onPageChange(event: any): void {
+    const page = event.page !== undefined ? event.page : Math.floor(event.first / event.rows);
+    this.ecomService.getProducts(page, event.rows, this.searchQuery).subscribe({
+      next: (data) => {
+        this.products = data.content;
+        this.totalRecords = data.totalElements;
+      }
+    });
+  }
+
+  openNewDialog(): void {
+    this.productForm = {
+      name: '', price: null, quantity: 0, isActive: true, isFeatured: false,
+      taxPercent: 0, lowStockThreshold: 5, images: [], variants: []
+    };
+    this.isEditMode = false;
+    this.showDialog = true;
+  }
+
+  openEditDialog(product: any): void {
+    this.productForm = { ...product };
+    this.isEditMode = true;
+    this.showDialog = true;
+  }
+
+  hideDialog(): void { this.showDialog = false; }
+
+  save(): void {
+    if (!this.productForm.name?.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Product name is required' });
+      return;
+    }
+    if (!this.productForm.categoryId) {
+      this.messageService.add({ severity: 'warn', summary: 'Category is required' });
+      return;
+    }
+    if (!this.productForm.price || this.productForm.price <= 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Valid price is required' });
+      return;
+    }
+
+    if (this.isEditMode && this.productForm.id) {
+      this.ecomService.updateProduct(this.productForm.id, this.productForm).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Product updated' });
+          this.showDialog = false;
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to update' });
+        }
+      });
+    } else {
+      this.ecomService.createProduct(this.productForm).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Product created' });
+          this.showDialog = false;
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to create' });
+        }
+      });
+    }
+  }
+
+  deleteProduct(product: any): void {
+    this.confirmationService.confirm({
+      message: `Delete "${product.name}"? This cannot be undone.`,
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.ecomService.deleteProduct(product.id).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'info', summary: 'Product deleted' });
+            this.loadProducts();
+          },
+          error: (err) => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to delete' });
+          }
+        });
+      }
+    });
+  }
+
+  getStockSeverity(product: any): string {
+    if (product.quantity <= 0) return 'danger';
+    if (product.quantity <= (product.lowStockThreshold || 5)) return 'warning';
+    return 'success';
+  }
+
+  getStockLabel(product: any): string {
+    if (product.quantity <= 0) return 'Out of Stock';
+    if (product.quantity <= (product.lowStockThreshold || 5)) return 'Low Stock';
+    return 'In Stock';
+  }
+}

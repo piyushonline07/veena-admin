@@ -20,6 +20,9 @@ import { BulkUploadComponent } from './pages/bulk-upload/bulk-upload.component';
 import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.component';
 import { CreditsComponent } from './pages/credits/credits.component';
 import { FeaturedContentComponent } from './pages/featured-content/featured-content.component';
+import { EcomCategoriesComponent } from './pages/ecom-categories/ecom-categories.component';
+import { EcomProductsComponent } from './pages/ecom-products/ecom-products.component';
+import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -40,6 +43,9 @@ const routes: Routes = [
   { path: 'media-link', component: MediaLinkComponent, canActivate: [AuthGuard] },
   { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
   { path: 'featured', component: FeaturedContentComponent, canActivate: [AuthGuard] },
+  { path: 'ecom-categories', component: EcomCategoriesComponent, canActivate: [AuthGuard] },
+  { path: 'ecom-products', component: EcomProductsComponent, canActivate: [AuthGuard] },
+  { path: 'ecom-orders', component: EcomOrdersComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

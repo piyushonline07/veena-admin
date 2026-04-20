@@ -68,6 +68,9 @@ import { AdminPlaylistComponent } from './pages/admin-playlist/admin-playlist.co
 import { CreditsComponent } from './pages/credits/credits.component';
 import { FeaturedContentComponent } from './pages/featured-content/featured-content.component';
 import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app-notifications.component';
+import { EcomCategoriesComponent } from './pages/ecom-categories/ecom-categories.component';
+import { EcomProductsComponent } from './pages/ecom-products/ecom-products.component';
+import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
 
 @NgModule({
   declarations: [
@@ -94,7 +97,10 @@ import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app
     AdminPlaylistComponent,
     CreditsComponent,
     FeaturedContentComponent,
-    InAppNotificationsComponent
+    InAppNotificationsComponent,
+    EcomCategoriesComponent,
+    EcomProductsComponent,
+    EcomOrdersComponent
   ],
   imports: [
     InputTextareaModule,
