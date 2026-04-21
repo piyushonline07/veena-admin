@@ -1,0 +1,357 @@
+<div class="channel-approvals-container">
+    <div class="header-section">
+        <div class="header-title">
+            <h1>User Channels & Approvals</h1>
+            <p class="text-secondary hide-mobile">Review and manage user-submitted content.</p>
+        </div>
+    </div>
+
+    <p-tabView (onChange)="onTabChange($event)">
+        <!-- TAB 1: Pending Approvals -->
+        <p-tabPanel header="Pending Approvals" [leftIcon]="'pi pi-clock'">
+            <!-- Batch actions toolbar -->
+            <div class="batch-toolbar" *ngIf="selectedMedia.length > 0">
+                <div class="batch-info">
+                    <i class="pi pi-check-square"></i>
+                    <span>{{ selectedMedia.length }} item(s) selected</span>
+                </div>
+                <button pButton label="Approve Selected" icon="pi pi-check"
+                    class="p-button-success p-button-sm"
+                    (click)="batchApprove()" [loading]="batchApproving"></button>
+            </div>
+
+            <p-card>
+                <div class="table-wrapper">
+                    <p-table [value]="pendingMedia" [lazy]="true" (onLazyLoad)="onPendingPageChange($event)"
+                        [paginator]="true" [rows]="pendingRows" [totalRecords]="pendingTotalRecords"
+                        [loading]="pendingLoading" [showCurrentPageReport]="true"
+                        [(selection)]="selectedMedia" dataKey="id"
+                        styleClass="p-datatable-striped p-datatable-sm"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 3rem">
+                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                                </th>
+                                <th>Media</th>
+                                <th class="hide-mobile">Channel</th>
+                                <th class="hide-mobile">Type</th>
+                                <th class="hide-mobile">Size</th>
+                                <th class="hide-mobile">Submitted</th>
+                                <th style="width: 160px">Actions</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-media>
+                            <tr>
+                                <td>
+                                    <p-tableCheckbox [value]="media"></p-tableCheckbox>
+                                </td>
+                                <td>
+                                    <div class="media-info-cell">
+                                        <div class="media-thumb" *ngIf="media.thumbnailUrl">
+                                            <img [src]="media.thumbnailUrl" alt="thumb" />
+                                        </div>
+                                        <div class="media-thumb placeholder-thumb" *ngIf="!media.thumbnailUrl">
+                                            <i [class]="getMediaTypeIcon(media.mediaType)"></i>
+                                        </div>
+                                        <div class="media-details">
+                                            <span class="media-title font-bold"
+                                                  [pTooltip]="media.title" tooltipPosition="top"
+                                                  [tooltipDisabled]="media.title?.length < 25">{{ media.title }}</span>
+                                            <span class="media-uploader text-secondary">
+                                                by {{ media.uploadedByName || media.uploadedByEmail }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="hide-mobile">
+                                    <span class="channel-name">{{ media.channelName }}</span>
+                                </td>
+                                <td class="hide-mobile">
+                                    <p-tag [value]="media.mediaType"
+                                           [severity]="media.mediaType === 'VIDEO' ? 'info' : 'success'"
+                                           [icon]="getMediaTypeIcon(media.mediaType)"></p-tag>
+                                </td>
+                                <td class="hide-mobile">{{ formatFileSize(media.fileSize) }}</td>
+                                <td class="hide-mobile">{{ media.createdAt | date:'short' }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button pButton icon="pi pi-eye"
+                                            class="p-button-rounded p-button-text p-button-sm"
+                                            (click)="showPreview(media)" pTooltip="Preview"></button>
+                                        <button pButton icon="pi pi-check"
+                                            class="p-button-rounded p-button-success p-button-sm"
+                                            (click)="approveMedia(media)" pTooltip="Approve"></button>
+                                        <button pButton icon="pi pi-times"
+                                            class="p-button-rounded p-button-danger p-button-sm"
+                                            (click)="openRejectDialog(media)" pTooltip="Reject"></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="7" class="text-center p-4">
+                                    <div class="empty-state">
+                                        <i class="pi pi-check-circle empty-icon"></i>
+                                        <p>No pending approvals! All caught up.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-card>
+        </p-tabPanel>
+
+        <!-- TAB 2: All Channels -->
+        <p-tabPanel header="All Channels" [leftIcon]="'pi pi-users'">
+            <div class="channel-toolbar">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Search channels..."
+                        [(ngModel)]="channelSearchQuery" (input)="onChannelSearch()"
+                        class="p-inputtext-sm search-input" />
+                </span>
+            </div>
+
+            <p-card>
+                <div class="table-wrapper">
+                    <p-table [value]="channels" [lazy]="true" (onLazyLoad)="onChannelsPageChange($event)"
+                        [paginator]="true" [rows]="channelsRows" [totalRecords]="channelsTotalRecords"
+                        [loading]="channelsLoading" [showCurrentPageReport]="true"
+                        styleClass="p-datatable-striped p-datatable-sm"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Channel</th>
+                                <th>Owner</th>
+                                <th class="hide-mobile">Total</th>
+                                <th class="hide-mobile">Pending</th>
+                                <th class="hide-mobile">Approved</th>
+                                <th class="hide-mobile">Created</th>
+                                <th style="width: 80px">Actions</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-channel>
+                            <tr>
+                                <td>
+                                    <div class="channel-cell">
+                                        <span class="font-bold">{{ channel.channelName }}</span>
+                                        <span class="text-secondary text-sm" *ngIf="channel.channelHandle">
+                                            @{{ channel.channelHandle }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="owner-cell">
+                                        <span>{{ channel.userName || '-' }}</span>
+                                        <span class="text-secondary text-sm show-mobile">
+                                            P: {{ channel.pendingMedia || 0 }} | A: {{ channel.approvedMedia || 0 }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="hide-mobile">
+                                    <span class="font-bold">{{ channel.totalMedia || 0 }}</span>
+                                </td>
+                                <td class="hide-mobile">
+                                    <p-tag *ngIf="channel.pendingMedia > 0" [value]="channel.pendingMedia + ''"
+                                           severity="warning"></p-tag>
+                                    <span *ngIf="!channel.pendingMedia">0</span>
+                                </td>
+                                <td class="hide-mobile">{{ channel.approvedMedia || 0 }}</td>
+                                <td class="hide-mobile">{{ channel.createdAt | date:'shortDate' }}</td>
+                                <td>
+                                    <button pButton icon="pi pi-list"
+                                        class="p-button-rounded p-button-text p-button-sm"
+                                        (click)="showChannelMedia(channel)" pTooltip="View Media"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="7" class="text-center p-4">No channels found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-card>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<!-- ===== MEDIA PREVIEW DIALOG ===== -->
+<p-dialog [(visible)]="previewDialog" [style]="{width: '600px', maxWidth: '95vw'}"
+    header="Media Preview" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div *ngIf="previewMedia" class="preview-content">
+            <div class="preview-thumb" *ngIf="previewMedia.thumbnailUrl">
+                <img [src]="previewMedia.thumbnailUrl" alt="Preview" />
+            </div>
+
+            <div class="preview-details">
+                <div class="detail-row">
+                    <label>Title</label>
+                    <span class="font-bold text-lg">{{ previewMedia.title }}</span>
+                </div>
+                <div class="detail-row" *ngIf="previewMedia.description">
+                    <label>Description</label>
+                    <span>{{ previewMedia.description }}</span>
+                </div>
+                <div class="detail-row">
+                    <label>Type</label>
+                    <p-tag [value]="previewMedia.mediaType"
+                           [severity]="previewMedia.mediaType === 'VIDEO' ? 'info' : 'success'"
+                           [icon]="getMediaTypeIcon(previewMedia.mediaType)"></p-tag>
+                </div>
+                <div class="detail-row">
+                    <label>Status</label>
+                    <p-tag [value]="previewMedia.approvalStatus"
+                           [severity]="getApprovalSeverity(previewMedia.approvalStatus)"></p-tag>
+                </div>
+                <div class="detail-row">
+                    <label>Channel</label>
+                    <span>{{ previewMedia.channelName }}</span>
+                </div>
+                <div class="detail-row">
+                    <label>Uploaded By</label>
+                    <span>{{ previewMedia.uploadedByName }} ({{ previewMedia.uploadedByEmail }})</span>
+                </div>
+                <div class="detail-row">
+                    <label>File Size</label>
+                    <span>{{ formatFileSize(previewMedia.fileSize) }}</span>
+                </div>
+                <div class="detail-row">
+                    <label>Submitted</label>
+                    <span>{{ previewMedia.createdAt | date:'medium' }}</span>
+                </div>
+                <div class="detail-row" *ngIf="previewMedia.rejectionReason">
+                    <label>Rejection Reason</label>
+                    <span class="rejection-text">{{ previewMedia.rejectionReason }}</span>
+                </div>
+            </div>
+
+            <!-- Audio/Video player if HLS URL available -->
+            <div class="preview-player" *ngIf="previewMedia.hlsUrl && previewMedia.approvalStatus !== 'REJECTED'">
+                <p-divider></p-divider>
+                <div *ngIf="previewMedia.mediaType === 'VIDEO'">
+                    <app-hls-player [url]="previewMedia.hlsUrl"></app-hls-player>
+                </div>
+                <div *ngIf="previewMedia.mediaType === 'AUDIO'">
+                    <app-hls-audio-player [url]="previewMedia.hlsUrl"></app-hls-audio-player>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="preview-actions" *ngIf="previewMedia?.approvalStatus === 'PENDING'">
+            <button pButton label="Reject" icon="pi pi-times"
+                class="p-button-danger p-button-sm"
+                (click)="previewDialog = false; openRejectDialog(previewMedia!)"></button>
+            <button pButton label="Approve" icon="pi pi-check"
+                class="p-button-success p-button-sm"
+                (click)="previewDialog = false; approveMedia(previewMedia!)"></button>
+        </div>
+        <button pButton label="Close" icon="pi pi-times" class="p-button-text"
+            (click)="previewDialog = false" *ngIf="previewMedia?.approvalStatus !== 'PENDING'"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- ===== REJECT DIALOG ===== -->
+<p-dialog [(visible)]="rejectDialog" [style]="{width: '450px', maxWidth: '95vw'}"
+    header="Reject Media" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="reject-form">
+            <label for="rejectionReason" class="block mb-2 font-bold">Rejection Reason *</label>
+            <textarea id="rejectionReason" pInputTextarea [(ngModel)]="rejectionReason"
+                rows="4" placeholder="Please explain why this content is being rejected..."
+                class="w-full"></textarea>
+            <small class="text-secondary">This reason will be visible to the user.</small>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
+            (click)="rejectDialog = false" [disabled]="rejectLoading"></button>
+        <button pButton label="Reject" icon="pi pi-times" class="p-button-danger"
+            (click)="confirmReject()" [loading]="rejectLoading"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- ===== CHANNEL MEDIA DIALOG ===== -->
+<p-dialog [(visible)]="channelMediaDialog" [style]="{width: '850px', maxWidth: '95vw'}"
+    [header]="selectedChannel ? selectedChannel.channelName + ' - Media' : 'Channel Media'"
+    [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="channel-media-toolbar mb-3">
+            <p-dropdown [options]="approvalFilterOptions" [(ngModel)]="channelMediaFilter"
+                optionLabel="label" optionValue="value" placeholder="Filter by status"
+                (onChange)="onChannelMediaFilterChange()" styleClass="w-12rem"></p-dropdown>
+        </div>
+
+        <p-table [value]="channelMediaItems" [lazy]="true"
+            (onLazyLoad)="onChannelMediaPageChange($event)"
+            [paginator]="true" [rows]="channelMediaRows"
+            [totalRecords]="channelMediaTotalRecords"
+            [loading]="channelMediaLoading"
+            styleClass="p-datatable-striped p-datatable-sm">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Approval</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th style="width: 100px">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-media>
+                <tr>
+                    <td>
+                        <span class="font-bold">{{ media.title }}</span>
+                    </td>
+                    <td>
+                        <p-tag [value]="media.mediaType"
+                               [severity]="media.mediaType === 'VIDEO' ? 'info' : 'success'"></p-tag>
+                    </td>
+                    <td>
+                        <p-tag [value]="media.approvalStatus"
+                               [severity]="getApprovalSeverity(media.approvalStatus)"></p-tag>
+                    </td>
+                    <td>
+                        <p-tag [value]="media.status"
+                               [severity]="getStatusSeverity(media.status)"></p-tag>
+                    </td>
+                    <td>{{ media.createdAt | date:'shortDate' }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button pButton icon="pi pi-eye"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="showPreview(media)" pTooltip="Preview"></button>
+                            <button pButton icon="pi pi-check"
+                                *ngIf="media.approvalStatus === 'PENDING'"
+                                class="p-button-rounded p-button-success p-button-sm"
+                                (click)="approveMedia(media)" pTooltip="Approve"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center p-4">No media found for this channel.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

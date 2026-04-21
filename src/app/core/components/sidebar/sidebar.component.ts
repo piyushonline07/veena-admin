@@ -92,6 +92,7 @@ export class SidebarComponent implements OnInit {
                 label: 'Management',
                 items: [
                     { label: 'Users', icon: 'pi pi-users', routerLink: ['/users'] },
+                    { label: 'User Channels', icon: 'pi pi-video', routerLink: ['/channel-approvals'] },
                     { label: 'Settings', icon: 'pi pi-cog', routerLink: ['/settings'] }
                 ]
             },

@@ -71,6 +71,7 @@ import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app
 import { EcomCategoriesComponent } from './pages/ecom-categories/ecom-categories.component';
 import { EcomProductsComponent } from './pages/ecom-products/ecom-products.component';
 import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
+import { ChannelApprovalsComponent } from './pages/channel-approvals/channel-approvals.component';
 
 @NgModule({
   declarations: [
@@ -100,7 +101,8 @@ import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
     InAppNotificationsComponent,
     EcomCategoriesComponent,
     EcomProductsComponent,
-    EcomOrdersComponent
+    EcomOrdersComponent,
+    ChannelApprovalsComponent
   ],
   imports: [
     InputTextareaModule,

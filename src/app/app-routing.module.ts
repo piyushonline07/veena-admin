@@ -23,6 +23,7 @@ import { FeaturedContentComponent } from './pages/featured-content/featured-cont
 import { EcomCategoriesComponent } from './pages/ecom-categories/ecom-categories.component';
 import { EcomProductsComponent } from './pages/ecom-products/ecom-products.component';
 import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
+import { ChannelApprovalsComponent } from './pages/channel-approvals/channel-approvals.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -46,6 +47,7 @@ const routes: Routes = [
   { path: 'ecom-categories', component: EcomCategoriesComponent, canActivate: [AuthGuard] },
   { path: 'ecom-products', component: EcomProductsComponent, canActivate: [AuthGuard] },
   { path: 'ecom-orders', component: EcomOrdersComponent, canActivate: [AuthGuard] },
+  { path: 'channel-approvals', component: ChannelApprovalsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
