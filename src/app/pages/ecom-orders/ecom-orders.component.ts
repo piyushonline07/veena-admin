@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EcomService } from '../../core/service/ecom.service';
+import { SubscriptionService } from '../../core/service/subscription.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -49,6 +50,7 @@ export class EcomOrdersComponent implements OnInit {
 
   constructor(
     private ecomService: EcomService,
+    private subscriptionService: SubscriptionService,
     private messageService: MessageService
   ) {}
 
@@ -149,5 +151,19 @@ export class EcomOrdersComponent implements OnInit {
       'RETURNED': 'warning', 'REFUNDED': 'danger'
     };
     return map[status] || 'info';
+  }
+
+  generateInvoice(order: any): void {
+    this.subscriptionService.generateOrderInvoice(order.id).subscribe({
+      next: (invoice) => {
+        this.messageService.add({ severity: 'success', summary: 'Invoice generated', detail: 'Invoice #' + invoice.invoiceNumber });
+        if (invoice.pdfUrl) {
+          window.open(invoice.pdfUrl, '_blank');
+        }
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to generate invoice' });
+      }
+    });
   }
 }

@@ -10,6 +10,8 @@ export interface AppSettings {
   enableComments: boolean;
   maintenanceMode: boolean;
   minimumAppVersion?: string;
+  enableSubscriptionModel: boolean;
+  showAdsToNonSubscribers: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

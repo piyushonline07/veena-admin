@@ -5,6 +5,15 @@
 /* Add top margin to Admin Settings section to align with overall spacing */
 .admin-settings { margin-top: 1rem; }
 
+.subscription-settings { margin-top: 1rem; }
+
+.field-hint {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.25rem;
+  margin-left: 1.75rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .settings-container {

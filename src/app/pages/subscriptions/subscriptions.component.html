@@ -1,0 +1,173 @@
+<div class="subscriptions-container">
+  <div class="page-header">
+    <h2><i class="pi pi-credit-card"></i> Subscriptions</h2>
+  </div>
+
+  <!-- Dashboard Stats -->
+  <div *ngIf="dashboard" class="stats-grid">
+    <p-card styleClass="stat-card">
+      <div class="stat">
+        <span class="stat-value active">{{ dashboard.activeSubscriptions }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+    </p-card>
+    <p-card styleClass="stat-card">
+      <div class="stat">
+        <span class="stat-value pending">{{ dashboard.pendingSubscriptions }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </p-card>
+    <p-card styleClass="stat-card">
+      <div class="stat">
+        <span class="stat-value expired">{{ dashboard.expiredSubscriptions }}</span>
+        <span class="stat-label">Expired</span>
+      </div>
+    </p-card>
+    <p-card styleClass="stat-card">
+      <div class="stat">
+        <span class="stat-value cancelled">{{ dashboard.cancelledSubscriptions }}</span>
+        <span class="stat-label">Cancelled</span>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Revenue Cards -->
+  <div *ngIf="dashboard" class="revenue-grid">
+    <p-card header="Total Revenue" styleClass="revenue-card">
+      <div class="revenue-value">{{ formatCurrency(dashboard.totalRevenue) }}</div>
+      <div class="revenue-sub">All time</div>
+    </p-card>
+    <p-card header="Revenue This Month" styleClass="revenue-card">
+      <div class="revenue-value">{{ formatCurrency(dashboard.revenueThisMonth) }}</div>
+      <div class="revenue-sub">{{ dashboard.newSubscriptionsThisMonth }} new subscribers</div>
+    </p-card>
+    <p-card header="Revenue Today" styleClass="revenue-card">
+      <div class="revenue-value">{{ formatCurrency(dashboard.revenueToday) }}</div>
+      <div class="revenue-sub">{{ dashboard.newSubscriptionsToday }} new today</div>
+    </p-card>
+  </div>
+
+  <!-- Subscription Plans -->
+  <p-card header="Subscription Plans" styleClass="mb-4">
+    <div class="plan-header">
+      <p-button label="Add Plan" icon="pi pi-plus" (onClick)="openNewPlanDialog()" styleClass="p-button-primary p-button-sm"></p-button>
+    </div>
+    <div class="plans-grid" *ngIf="plans.length > 0">
+      <div class="plan-card" *ngFor="let plan of plans" [class.inactive]="!plan.isActive">
+        <div class="plan-badge">{{ plan.planType }}</div>
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        <div class="plan-price">
+          <span class="price-amount">{{ formatCurrency(plan.price) }}</span>
+          <span class="price-duration">/ {{ plan.durationMonths }} month{{ plan.durationMonths > 1 ? 's' : '' }}</span>
+        </div>
+        <p class="plan-desc">{{ plan.description || 'No description' }}</p>
+        <div class="plan-status">
+          <p-tag [value]="plan.isActive ? 'Active' : 'Inactive'" [severity]="plan.isActive ? 'success' : 'danger'"></p-tag>
+        </div>
+        <div class="plan-actions">
+          <p-button icon="pi pi-pencil" (onClick)="editPlan(plan)" styleClass="p-button-text p-button-sm"></p-button>
+          <p-button icon="pi pi-trash" (onClick)="deletePlan(plan)" styleClass="p-button-text p-button-danger p-button-sm"></p-button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="plans.length === 0" class="empty-state">
+      <i class="pi pi-inbox"></i>
+      <p>No plans configured yet</p>
+    </div>
+  </p-card>
+
+  <!-- Subscribers Table -->
+  <p-card header="Subscribers" styleClass="mb-4">
+    <div class="table-header">
+      <p-dropdown [options]="subscriptionStatuses" [(ngModel)]="statusFilter"
+                  (onChange)="onStatusFilter()" placeholder="Filter by status"
+                  optionLabel="label" optionValue="value" [style]="{'min-width': '180px'}">
+      </p-dropdown>
+    </div>
+
+    <p-table [value]="subscriptions" [loading]="loading" [paginator]="false"
+             styleClass="p-datatable-sm p-datatable-striped" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>User</th>
+          <th>Plan</th>
+          <th>Status</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Amount</th>
+          <th>Created</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-sub>
+        <tr>
+          <td>
+            <div class="user-info">
+              <strong>{{ sub.userName || '—' }}</strong>
+              <small>{{ sub.userEmail || '—' }}</small>
+            </div>
+          </td>
+          <td>{{ sub.plan?.name || '—' }}</td>
+          <td><p-tag [value]="sub.status" [severity]="getStatusSeverity(sub.status)"></p-tag></td>
+          <td>{{ formatDate(sub.startDate) }}</td>
+          <td>{{ formatDate(sub.endDate) }}</td>
+          <td>{{ formatCurrency(sub.paymentAmount) }}</td>
+          <td>{{ formatDate(sub.createdAt) }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-4">No subscriptions found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-paginator *ngIf="totalRecords > rows"
+                 [rows]="rows" [totalRecords]="totalRecords"
+                 (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </p-card>
+
+  <!-- Chart -->
+  <p-card header="Subscription Breakdown" *ngIf="chartData" styleClass="mb-4">
+    <div class="chart-container">
+      <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" [style]="{'height':'300px'}"></p-chart>
+    </div>
+  </p-card>
+</div>
+
+<!-- Plan Dialog -->
+<p-dialog header="{{ editingPlan ? 'Edit Plan' : 'New Plan' }}" [(visible)]="showPlanDialog"
+          [modal]="true" [style]="{width: '500px'}" [closable]="true">
+  <div class="dialog-form">
+    <div class="field">
+      <label for="planName">Name</label>
+      <input pInputText id="planName" [(ngModel)]="planForm.name" placeholder="e.g., Monthly Plan" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="planType">Plan Type</label>
+      <p-dropdown id="planType" [options]="planTypes" [(ngModel)]="planForm.planType"
+                  optionLabel="label" optionValue="value" [style]="{'width':'100%'}"></p-dropdown>
+    </div>
+    <div class="field">
+      <label for="duration">Duration (months)</label>
+      <input pInputText id="duration" type="number" [(ngModel)]="planForm.durationMonths" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="price">Price (₹)</label>
+      <input pInputText id="price" type="number" step="0.01" [(ngModel)]="planForm.price" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="planDesc">Description</label>
+      <textarea pInputTextarea id="planDesc" [(ngModel)]="planForm.description" rows="3" class="w-full"></textarea>
+    </div>
+    <div class="field">
+      <p-checkbox [(ngModel)]="planForm.isActive" [binary]="true" label="Active"></p-checkbox>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" icon="pi pi-times" (onClick)="showPlanDialog = false" styleClass="p-button-text"></p-button>
+    <p-button label="Save" icon="pi pi-check" (onClick)="savePlan()" styleClass="p-button-primary"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

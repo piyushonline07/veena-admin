@@ -32,7 +32,9 @@ export class SettingsComponent {
     allowUserDownloads: false,
     enableComments: true,
     maintenanceMode: false,
-    minimumAppVersion: ''
+    minimumAppVersion: '',
+    enableSubscriptionModel: false,
+    showAdsToNonSubscribers: true
   };
 
   endpoints = {

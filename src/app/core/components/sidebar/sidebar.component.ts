@@ -82,6 +82,12 @@ export class SidebarComponent implements OnInit {
                 ]
             },
             {
+                label: 'Monetization',
+                items: [
+                    { label: 'Subscriptions', icon: 'pi pi-credit-card', routerLink: ['/subscriptions'] }
+                ]
+            },
+            {
                 label: 'Operations',
                 items: [
                     { label: 'System Health', icon: 'pi pi-shield', routerLink: ['/operations'] },

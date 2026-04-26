@@ -55,6 +55,8 @@
           <button pButton icon="pi pi-truck" class="p-button-sm p-button-text p-button-info"
                   *ngIf="order.status === 'CONFIRMED' || order.status === 'PROCESSING'"
                   (click)="createShipment(order)" pTooltip="Create Shipment"></button>
+          <button pButton icon="pi pi-file-pdf" class="p-button-sm p-button-text p-button-help"
+                  (click)="generateInvoice(order)" pTooltip="Generate Invoice"></button>
         </td>
       </tr>
     </ng-template>

@@ -80,6 +80,21 @@
     </div>
     <p-button label="Save Admin Settings" icon="pi pi-save" (onClick)="saveAppSettings()" styleClass="p-button-warning"></p-button>
   </p-card>
+
+  <!-- Subscription Model Section -->
+  <p-card header="Subscription Model" styleClass="mb-4 subscription-settings">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.enableSubscriptionModel" [binary]="true" label="Enable subscription model"></p-checkbox>
+        <div class="field-hint">When enabled, users can subscribe to premium plans</div>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-checkbox [(ngModel)]="appSettings.showAdsToNonSubscribers" [binary]="true" label="Show ads to non-subscribers"></p-checkbox>
+        <div class="field-hint">Subscribers will have an ad-free experience</div>
+      </div>
+    </div>
+    <p-button label="Save Subscription Settings" icon="pi pi-save" (onClick)="saveAppSettings()" styleClass="p-button-primary"></p-button>
+  </p-card>
 </div>
 
 <p-toast></p-toast>

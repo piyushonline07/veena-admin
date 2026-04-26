@@ -72,6 +72,7 @@ import { EcomCategoriesComponent } from './pages/ecom-categories/ecom-categories
 import { EcomProductsComponent } from './pages/ecom-products/ecom-products.component';
 import { EcomOrdersComponent } from './pages/ecom-orders/ecom-orders.component';
 import { ChannelApprovalsComponent } from './pages/channel-approvals/channel-approvals.component';
+import { SubscriptionsComponent } from './pages/subscriptions/subscriptions.component';
 
 @NgModule({
   declarations: [
@@ -102,7 +103,8 @@ import { ChannelApprovalsComponent } from './pages/channel-approvals/channel-app
     EcomCategoriesComponent,
     EcomProductsComponent,
     EcomOrdersComponent,
-    ChannelApprovalsComponent
+    ChannelApprovalsComponent,
+    SubscriptionsComponent
   ],
   imports: [
     InputTextareaModule,
