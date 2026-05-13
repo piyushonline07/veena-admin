@@ -283,7 +283,7 @@
 </p-dialog>
 
 <!-- ═══════ Edit Dialog ═══════ -->
-<p-dialog [(visible)]="showEditDialog" header="Edit Featured Content" [modal]="true" [style]="{width: '500px'}">
+<p-dialog [(visible)]="showEditDialog" header="Edit Featured Content" [modal]="true" [style]="{width: '600px'}">
   <div class="dialog-content" *ngIf="editItem">
     <div class="mb-3">
       <label class="block mb-1 font-bold">Title</label>
@@ -306,10 +306,63 @@
     <div class="mb-3">
       <p-checkbox [(ngModel)]="editIsActive" [binary]="true" label="Active"></p-checkbox>
     </div>
+
+    <p-divider></p-divider>
+
+    <!-- Featured Image Upload -->
+    <div class="mb-3">
+      <label class="block mb-1 font-bold">Featured Banner Image</label>
+      <small class="block mb-2 text-secondary">Upload a custom banner image for this featured content</small>
+      <div *ngIf="editFeaturedImagePreview" class="featured-image-preview mb-2">
+        <img [src]="editFeaturedImagePreview" alt="Featured Image" class="preview-img" />
+        <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                pTooltip="Remove Image" (click)="removeEditFeaturedImage()"></button>
+      </div>
+      <div *ngIf="!editFeaturedImagePreview">
+        <p-fileUpload mode="basic" accept=".jpg,.jpeg,.png,.webp" [maxFileSize]="10485760"
+                      chooseLabel="Choose Featured Image" (onSelect)="onEditFeaturedImageSelected($event)"
+                      [auto]="false" [customUpload]="true"></p-fileUpload>
+      </div>
+      <small class="text-secondary" *ngIf="editFeaturedImage">New file: {{editFeaturedImage.name}}</small>
+    </div>
+
+    <!-- Ad Image Upload (for ad types) -->
+    <div class="mb-3" *ngIf="editItem.contentType !== 'FEATURED_SONG'">
+      <label class="block mb-1 font-bold">Ad Thumbnail Image</label>
+      <small class="block mb-2 text-secondary">Thumbnail or image for this advertisement</small>
+      <div *ngIf="editAdImagePreview" class="featured-image-preview mb-2">
+        <img [src]="editAdImagePreview" alt="Ad Image" class="preview-img" />
+        <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm remove-btn"
+                pTooltip="Remove Image" (click)="removeEditAdImage()"></button>
+      </div>
+      <div *ngIf="!editAdImagePreview">
+        <p-fileUpload mode="basic" accept=".jpg,.jpeg,.png,.webp" [maxFileSize]="10485760"
+                      chooseLabel="Choose Ad Image" (onSelect)="onEditAdImageSelected($event)"
+                      [auto]="false" [customUpload]="true"></p-fileUpload>
+      </div>
+      <small class="text-secondary" *ngIf="editAdImage">New file: {{editAdImage.name}}</small>
+    </div>
+
+    <!-- Ad Media File Upload (for video/audio ad types) -->
+    <div class="mb-3" *ngIf="editItem.contentType === 'VIDEO_AD' || editItem.contentType === 'AUDIO_AD'">
+      <label class="block mb-1 font-bold">
+        {{editItem.contentType === 'VIDEO_AD' ? 'Video' : 'Audio'}} File
+      </label>
+      <small class="block mb-2 text-secondary">Replace the ad media file</small>
+      <div *ngIf="editAdFileName && !editAdFile" class="mb-2">
+        <p-tag icon="pi pi-file" [value]="editAdFileName" severity="info"></p-tag>
+      </div>
+      <p-fileUpload mode="basic"
+                    [accept]="editItem.contentType === 'VIDEO_AD' ? '.mp4,.mov' : '.mp3,.wav'"
+                    [maxFileSize]="5368709120"
+                    chooseLabel="Choose New File" (onSelect)="onEditAdFileSelected($event)"
+                    [auto]="false" [customUpload]="true"></p-fileUpload>
+      <small class="text-secondary" *ngIf="editAdFile">New file: {{editAdFile.name}} ({{(editAdFile.size / 1024 / 1024).toFixed(1)}} MB)</small>
+    </div>
   </div>
   <ng-template pTemplate="footer">
     <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="showEditDialog = false"></button>
-    <button pButton label="Save" icon="pi pi-check" (click)="saveEdit()"></button>
+    <button pButton label="Save" icon="pi pi-check" [loading]="isSavingEdit" (click)="saveEdit()"></button>
   </ng-template>
 </p-dialog>
 

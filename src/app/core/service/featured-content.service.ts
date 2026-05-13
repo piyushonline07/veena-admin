@@ -63,8 +63,8 @@ export class FeaturedContentService {
     return this.http.post<FeaturedContent>(`${this.apiUrl}/ad`, formData);
   }
 
-  update(id: string, request: UpdateFeaturedRequest): Observable<FeaturedContent> {
-    return this.http.put<FeaturedContent>(`${this.apiUrl}/${id}`, request);
+  update(id: string, formData: FormData): Observable<FeaturedContent> {
+    return this.http.put<FeaturedContent>(`${this.apiUrl}/${id}`, formData);
   }
 
   toggleActive(id: string): Observable<FeaturedContent> {

@@ -58,6 +58,13 @@ export class FeaturedContentComponent implements OnInit {
   editStartTime: Date = new Date();
   editEndTime: Date = new Date();
   editIsActive = true;
+  editFeaturedImage: File | null = null;
+  editFeaturedImagePreview: string | null = null;
+  editAdImage: File | null = null;
+  editAdImagePreview: string | null = null;
+  editAdFile: File | null = null;
+  editAdFileName: string | null = null;
+  isSavingEdit = false;
 
   constructor(
     private featuredService: FeaturedContentService,
@@ -305,27 +312,89 @@ export class FeaturedContentComponent implements OnInit {
     this.editStartTime = new Date(item.startTime);
     this.editEndTime = new Date(item.endTime);
     this.editIsActive = item.isActive;
+    this.editFeaturedImage = null;
+    this.editFeaturedImagePreview = item.featuredImageUrl || null;
+    this.editAdImage = null;
+    this.editAdImagePreview = item.adImageUrl || null;
+    this.editAdFile = null;
+    this.editAdFileName = item.adMediaUrl ? 'Current file uploaded' : null;
+    this.isSavingEdit = false;
     this.showEditDialog = true;
   }
 
   saveEdit(): void {
     if (!this.editItem) return;
-    this.featuredService.update(this.editItem.id, {
-      title: this.editTitle,
-      slotIndex: this.editSlotIndex,
-      startTime: this.editStartTime.toISOString(),
-      endTime: this.editEndTime.toISOString(),
-      isActive: this.editIsActive
-    }).subscribe({
+    this.isSavingEdit = true;
+    const formData = new FormData();
+    formData.append('title', this.editTitle);
+    formData.append('slotIndex', this.editSlotIndex.toString());
+    formData.append('startTime', this.editStartTime.toISOString());
+    formData.append('endTime', this.editEndTime.toISOString());
+    formData.append('isActive', this.editIsActive.toString());
+    if (this.editFeaturedImage) {
+      formData.append('featuredImage', this.editFeaturedImage);
+    }
+    if (this.editAdImage) {
+      formData.append('adImage', this.editAdImage);
+    }
+    if (this.editAdFile) {
+      formData.append('adFile', this.editAdFile);
+    }
+    this.featuredService.update(this.editItem.id, formData).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Featured content updated' });
         this.showEditDialog = false;
+        this.isSavingEdit = false;
         this.loadAll();
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' });
+        this.isSavingEdit = false;
       }
     });
+  }
+
+  onEditFeaturedImageSelected(event: any): void {
+    const file = event.files?.[0] || event.target?.files?.[0];
+    if (file) {
+      this.editFeaturedImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.editFeaturedImagePreview = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeEditFeaturedImage(): void {
+    this.editFeaturedImage = null;
+    this.editFeaturedImagePreview = null;
+  }
+
+  onEditAdImageSelected(event: any): void {
+    const file = event.files?.[0] || event.target?.files?.[0];
+    if (file) {
+      this.editAdImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.editAdImagePreview = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeEditAdImage(): void {
+    this.editAdImage = null;
+    this.editAdImagePreview = null;
+  }
+
+  onEditAdFileSelected(event: any): void {
+    const file = event.files?.[0] || event.target?.files?.[0];
+    if (file) {
+      this.editAdFile = file;
+      this.editAdFileName = file.name;
+    }
+  }
+
+  removeEditAdFile(): void {
+    this.editAdFile = null;
+    this.editAdFileName = null;
   }
 
   // ───── Toggle / Delete ─────
@@ -367,7 +436,9 @@ export class FeaturedContentComponent implements OnInit {
   updateSlotIndex(item: FeaturedContent, newSlot: number): void {
     if (!newSlot || newSlot < 1 || newSlot === item.slotIndex) return;
 
-    this.featuredService.update(item.id, { slotIndex: newSlot }).subscribe({
+    const formData = new FormData();
+    formData.append('slotIndex', newSlot.toString());
+    this.featuredService.update(item.id, formData).subscribe({
       next: () => {
         item.slotIndex = newSlot;
         this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Order updated to ${newSlot}` });
