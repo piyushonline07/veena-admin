@@ -155,4 +155,4 @@ import { SubscriptionsComponent } from './pages/subscriptions/subscriptions.comp
 
   bootstrap: [AppComponent]
 })
-export class AppModule { 
+export class AppModule { }
