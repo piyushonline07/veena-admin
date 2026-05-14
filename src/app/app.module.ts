@@ -145,4 +145,4 @@ import { InAppNotificationsComponent } from './pages/in-app-notifications/in-app
 
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule { 
