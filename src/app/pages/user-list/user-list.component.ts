@@ -127,7 +127,9 @@ export class UserListComponent implements OnInit {
     }
 
     toggleDirectAccess(user: any) {
-        const newValue = !user.directAccess;
+        // Because of [(ngModel)], user.directAccess is already the NEW value.
+        const newValue = user.directAccess;
+        const previousValue = !newValue;
         const action = newValue ? 'grant' : 'revoke';
 
         this.confirmationService.confirm({
@@ -161,9 +163,15 @@ export class UserListComponent implements OnInit {
                             summary: 'Error',
                             detail: err.error?.message || `Failed to ${action} direct access`
                         });
+                        // Revert on error
+                        user.directAccess = previousValue;
                         this.updatingAccess = false;
                     }
                 });
+            },
+            reject: () => {
+                // Revert if cancelled
+                user.directAccess = previousValue;
             }
         });
     }
