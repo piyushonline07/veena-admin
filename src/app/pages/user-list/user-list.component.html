@@ -28,6 +28,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th class="hide-mobile">Role</th>
+                            <th class="hide-mobile">Access</th>
                             <th class="hide-mobile">Joined</th>
                             <th style="width: 80px">Actions</th>
                         </tr>
@@ -56,6 +57,11 @@
                             <td class="hide-mobile">
                                 <p-tag [value]="user.role" [severity]="user.role === 'ADMIN' ? 'danger' : 'info'"></p-tag>
                             </td>
+                            <td class="hide-mobile">
+                                <p-tag *ngIf="user.directAccess" value="Direct Access" severity="success"
+                                    icon="pi pi-unlock" styleClass="access-tag"></p-tag>
+                                <span *ngIf="!user.directAccess" class="text-secondary">—</span>
+                            </td>
                             <td class="hide-mobile">{{user.createdAt | date:'shortDate'}}</td>
                             <td>
                                 <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
@@ -66,7 +72,7 @@
 
                     <ng-template pTemplate="emptymessage">
                         <tr>
-                            <td colspan="5" class="text-center p-4">No users found.</td>
+                            <td colspan="6" class="text-center p-4">No users found.</td>
                         </tr>
                     </ng-template>
                 </p-table>
@@ -142,6 +148,25 @@
                 </div>
                 <small class="block mt-1 text-secondary">Select a role and click Save to update. Changes apply to both database and Cognito.</small>
             </div>
+
+            <!-- Direct Access Toggle -->
+            <div class="detail-item mb-3">
+                <label class="block text-secondary text-sm mb-1">
+                    <i class="pi pi-unlock mr-1"></i> Direct Access
+                </label>
+                <div class="flex align-items-center gap-3">
+                    <p-inputSwitch [(ngModel)]="selectedUser.directAccess"
+                        (onChange)="toggleDirectAccess(selectedUser)"
+                        [disabled]="updatingAccess">
+                    </p-inputSwitch>
+                    <span [class]="selectedUser.directAccess ? 'text-green-500 font-semibold' : 'text-secondary'">
+                        {{selectedUser.directAccess ? 'Granted' : 'Not granted'}}
+                    </span>
+                    <i *ngIf="updatingAccess" class="pi pi-spin pi-spinner"></i>
+                </div>
+                <small class="block mt-1 text-secondary">When enabled, the user gets full subscribed-level access (no ads, downloads) without needing a subscription.</small>
+            </div>
+
             <div class="detail-item">
                 <label class="block text-secondary text-sm mb-1">Joined Date</label>
                 <div class="font-medium">{{selectedUser.createdAt | date:'medium'}}</div>

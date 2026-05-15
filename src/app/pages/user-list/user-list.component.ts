@@ -26,6 +26,7 @@ export class UserListComponent implements OnInit {
     ];
 
     updatingRole: boolean = false;
+    updatingAccess: boolean = false;
 
     constructor(
         private userService: UserService,
@@ -121,6 +122,48 @@ export class UserListComponent implements OnInit {
                 this.updatingRole = false;
                 // Reset to original role on error
                 this.selectedUser.role = this.originalRole;
+            }
+        });
+    }
+
+    toggleDirectAccess(user: any) {
+        const newValue = !user.directAccess;
+        const action = newValue ? 'grant' : 'revoke';
+
+        this.confirmationService.confirm({
+            message: `Are you sure you want to ${action} direct access for "${user.name || user.email}"? ${newValue ? 'This will give them full subscribed-level access without a subscription.' : 'They will need a subscription to access premium features.'}`,
+            header: `${newValue ? 'Grant' : 'Revoke'} Direct Access`,
+            icon: newValue ? 'pi pi-unlock' : 'pi pi-lock',
+            acceptButtonStyleClass: newValue ? 'p-button-success' : 'p-button-danger',
+            accept: () => {
+                this.updatingAccess = true;
+                this.userService.setDirectAccess(user.id, newValue).subscribe({
+                    next: (updatedUser) => {
+                        // Update in the list
+                        const index = this.users.findIndex(u => u.id === updatedUser.id);
+                        if (index !== -1) {
+                            this.users[index] = updatedUser;
+                        }
+                        // Update dialog if open
+                        if (this.selectedUser?.id === updatedUser.id) {
+                            this.selectedUser = { ...this.selectedUser, directAccess: updatedUser.directAccess };
+                        }
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: `Direct access ${action}ed for ${updatedUser.name || updatedUser.email}`
+                        });
+                        this.updatingAccess = false;
+                    },
+                    error: (err) => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: err.error?.message || `Failed to ${action} direct access`
+                        });
+                        this.updatingAccess = false;
+                    }
+                });
             }
         });
     }

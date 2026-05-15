@@ -22,4 +22,8 @@ export class UserService {
     updateUserRole(userId: string, role: string): Observable<any> {
         return this.http.put(`${this.apiUrl}/${userId}/role`, { role });
     }
+
+    setDirectAccess(userId: string, directAccess: boolean): Observable<any> {
+        return this.http.put(`${this.apiUrl}/${userId}/direct-access`, { directAccess });
+    }
 }
