@@ -94,6 +94,7 @@
                         <th style="width: 70px; min-width: 60px;">Type</th>
                         <th style="width: 70px; min-width: 60px;" class="hide-mobile">Status</th>
                         <th style="width: 80px; min-width: 70px;" class="hide-tablet">Visibility</th>
+                        <th style="width: 80px; min-width: 70px;" class="hide-tablet">Downloads</th>
                         <th style="width: 90px; min-width: 80px;" class="hide-tablet">Release Date</th>
                         <th style="width: 100px; min-width: 90px;">Actions</th>
                     </tr>
@@ -158,6 +159,12 @@
                                 [severity]="media.visibility === 'PUBLIC' ? 'success' : 'danger'"
                                 styleClass="visibility-tag"></p-tag>
                         </td>
+                        <td class="hide-tablet">
+                            <div class="download-count-cell">
+                                <i class="pi pi-download text-secondary" style="font-size: 0.8rem;"></i>
+                                <span>{{media.downloadCount || 0}}</span>
+                            </div>
+                        </td>
                         <td class="hide-tablet">{{media.releaseDate ? (media.releaseDate | date:'shortDate') : 'N/A'}}</td>
                         <td class="actions-cell">
                             <div class="action-buttons">
@@ -177,7 +184,7 @@
 
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="9">No media items found.</td>
+                        <td colspan="10">No media items found.</td>
                     </tr>
                 </ng-template>
             </p-table>
@@ -483,6 +490,30 @@
                                class="mt-1">
                         </p-tag>
                     </div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="flex flex-wrap align-items-center gap-3 mt-3 p-2 surface-ground border-round">
+                <div class="flex align-items-center gap-1" pTooltip="Total Plays">
+                    <i class="pi pi-play text-primary" style="font-size: 0.9rem;"></i>
+                    <span class="font-semibold">{{selectedMediaForPreview.playedCount || 0}}</span>
+                    <span class="text-secondary text-sm">plays</span>
+                </div>
+                <div class="flex align-items-center gap-1" pTooltip="Total Downloads">
+                    <i class="pi pi-download text-green-500" style="font-size: 0.9rem;"></i>
+                    <span class="font-semibold">{{selectedMediaForPreview.downloadCount || 0}}</span>
+                    <span class="text-secondary text-sm">downloads</span>
+                </div>
+                <div class="flex align-items-center gap-1" pTooltip="Total Likes">
+                    <i class="pi pi-heart text-pink-500" style="font-size: 0.9rem;"></i>
+                    <span class="font-semibold">{{selectedMediaForPreview.likeCount || 0}}</span>
+                    <span class="text-secondary text-sm">likes</span>
+                </div>
+                <div class="flex align-items-center gap-1" pTooltip="Total Comments">
+                    <i class="pi pi-comments text-orange-500" style="font-size: 0.9rem;"></i>
+                    <span class="font-semibold">{{selectedMediaForPreview.commentCount || 0}}</span>
+                    <span class="text-secondary text-sm">comments</span>
                 </div>
             </div>
 

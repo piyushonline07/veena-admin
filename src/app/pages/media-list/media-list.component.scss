@@ -617,13 +617,18 @@
                     }
                 }
 
-                /* Created At column - hide */
+                /* Downloads column - hide on mobile */
                 &:nth-child(8) {
                     display: none;
                 }
 
-                /* Actions column */
+                /* Release Date column - hide */
                 &:nth-child(9) {
+                    display: none;
+                }
+
+                /* Actions column */
+                &:nth-child(10) {
                     position: absolute;
                     right: 0.25rem;
                     top: 50%;
@@ -674,6 +679,19 @@
         font-size: 0.7rem;
         padding: 0.2rem 0.4rem;
         white-space: nowrap;
+    }
+}
+
+// Download count cell
+.download-count-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+
+    i {
+        color: var(--text-secondary);
     }
 }
 
