@@ -74,6 +74,7 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
     batchReleaseDate: Date | null = null;
     batchMediaType: any = null;
     batchPodcast: boolean | null = null;
+    batchKaraoke: boolean | null = null;
     updating: boolean = false;
 
     // Publish
@@ -579,6 +580,9 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
         if (this.batchPodcast !== null) {
             request.podcast = this.batchPodcast;
         }
+        if (this.batchKaraoke !== null) {
+            request.karaoke = this.batchKaraoke;
+        }
 
         this.updating = true;
         this.mediaService.batchUpdateMedia(request).subscribe({
@@ -614,6 +618,7 @@ export class BulkUploadComponent implements OnInit, OnDestroy {
                 this.batchReleaseDate = null;
                 this.batchMediaType = null;
                 this.batchPodcast = null;
+                this.batchKaraoke = null;
                 this.updating = false;
             },
             error: () => {

@@ -195,7 +195,8 @@ export class MediaListComponent implements OnInit {
             lyricistId: media.lyricist?.id || null,
             producerId: media.producer?.id || null,
             releaseDate: media.releaseDate ? new Date(media.releaseDate) : null,
-            podcast: media.podcast || false
+            podcast: media.podcast || false,
+            karaoke: media.karaoke || false
         };
         this.newThumbnailFile = null;
         this.newLyricsFile = null;
@@ -263,8 +264,9 @@ export class MediaListComponent implements OnInit {
         const hasSubArtists = this.selectedMedia.subArtistIds && this.selectedMedia.subArtistIds.length > 0;
         const hasReleaseDate = this.selectedMedia.releaseDate !== undefined;
         const hasPodcast = this.selectedMedia.podcast !== undefined;
+        const hasKaraoke = this.selectedMedia.karaoke !== undefined;
 
-        if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists || hasReleaseDate || hasPodcast) {
+        if (hasFiles || hasRelationshipChanges || hasCreditsChanges || hasSubArtists || hasReleaseDate || hasPodcast || hasKaraoke) {
             // Use the new multipart endpoint
             const formData = new FormData();
             formData.append('title', this.selectedMedia.title);
@@ -305,6 +307,11 @@ export class MediaListComponent implements OnInit {
             // Podcast flag
             if (this.selectedMedia.podcast !== undefined) {
                 formData.append('podcast', this.selectedMedia.podcast.toString());
+            }
+
+            // Karaoke flag
+            if (this.selectedMedia.karaoke !== undefined) {
+                formData.append('karaoke', this.selectedMedia.karaoke.toString());
             }
 
             if (this.newThumbnailFile) {

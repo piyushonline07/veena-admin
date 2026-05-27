@@ -51,6 +51,9 @@ export class UploadMediaComponent implements OnInit {
     // Podcast flag
     podcast: boolean = false;
 
+    // Karaoke flag
+    karaoke: boolean = false;
+
     file: File | null = null;
     thumbnail: File | null = null;
     lyrics: File | null = null;
@@ -233,6 +236,11 @@ export class UploadMediaComponent implements OnInit {
             formData.append('podcast', 'true');
         }
 
+        // Karaoke flag
+        if (this.karaoke) {
+            formData.append('karaoke', 'true');
+        }
+
         if (this.thumbnail) {
             formData.append('thumbnail', this.thumbnail);
         }
@@ -293,6 +301,7 @@ export class UploadMediaComponent implements OnInit {
         this.selectedAlbum = null;
         this.releaseDate = null;
         this.podcast = false;
+        this.karaoke = false;
         this.file = null;
         this.thumbnail = null;
         this.lyrics = null;

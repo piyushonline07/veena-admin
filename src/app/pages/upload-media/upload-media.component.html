@@ -77,6 +77,14 @@
                         </div>
                     </div>
 
+                    <!-- Karaoke -->
+                    <div class="col-12 md:col-6 field flex align-items-end">
+                        <div>
+                            <p-checkbox [(ngModel)]="karaoke" [binary]="true" inputId="karaoke" label="Mark as Karaoke"></p-checkbox>
+                            <small class="text-secondary mt-1 block">Enable if this is a karaoke track</small>
+                        </div>
+                    </div>
+
                     <!-- Sub-Artists (Featuring) -->
                     <div class="col-12 field">
                         <label for="subArtists">Featuring Artists (Optional)</label>
