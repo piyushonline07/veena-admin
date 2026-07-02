@@ -151,6 +151,30 @@
   }
 }
 
+/* Content Link Styles */
+.content-link-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .content-title-text {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.content-link-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  p {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+}
+
 /* Responsive - Tablet */
 @media (max-width: 992px) {
   .notifications-container {

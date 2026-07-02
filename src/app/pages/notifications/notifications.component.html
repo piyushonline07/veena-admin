@@ -34,6 +34,7 @@
                     <tr>
                         <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
                         <th pSortableColumn="targetGroup">Audience <p-sortIcon field="targetGroup"></p-sortIcon></th>
+                        <th pSortableColumn="contentType">Content <p-sortIcon field="contentType"></p-sortIcon></th>
                         <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
                         <th pSortableColumn="sentAt">Sent At <p-sortIcon field="sentAt"></p-sortIcon></th>
                         <th>Details</th>
@@ -52,6 +53,16 @@
                             <span class="p-column-title">Audience</span>
                             <p-tag [value]="getAudienceLabel(notif.targetGroup)"
                                    [severity]="getAudienceSeverity(notif.targetGroup)"></p-tag>
+                        </td>
+                        <td>
+                            <span class="p-column-title">Content</span>
+                            <div *ngIf="notif.contentType" class="content-link-cell">
+                                <p-tag [value]="getContentTypeLabel(notif.contentType)"
+                                       [severity]="getContentTypeSeverity(notif.contentType)">
+                                </p-tag>
+                                <small *ngIf="notif.contentTitle" class="content-title-text">{{ notif.contentTitle | slice:0:30 }}{{ notif.contentTitle?.length > 30 ? '...' : '' }}</small>
+                            </div>
+                            <span *ngIf="!notif.contentType" class="text-muted">—</span>
                         </td>
                         <td>
                             <span class="p-column-title">Status</span>
@@ -116,6 +127,15 @@
         <div class="detail-row" *ngIf="selectedNotification.sentAt">
             <label>Sent At</label>
             <p>{{ selectedNotification.sentAt | date:'full' }}</p>
+        </div>
+        <div class="detail-row" *ngIf="selectedNotification.contentType">
+            <label>Content Link</label>
+            <div class="content-link-detail">
+                <p-tag [value]="getContentTypeLabel(selectedNotification.contentType)"
+                       [severity]="getContentTypeSeverity(selectedNotification.contentType)"></p-tag>
+                <p *ngIf="selectedNotification.contentTitle">{{ selectedNotification.contentTitle }}</p>
+                <small class="text-muted" *ngIf="selectedNotification.contentId">ID: {{ selectedNotification.contentId }}</small>
+            </div>
         </div>
     </div>
     <ng-template pTemplate="footer">

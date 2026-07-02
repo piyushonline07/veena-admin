@@ -42,7 +42,8 @@
                                 <div class="flex align-items-center gap-2">
                                     <i class="pi pi-book"></i>
                                     <span>{{album.name}}</span>
-                                    <small *ngIf="album.description" class="text-secondary ml-auto">{{album.description}}</small>
+                                    <small *ngIf="album.description"
+                                        class="text-secondary ml-auto">{{album.description}}</small>
                                 </div>
                             </ng-template>
                             <ng-template pTemplate="empty">
@@ -63,8 +64,8 @@
                     <div class="col-12 md:col-6 field">
                         <label for="releaseDate">Release Date (Optional)</label>
                         <p-calendar [(ngModel)]="releaseDate" [showIcon]="true" dateFormat="yy-mm-dd"
-                            placeholder="Select release date" [showButtonBar]="true"
-                            [style]="{'width': '100%'}" inputId="releaseDate">
+                            placeholder="Select release date" [showButtonBar]="true" [style]="{'width': '100%'}"
+                            inputId="releaseDate">
                         </p-calendar>
                         <small class="text-secondary mt-1 block">The official release date of the song</small>
                     </div>
@@ -72,7 +73,8 @@
                     <!-- Podcast -->
                     <div class="col-12 md:col-6 field flex align-items-end">
                         <div>
-                            <p-checkbox [(ngModel)]="podcast" [binary]="true" inputId="podcast" label="Mark as Podcast"></p-checkbox>
+                            <p-checkbox [(ngModel)]="podcast" [binary]="true" inputId="podcast"
+                                label="Mark as Podcast"></p-checkbox>
                             <small class="text-secondary mt-1 block">Enable if this is a podcast episode</small>
                         </div>
                     </div>
@@ -80,7 +82,8 @@
                     <!-- Karaoke -->
                     <div class="col-12 md:col-6 field flex align-items-end">
                         <div>
-                            <p-checkbox [(ngModel)]="karaoke" [binary]="true" inputId="karaoke" label="Mark as Karaoke"></p-checkbox>
+                            <p-checkbox [(ngModel)]="karaoke" [binary]="true" inputId="karaoke"
+                                label="Mark as Karaoke"></p-checkbox>
                             <small class="text-secondary mt-1 block">Enable if this is a karaoke track</small>
                         </div>
                     </div>
@@ -89,8 +92,8 @@
                     <div class="col-12 field">
                         <label for="subArtists">Featuring Artists (Optional)</label>
                         <p-multiSelect [options]="artists" [(ngModel)]="selectedSubArtists" optionLabel="name"
-                            placeholder="Select featuring artists" [filter]="true" filterBy="name"
-                            display="chip" [style]="{'width': '100%'}">
+                            placeholder="Select featuring artists" [filter]="true" filterBy="name" display="chip"
+                            [style]="{'width': '100%'}">
                             <ng-template let-artist pTemplate="item">
                                 <div class="flex align-items-center gap-2">
                                     <span>{{artist.name}}</span>
@@ -162,8 +165,8 @@
                     <div class="col-12 md:col-6 field">
                         <label for="sourceFile">Source File (Video/Audio)</label>
                         <p-fileUpload mode="basic" name="file" (onSelect)="onFileSelect($event, 'file')"
-                            [accept]="acceptSourceFile" [maxFileSize]="10000000000"
-                            chooseLabel="Choose Source" id="sourceFile"></p-fileUpload>
+                            [accept]="acceptSourceFile" [maxFileSize]="10000000000" chooseLabel="Choose Source"
+                            id="sourceFile"></p-fileUpload>
                         <small class="text-secondary block mt-1">
                             <span *ngIf="!mediaType">Select a media type first.</span>
                             <span *ngIf="mediaType?.value === 'AUDIO'">Allowed: MP3, WAV. Max 10GB.</span>
@@ -236,5 +239,3 @@
 </div>
 
 <p-toast></p-toast>
-
-

@@ -21,6 +21,15 @@ export class MarketingService {
         formData.append('title', data.title);
         formData.append('body', data.body);
         formData.append('targetGroup', data.targetGroup || 'ALL');
+        if (data.contentType) {
+            formData.append('contentType', data.contentType);
+        }
+        if (data.contentId) {
+            formData.append('contentId', data.contentId);
+        }
+        if (data.contentTitle) {
+            formData.append('contentTitle', data.contentTitle);
+        }
         if (image) {
             formData.append('image', image);
         }
@@ -29,6 +38,14 @@ export class MarketingService {
 
     sendNotification(id: string): Observable<any> {
         return this.http.post(`${this.baseApi}/notifications/${id}/send`, {});
+    }
+
+    getContentItems(type: string, query?: string): Observable<any[]> {
+        let url = `${this.baseApi}/notifications/content-items?type=${encodeURIComponent(type)}`;
+        if (query) {
+            url += `&query=${encodeURIComponent(query)}`;
+        }
+        return this.http.get<any[]>(url);
     }
 
     // Featured Content

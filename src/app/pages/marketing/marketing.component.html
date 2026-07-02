@@ -83,6 +83,60 @@
                                                 class="w-full"></p-dropdown>
                                 </div>
                             </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="contentType">Content Type (optional)</label>
+                                    <p-dropdown id="contentType" [options]="contentTypes"
+                                                [(ngModel)]="newNotif.contentType"
+                                                optionLabel="label" optionValue="value"
+                                                placeholder="Select content type"
+                                                (onChange)="onContentTypeChange()"
+                                                [showClear]="true"
+                                                class="w-full"></p-dropdown>
+                                </div>
+                            </div>
+                            <div class="form-field" *ngIf="newNotif.contentType">
+                                <label>Select {{newNotif.contentType | titlecase}}</label>
+                                <div class="content-search-row">
+                                    <span class="p-input-icon-left flex-grow-1">
+                                        <i class="pi pi-search"></i>
+                                        <input pInputText [(ngModel)]="contentSearchQuery"
+                                               (ngModelChange)="loadContentItems()"
+                                               placeholder="Search by title" class="w-full" />
+                                    </span>
+                                    <p-progressSpinner *ngIf="isContentLoading" strokeWidth="4"
+                                        [style]="{ width: '24px', height: '24px' }"></p-progressSpinner>
+                                </div>
+                                <p-dropdown [options]="contentItems" [(ngModel)]="selectedContentItem"
+                                            optionLabel="title" placeholder="Select {{newNotif.contentType}}"
+                                            [showClear]="true" [filter]="true" filterBy="title"
+                                            (onChange)="onContentItemSelected()"
+                                            class="w-full" *ngIf="contentItems.length > 0">
+                                    <ng-template let-item pTemplate="item">
+                                        <div class="content-item-option">
+                                            <img *ngIf="item.coverUrl" [src]="item.coverUrl" alt=""
+                                                 class="content-item-cover" />
+                                            <div class="content-item-info">
+                                                <span class="content-item-title">{{ item.title }}</span>
+                                                <small *ngIf="item.artist" class="content-item-artist">{{ item.artist }}</small>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-item pTemplate="selectedItem">
+                                        <div class="content-item-option" *ngIf="item">
+                                            <img *ngIf="item.coverUrl" [src]="item.coverUrl" alt=""
+                                                 class="content-item-cover" />
+                                            <div class="content-item-info">
+                                                <span class="content-item-title">{{ item.title }}</span>
+                                                <small *ngIf="item.artist" class="content-item-artist">{{ item.artist }}</small>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <div class="empty-content-items" *ngIf="contentItems.length === 0 && !isContentLoading">
+                                    <small><i class="pi pi-info-circle"></i> No {{newNotif.contentType}}s found.</small>
+                                </div>
+                            </div>
                         </div>
 
                         <ng-template pTemplate="footer">
@@ -110,6 +164,7 @@
                                     <tr>
                                         <th>Title</th>
                                         <th>Target</th>
+                                        <th>Content</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -118,6 +173,14 @@
                                     <tr>
                                         <td><span class="p-column-title">Title</span>{{ notif.title }}</td>
                                         <td><span class="p-column-title">Target</span>{{ notif.targetGroup }}</td>
+                                        <td>
+                                            <span class="p-column-title">Content</span>
+                                            <span *ngIf="notif.contentType">
+                                                <p-tag [value]="notif.contentType" [severity]="notif.contentType === 'song' ? 'success' : (notif.contentType === 'album' ? 'warning' : 'info')"></p-tag>
+                                                <small *ngIf="notif.contentTitle" style="margin-left: 0.5rem;">{{ notif.contentTitle | slice:0:20 }}{{ notif.contentTitle?.length > 20 ? '...' : '' }}</small>
+                                            </span>
+                                            <span *ngIf="!notif.contentType" class="text-muted">&mdash;</span>
+                                        </td>
                                         <td>
                                             <span class="p-column-title">Status</span>
                                             <p-tag [value]="notif.status"

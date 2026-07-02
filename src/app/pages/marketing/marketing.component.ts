@@ -24,10 +24,23 @@ export class MarketingComponent implements OnInit {
         { label: 'Regular Users', value: 'USER' },
         { label: 'Administrators', value: 'ADMIN' }
     ];
+    contentTypes = [
+        { label: 'None', value: null },
+        { label: 'Song', value: 'song' },
+        { label: 'Album', value: 'album' },
+        { label: 'Playlist', value: 'playlist' }
+    ];
+    contentItems: any[] = [];
+    selectedContentItem: any = null;
+    isContentLoading = false;
+    contentSearchQuery = '';
     newNotif = {
         title: '',
         body: '',
-        targetGroup: 'ALL'
+        targetGroup: 'ALL',
+        contentType: null as string | null,
+        contentId: '',
+        contentTitle: ''
     };
     selectedNotifImage: File | null = null;
     notifImagePreview: string | null = null;
@@ -111,10 +124,49 @@ export class MarketingComponent implements OnInit {
         this.marketingService.draftNotification(this.newNotif, this.selectedNotifImage || undefined).subscribe(() => {
             this.messageService.add({ severity: 'success', summary: 'Draft Saved' });
             this.loadNotifications();
-            this.newNotif = { title: '', body: '', targetGroup: 'ALL' };
+            this.newNotif = { title: '', body: '', targetGroup: 'ALL', contentType: null, contentId: '', contentTitle: '' };
             this.selectedNotifImage = null;
             this.notifImagePreview = null;
+            this.selectedContentItem = null;
+            this.contentItems = [];
+            this.contentSearchQuery = '';
         });
+    }
+
+    onContentTypeChange() {
+        this.contentItems = [];
+        this.selectedContentItem = null;
+        this.newNotif.contentId = '';
+        this.newNotif.contentTitle = '';
+        this.contentSearchQuery = '';
+        if (this.newNotif.contentType) {
+            this.loadContentItems();
+        }
+    }
+
+    loadContentItems() {
+        if (!this.newNotif.contentType) return;
+        this.isContentLoading = true;
+        this.marketingService.getContentItems(this.newNotif.contentType, this.contentSearchQuery || undefined).subscribe({
+            next: (items) => {
+                this.contentItems = items;
+                this.isContentLoading = false;
+            },
+            error: () => {
+                this.contentItems = [];
+                this.isContentLoading = false;
+            }
+        });
+    }
+
+    onContentItemSelected() {
+        if (this.selectedContentItem) {
+            this.newNotif.contentId = this.selectedContentItem.id;
+            this.newNotif.contentTitle = this.selectedContentItem.title;
+        } else {
+            this.newNotif.contentId = '';
+            this.newNotif.contentTitle = '';
+        }
     }
 
     onSendNotif(id: string) {

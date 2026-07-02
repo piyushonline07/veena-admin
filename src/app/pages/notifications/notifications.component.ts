@@ -97,6 +97,33 @@ export class NotificationsComponent implements OnInit {
     this.showDetailsDialog = true;
   }
 
+  getContentTypeLabel(type: string): string {
+    switch (type) {
+      case 'song': return 'Song';
+      case 'album': return 'Album';
+      case 'playlist': return 'Playlist';
+      default: return type;
+    }
+  }
+
+  getContentTypeIcon(type: string): string {
+    switch (type) {
+      case 'song': return 'pi pi-play';
+      case 'album': return 'pi pi-th-large';
+      case 'playlist': return 'pi pi-list';
+      default: return 'pi pi-link';
+    }
+  }
+
+  getContentTypeSeverity(type: string): string {
+    switch (type) {
+      case 'song': return 'success';
+      case 'album': return 'warning';
+      case 'playlist': return 'info';
+      default: return 'info';
+    }
+  }
+
   onSendNotif(id: string) {
     if (!this.notificationsEnabled) return;
     this.marketingService.sendNotification(id).subscribe(() => {
