@@ -39,7 +39,7 @@
                 <p-dropdown [options]="artistsList" [(ngModel)]="selectedArtistId"
                     optionLabel="name" optionValue="id" placeholder="All Artists"
                     [showClear]="true" [filter]="true" filterPlaceholder="Search artists..."
-                    (onChange)="onFilterChange()"
+                    (onChange)="onFilterChange()" (onFilter)="onArtistFilter($event)"
                     styleClass="filter-dropdown">
                 </p-dropdown>
             </div>
@@ -48,7 +48,7 @@
                 <p-dropdown [options]="albumsList" [(ngModel)]="selectedAlbumId"
                     optionLabel="name" optionValue="id" placeholder="All Albums"
                     [showClear]="true" [filter]="true" filterPlaceholder="Search albums..."
-                    (onChange)="onFilterChange()"
+                    (onChange)="onFilterChange()" (onFilter)="onAlbumFilter($event)"
                     styleClass="filter-dropdown">
                 </p-dropdown>
             </div>
@@ -280,6 +280,7 @@
                     <p-dropdown [options]="artistsList" [(ngModel)]="selectedMedia.artistId"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Main Artist" [showClear]="true" [filter]="true"
+                        (onFilter)="onArtistFilter($event)"
                         class="w-full" id="artist">
                     </p-dropdown>
                     <small class="text-secondary">Current: {{selectedMedia.artist?.name || 'None'}}</small>
@@ -289,6 +290,7 @@
                     <p-multiSelect [options]="artistsList" [(ngModel)]="selectedMedia.subArtistIds"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Featuring Artists" [filter]="true"
+                        (onFilter)="onArtistFilter($event)"
                         display="chip" class="w-full" id="subArtists">
                     </p-multiSelect>
                     <small class="text-secondary">Artists featured in this song</small>
@@ -298,6 +300,7 @@
                     <p-dropdown [options]="albumsList" [(ngModel)]="selectedMedia.albumId"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Album" [showClear]="true" [filter]="true"
+                        (onFilter)="onAlbumFilter($event)"
                         class="w-full" id="album">
                     </p-dropdown>
                     <small class="text-secondary">Current: {{selectedMedia.album?.name || 'None'}}</small>
@@ -320,6 +323,7 @@
                     <p-dropdown [options]="composersList" [(ngModel)]="selectedMedia.composerId"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Composer" [showClear]="true" [filter]="true"
+                        (onFilter)="onComposerFilter($event)"
                         class="w-full" id="composerId">
                     </p-dropdown>
                     <small class="text-secondary">Music composer</small>
@@ -329,6 +333,7 @@
                     <p-dropdown [options]="lyricistsList" [(ngModel)]="selectedMedia.lyricistId"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Lyricist" [showClear]="true" [filter]="true"
+                        (onFilter)="onLyricistFilter($event)"
                         class="w-full" id="lyricistId">
                     </p-dropdown>
                     <small class="text-secondary">Lyrics writer</small>
@@ -338,6 +343,7 @@
                     <p-dropdown [options]="producersList" [(ngModel)]="selectedMedia.producerId"
                         optionLabel="name" optionValue="id"
                         placeholder="Select Producer" [showClear]="true" [filter]="true"
+                        (onFilter)="onProducerFilter($event)"
                         class="w-full" id="producerId">
                     </p-dropdown>
                     <small class="text-secondary">Music producer</small>

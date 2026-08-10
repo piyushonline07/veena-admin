@@ -4,6 +4,8 @@ import { ArtistService } from '../../core/service/artist.service';
 import { AlbumService } from '../../core/service/album.service';
 import { CreditService, Credit } from '../../core/service/credit.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-media-list',
@@ -121,6 +123,124 @@ export class MediaListComponent implements OnInit {
             error: () => {
                 console.error('Failed to load albums');
             }
+        });
+    }
+
+    // ==================== Server-Side Search for Dropdowns ====================
+
+    onArtistFilter(event: any): void {
+        const query = event.filter?.trim();
+        if (!query) {
+            // Reset to initial list when filter is cleared
+            this.loadArtistsAndAlbumsArtistsOnly();
+            return;
+        }
+        this.artistService.getArtists(0, 50, query).subscribe({
+            next: (data) => {
+                this.artistsList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to search artists');
+            }
+        });
+    }
+
+    onAlbumFilter(event: any): void {
+        const query = event.filter?.trim();
+        if (!query) {
+            this.loadArtistsAndAlbumsAlbumsOnly();
+            return;
+        }
+        this.albumService.getAlbums(0, 50, query).subscribe({
+            next: (data) => {
+                this.albumsList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to search albums');
+            }
+        });
+    }
+
+    onComposerFilter(event: any): void {
+        const query = event.filter?.trim();
+        if (!query) {
+            this.loadCreditsComposersOnly();
+            return;
+        }
+        this.creditService.getCredits(0, 50, 'COMPOSER', query).subscribe({
+            next: (data) => {
+                this.composersList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to search composers');
+            }
+        });
+    }
+
+    onLyricistFilter(event: any): void {
+        const query = event.filter?.trim();
+        if (!query) {
+            this.loadCreditsLyricistsOnly();
+            return;
+        }
+        this.creditService.getCredits(0, 50, 'LYRICIST', query).subscribe({
+            next: (data) => {
+                this.lyricistsList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to search lyricists');
+            }
+        });
+    }
+
+    onProducerFilter(event: any): void {
+        const query = event.filter?.trim();
+        if (!query) {
+            this.loadCreditsProducersOnly();
+            return;
+        }
+        this.creditService.getCredits(0, 50, 'PRODUCER', query).subscribe({
+            next: (data) => {
+                this.producersList = data.content || [];
+            },
+            error: () => {
+                console.error('Failed to search producers');
+            }
+        });
+    }
+
+    private loadArtistsAndAlbumsArtistsOnly(): void {
+        this.artistService.getArtists(0, 100).subscribe({
+            next: (data) => { this.artistsList = data.content || []; },
+            error: () => { console.error('Failed to load artists'); }
+        });
+    }
+
+    private loadArtistsAndAlbumsAlbumsOnly(): void {
+        this.albumService.getAlbums(0, 100).subscribe({
+            next: (data) => { this.albumsList = data.content || []; },
+            error: () => { console.error('Failed to load albums'); }
+        });
+    }
+
+    private loadCreditsComposersOnly(): void {
+        this.creditService.getAllComposers().subscribe({
+            next: (data) => { this.composersList = data || []; },
+            error: () => { console.error('Failed to load composers'); }
+        });
+    }
+
+    private loadCreditsLyricistsOnly(): void {
+        this.creditService.getAllLyricists().subscribe({
+            next: (data) => { this.lyricistsList = data || []; },
+            error: () => { console.error('Failed to load lyricists'); }
+        });
+    }
+
+    private loadCreditsProducersOnly(): void {
+        this.creditService.getAllProducers().subscribe({
+            next: (data) => { this.producersList = data || []; },
+            error: () => { console.error('Failed to load producers'); }
         });
     }
 
